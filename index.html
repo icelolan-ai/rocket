@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rocket — Treatment Dynamics</title>
+<meta name="description" content="Visual design landing page: dark minimal hero, clinical timeline dashboard and contact form.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600&family=Noto+Sans+Thai:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<!-- 01 HERO -->
+<section class="screen hero" id="top">
+  <header class="nav">
+    <a class="logo" href="#top" aria-label="Rocket">RO<br>CK</a>
+    <nav>
+      <a href="#dynamics">Dynamics</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </header>
+  <div class="hero-body">
+    <p class="eyebrow">I am</p>
+    <h1>ROCKET</h1>
+    <p class="sub">A visual design<br>for modern care</p>
+  </div>
+  <ul class="social" aria-label="Social">
+    <li><a href="#" aria-label="Facebook">f</a></li>
+    <li><a href="#" aria-label="Twitter">t</a></li>
+    <li><a href="#" aria-label="Instagram">in</a></li>
+  </ul>
+  <a class="scroll" href="#dynamics"><span>Scroll</span><i></i></a>
+  <span class="index">.01</span>
+</section>
+
+<!-- 02 DASHBOARD -->
+<section class="screen light" id="dynamics">
+  <div class="device">
+    <div class="topbar">
+      <button class="close" aria-label="Close">&times;</button>
+      <h2>Cardiology</h2>
+      <div class="tabs" role="tablist">
+        <button class="pill active" role="tab">Treatment Dynamics</button>
+        <button class="pill" role="tab">Visits</button>
+        <button class="pill" role="tab">Medications</button>
+        <button class="pill" role="tab">Labs</button>
+        <button class="pill" role="tab">Allergies</button>
+        <button class="pill" role="tab">Genetics</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="summary">
+        <div class="patient">
+          <img src="assets/patient.svg" alt="" width="84" height="84">
+          <div><small>Female, 24</small><strong>Tiffany<br>Woodward</strong></div>
+        </div>
+        <div class="vitals">
+          <div><small>Diagnosys</small><span class="v dx">Hypertension</span></div>
+          <div><small>Heart Rate</small><span class="v">89 <em>bpm</em></span></div>
+          <div><small>Pressure</small><span class="v">100<em>/ 67</em></span></div>
+          <div><small>Oxygen</small><span class="v">98 <em>%</em></span></div>
+          <div><small>Temperature</small><span class="v">36.8 <em>°C</em></span></div>
+        </div>
+        <div class="filters">
+          <button class="round" aria-label="Filters">⚙</button>
+          <button class="chip on">Office Visits</button>
+          <button class="chip on">Medications</button>
+          <button class="chip on">Labs</button>
+          <button class="chip">Procedures</button>
+          <button class="chip">Hospitalizations</button>
+          <button class="chip">Imaging</button>
+        </div>
+      </div>
+
+      <div class="timeline">
+        <div class="line"></div>
+        <div class="months">
+          <article class="month">
+            <span class="node" aria-hidden="true">▤</span>
+            <header><h3>Aug</h3><small>I Week</small></header>
+            <div class="meds"><span class="med"><b>◌</b>Aspirin <em>x2</em></span></div>
+            <div class="card">
+              <h4>Blood Pressure</h4>
+              <span class="day">Friday</span>
+              <svg viewBox="0 0 200 56" preserveAspectRatio="none" class="wave" aria-hidden="true">
+                <path d="M0 18 C30 4 55 10 85 16 S140 30 170 12 L200 10 V30 C170 40 140 44 110 42 S40 38 0 40Z" fill="#e6f23a"/>
+                <path d="M0 40 C40 36 70 46 110 42 S170 40 200 30 V44 C170 54 120 54 80 50 S30 50 0 48Z" fill="#b9b9b2"/>
+              </svg>
+              <span class="reading">180<i>/120</i></span>
+              <footer><span>Average: <b>160</b><i>/110</i></span><span class="delta up">+10 ▴</span></footer>
+            </div>
+            <div class="card symptoms">
+              <h4>Symptoms</h4>
+              <span class="tag">Headache</span>
+              <span class="dot"></span>
+            </div>
+          </article>
+
+          <article class="month">
+            <span class="node" aria-hidden="true">▤</span>
+            <header><h3>Sep</h3><small>I Week</small></header>
+            <div class="meds">
+              <span class="med"><b>◌</b>bisoprolol <em>x3</em></span>
+              <span class="med"><b>◌</b>Aspirin <em>x2</em></span>
+            </div>
+            <div class="card">
+              <h4>Blood Pressure</h4>
+              <span class="day">Thursday</span>
+              <svg viewBox="0 0 200 56" preserveAspectRatio="none" class="wave" aria-hidden="true">
+                <path d="M0 26 C30 22 55 28 85 26 S140 24 170 22 L200 24 V32 C170 38 140 42 110 40 S40 38 0 40Z" fill="#e6f23a"/>
+                <path d="M0 40 C40 38 70 44 110 40 S170 40 200 34 V44 C170 50 120 50 80 48 S30 48 0 46Z" fill="#b9b9b2"/>
+              </svg>
+              <span class="reading">135<i>/92</i></span>
+              <footer><span>Average: <b>130</b><i>/90</i></span><span class="delta down">-20 ▾</span></footer>
+            </div>
+            <div class="card ecg">
+              <h4>ECG</h4>
+              <svg viewBox="0 0 240 40" aria-hidden="true"><path d="M0 24h50l6-12 6 22 6-26 6 16h60l6-10 6 18 6-18 6 10h82" fill="none" stroke="#2c2d2f" stroke-width="1.6"/></svg>
+            </div>
+          </article>
+        </div>
+        <button class="add" aria-label="Add event">+</button>
+      </div>
+
+      <div class="scrubber" aria-label="Timeline">
+        <span class="year">Jan<br><b>2022</b></span>
+        <ol>
+          <li>Feb</li><li>Mar</li><li>Apr <i>2</i></li><li>May</li><li>Jun</li><li>Jul <i>6</i></li>
+          <li class="sel">Aug <i>4</i></li><li class="sel">Sep <i>2</i></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <span class="index">.02</span>
+</section>
+
+<!-- 03 CONTACT -->
+<section class="screen contact" id="contact">
+  <header class="nav">
+    <a class="logo" href="#top" aria-label="Rocket">RO<br>CK</a>
+    <nav><a href="#dynamics">Dynamics</a><a href="#contact">Contact</a></nav>
+  </header>
+  <div class="contact-grid">
+    <div class="info">
+      <h2>CONTACT</h2>
+      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.</p>
+      <dl>
+        <dt>Address</dt><dd>Bangkok, Thailand</dd>
+        <dt>Phone</dt><dd>+66 80 123 45 67</dd>
+        <dt>E-mail</dt><dd>hello@rocket.example</dd>
+      </dl>
+    </div>
+    <form class="form" id="form" novalidate>
+      <h2>CONTACT FORM</h2>
+      <label><input name="name" placeholder="Your name" required></label>
+      <label><input name="phone" placeholder="Your phone" type="tel"></label>
+      <label><input name="email" placeholder="Your e-mail" type="email" required></label>
+      <label><textarea name="message" rows="2" placeholder="Message"></textarea></label>
+      <button type="submit">Send message <span>+</span></button>
+      <p class="status" role="status" aria-live="polite"></p>
+    </form>
+  </div>
+  <span class="index">.03</span>
+</section>
+
+<footer class="end">
+  <small>The end</small>
+  <strong>THANKS FOR WATCHING!</strong>
+</footer>
+
+<script src="assets/main.js"></script>
+</body>
+</html>
