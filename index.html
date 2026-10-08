@@ -35,103 +35,111 @@
   <span class="index">.01</span>
 </section>
 
-<!-- 02 DASHBOARD -->
+<!-- 02 ROCKET HUD -->
 <section class="screen light" id="dynamics">
   <div class="device">
     <div class="topbar">
       <button class="close" aria-label="Close">&times;</button>
-      <h2>Cardiology</h2>
+      <h2>Rocket Lab</h2>
       <div class="tabs" role="tablist">
-        <button class="pill active" role="tab">Treatment Dynamics</button>
-        <button class="pill" role="tab">Visits</button>
-        <button class="pill" role="tab">Medications</button>
-        <button class="pill" role="tab">Labs</button>
-        <button class="pill" role="tab">Allergies</button>
-        <button class="pill" role="tab">Genetics</button>
+        <button class="pill active" role="tab">Assembly</button>
+        <button class="pill" role="tab">Parts</button>
+        <button class="pill" role="tab">Colors</button>
+        <button class="pill" role="tab">Specs</button>
+        <button class="pill" role="tab">Mission</button>
+        <button class="pill" role="tab">Gallery</button>
       </div>
     </div>
 
-    <div class="panel">
-      <div class="summary">
-        <div class="patient">
-          <img src="assets/patient.svg" alt="" width="84" height="84">
-          <div><small>Female, 24</small><strong>Tiffany<br>Woodward</strong></div>
+    <div class="panel hud">
+      <div class="ghost" aria-hidden="true">01</div>
+
+      <!-- left: ruler, tag, specs, social -->
+      <aside class="hud-left">
+        <div class="ruler" aria-hidden="true"></div>
+        <div class="tag"><small>Rocket design dept.</small><strong>R1</strong><span>TITANIUM ALLOY</span></div>
+        <div class="specs">
+          <h3>ORBITAL VEHICLE — MODEL RKT-01</h3>
+          <div class="bar"><span>Thrust</span><i style="--w:82%"></i><b>82</b></div>
+          <div class="bar"><span>Stages</span><i style="--w:40%"></i><b>02</b></div>
+          <div class="bar"><span>Payload</span><i style="--w:64%"></i><b>64</b></div>
         </div>
-        <div class="vitals">
-          <div><small>Diagnosys</small><span class="v dx">Hypertension</span></div>
-          <div><small>Heart Rate</small><span class="v">89 <em>bpm</em></span></div>
-          <div><small>Pressure</small><span class="v">100<em>/ 67</em></span></div>
-          <div><small>Oxygen</small><span class="v">98 <em>%</em></span></div>
-          <div><small>Temperature</small><span class="v">36.8 <em>°C</em></span></div>
-        </div>
-        <div class="filters">
-          <button class="round" aria-label="Filters">⚙</button>
-          <button class="chip on">Office Visits</button>
-          <button class="chip on">Medications</button>
-          <button class="chip on">Labs</button>
-          <button class="chip">Procedures</button>
-          <button class="chip">Hospitalizations</button>
-          <button class="chip">Imaging</button>
-        </div>
+        <ul class="hud-social" aria-label="Social">
+          <li><a href="#" aria-label="Facebook">f</a></li>
+          <li><a href="#" aria-label="Twitter">t</a></li>
+          <li><a href="#" aria-label="YouTube">▶</a></li>
+        </ul>
+      </aside>
+
+      <!-- center: rocket stage (placeholder for future 3D model) -->
+      <div class="stage" id="stage">
+        <svg viewBox="0 -50 600 600" role="img" aria-label="Rocket model, parts can be separated and recoloured">
+          <defs>
+            <linearGradient id="shade" x1="0" x2="1">
+              <stop offset="0" stop-color="#000" stop-opacity=".45"/>
+              <stop offset=".35" stop-color="#fff" stop-opacity=".25"/>
+              <stop offset=".6" stop-color="#000" stop-opacity="0"/>
+              <stop offset="1" stop-color="#000" stop-opacity=".55"/>
+            </linearGradient>
+            <path id="s-nose" d="M300 30C320 62 335 100 335 130H265C265 100 280 62 300 30Z"/>
+            <rect id="s-payload" x="265" y="132" width="70" height="60"/>
+            <rect id="s-tank1" x="265" y="194" width="70" height="90"/>
+            <rect id="s-tank2" x="265" y="286" width="70" height="90"/>
+            <path id="s-finL" d="M263 330L212 410V432L263 380Z"/>
+            <path id="s-finR" d="M337 330L388 410V432L337 380Z"/>
+            <path id="s-engine" d="M280 378H320L336 444H264Z"/>
+          </defs>
+          <line class="axis" x1="300" y1="-50" x2="300" y2="550"/>
+
+          <g class="part" data-part="nose" style="--dy:-70px">
+            <use href="#s-nose" class="base"/><use href="#s-nose" fill="url(#shade)"/>
+            <g class="lbl" data-part="nose"><path d="M285 70H190"/><rect x="60" y="52" width="130" height="36"/><text x="70" y="68">NOSE CONE</text><text x="70" y="81" class="mut">RKT-N01</text></g>
+          </g>
+          <g class="part" data-part="payload" style="--dy:-35px">
+            <use href="#s-payload" class="base"/><use href="#s-payload" fill="url(#shade)"/>
+            <circle cx="300" cy="162" r="13" class="win"/>
+            <g class="lbl" data-part="payload"><path d="M335 150H410"/><rect x="410" y="132" width="130" height="36"/><text x="420" y="148">PAYLOAD BAY</text><text x="420" y="161" class="mut">RKT-P02</text></g>
+          </g>
+          <g class="part" data-part="tank1" style="--dy:0px">
+            <use href="#s-tank1" class="base"/><use href="#s-tank1" fill="url(#shade)"/>
+            <path d="M265 224H335M265 254H335" class="band"/>
+            <g class="lbl" data-part="tank1"><path d="M265 240H190"/><rect x="60" y="222" width="130" height="36"/><text x="70" y="238">FUEL TANK A</text><text x="70" y="251" class="mut">RKT-T03</text></g>
+          </g>
+          <g class="part" data-part="tank2" style="--dy:35px">
+            <use href="#s-tank2" class="base"/><use href="#s-tank2" fill="url(#shade)"/>
+            <path d="M265 316H335M265 346H335" class="band"/>
+            <g class="lbl" data-part="tank2"><path d="M335 330H410"/><rect x="410" y="312" width="130" height="36"/><text x="420" y="328">FUEL TANK B</text><text x="420" y="341" class="mut">RKT-T04</text></g>
+          </g>
+          <g class="part fins" data-part="fins" style="--dy:45px">
+            <g class="finL"><use href="#s-finL" class="base"/><use href="#s-finL" fill="url(#shade)"/></g>
+            <g class="finR"><use href="#s-finR" class="base"/><use href="#s-finR" fill="url(#shade)"/></g>
+            <g class="lbl" data-part="fins"><path d="M240 400H190"/><rect x="60" y="382" width="130" height="36"/><text x="70" y="398">STABILIZER FINS</text><text x="70" y="411" class="mut">RKT-F05</text></g>
+          </g>
+          <g class="part" data-part="engine" style="--dy:90px">
+            <use href="#s-engine" class="base"/><use href="#s-engine" fill="url(#shade)"/>
+            <g class="lbl" data-part="engine"><path d="M330 420H410"/><rect x="410" y="402" width="130" height="36"/><text x="420" y="418">MAIN ENGINE</text><text x="420" y="431" class="mut">RKT-E06</text></g>
+          </g>
+        </svg>
+        <p class="note">3D model placeholder — coming soon</p>
       </div>
 
-      <div class="timeline">
-        <div class="line"></div>
-        <div class="months">
-          <article class="month">
-            <span class="node" aria-hidden="true">▤</span>
-            <header><h3>Aug</h3><small>I Week</small></header>
-            <div class="meds"><span class="med"><b>◌</b>Aspirin <em>x2</em></span></div>
-            <div class="card">
-              <h4>Blood Pressure</h4>
-              <span class="day">Friday</span>
-              <svg viewBox="0 0 200 56" preserveAspectRatio="none" class="wave" aria-hidden="true">
-                <path d="M0 18 C30 4 55 10 85 16 S140 30 170 12 L200 10 V30 C170 40 140 44 110 42 S40 38 0 40Z" fill="#e6f23a"/>
-                <path d="M0 40 C40 36 70 46 110 42 S170 40 200 30 V44 C170 54 120 54 80 50 S30 50 0 48Z" fill="#b9b9b2"/>
-              </svg>
-              <span class="reading">180<i>/120</i></span>
-              <footer><span>Average: <b>160</b><i>/110</i></span><span class="delta up">+10 ▴</span></footer>
-            </div>
-            <div class="card symptoms">
-              <h4>Symptoms</h4>
-              <span class="tag">Headache</span>
-              <span class="dot"></span>
-            </div>
-          </article>
-
-          <article class="month">
-            <span class="node" aria-hidden="true">▤</span>
-            <header><h3>Sep</h3><small>I Week</small></header>
-            <div class="meds">
-              <span class="med"><b>◌</b>bisoprolol <em>x3</em></span>
-              <span class="med"><b>◌</b>Aspirin <em>x2</em></span>
-            </div>
-            <div class="card">
-              <h4>Blood Pressure</h4>
-              <span class="day">Thursday</span>
-              <svg viewBox="0 0 200 56" preserveAspectRatio="none" class="wave" aria-hidden="true">
-                <path d="M0 26 C30 22 55 28 85 26 S140 24 170 22 L200 24 V32 C170 38 140 42 110 40 S40 38 0 40Z" fill="#e6f23a"/>
-                <path d="M0 40 C40 38 70 44 110 40 S170 40 200 34 V44 C170 50 120 50 80 48 S30 48 0 46Z" fill="#b9b9b2"/>
-              </svg>
-              <span class="reading">135<i>/92</i></span>
-              <footer><span>Average: <b>130</b><i>/90</i></span><span class="delta down">-20 ▾</span></footer>
-            </div>
-            <div class="card ecg">
-              <h4>ECG</h4>
-              <svg viewBox="0 0 240 40" aria-hidden="true"><path d="M0 24h50l6-12 6 22 6-26 6 16h60l6-10 6 18 6-18 6 10h82" fill="none" stroke="#2c2d2f" stroke-width="1.6"/></svg>
-            </div>
-          </article>
+      <!-- right: menu, controls -->
+      <aside class="hud-right">
+        <nav class="hud-nav" aria-label="Menu">
+          <a href="#dynamics">Models <i>+</i></a><a href="#dynamics">Parts <i>+</i></a><a href="#dynamics">About <i>+</i></a><a href="#contact">Contacts <i>+</i></a>
+        </nav>
+        <div class="selector"><span>MODEL</span><b>[ 01 ]</b></div>
+        <div class="info">
+          <small>ROCKET — MODEL / RKT-01</small>
+          <p>Two-stage orbital vehicle. Select a part to inspect it, recolour it, or separate the whole assembly to see every component.</p>
         </div>
-        <button class="add" aria-label="Add event">+</button>
-      </div>
-
-      <div class="scrubber" aria-label="Timeline">
-        <span class="year">Jan<br><b>2022</b></span>
-        <ol>
-          <li>Feb</li><li>Mar</li><li>Apr <i>2</i></li><li>May</li><li>Jun</li><li>Jul <i>6</i></li>
-          <li class="sel">Aug <i>4</i></li><li class="sel">Sep <i>2</i></li>
-        </ol>
-      </div>
+        <ul class="parts" id="parts" aria-label="Parts"></ul>
+        <div class="swatches" id="swatches" aria-label="Part colour"></div>
+        <div class="actions">
+          <button class="btn primary" id="explode" aria-pressed="false">Disassemble</button>
+          <button class="btn" id="reset">Reset colors</button>
+        </div>
+      </aside>
     </div>
   </div>
   <span class="index">.02</span>
