@@ -37,3 +37,6 @@ path ทั้งหมดเป็น relative จึงใช้ได้ท�
 6. Part Gallery: "วางแทนในลำที่เปิดอยู่" ใช้ได้กับโมดูลที่มี node เดียวในลำนั้น (`IS`, `PL`, `S2`, `S1_TNK`, `S1_AFT`, Saturn V modules บน Saturn V) และชิ้นสลับ slot; `S1_LEG`/`ENG_M1D*` (หลาย instance) ดูอย่างเดียว; Saturn V ไม่มีชิ้นร่วมกับ Falcon
 
 ขนาดบางส่วนเป็นค่าประมาณ — ดูระดับ `accuracy` (documented / standard-based / representative) ของแต่ละชิ้นเสมอ
+
+## ภาษา (EN / TH)
+ทั้งหน้าแรกและ `viewer.html` มีปุ่ม EN / TH (ค่าเริ่มต้นคือ English, จำค่าที่เลือกใน `localStorage` คีย์ `rocket3d:lang`) ข้อความอยู่ใน `rocket3d/i18n.js` — ข้อความ static ใช้ `data-i18n` / `data-i18n-attr` ส่วนข้อความจาก JS ใช้ `t('key')` ชื่อชิ้นส่วนใช้ `name_en` / `name_th` จาก manifest ตามภาษา

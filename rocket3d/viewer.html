@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="th">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Rocket — 3D Rocket Viewer</title>
-<meta name="description" content="ดู ถอดแยก เปลี่ยนสี และสลับชิ้นส่วนจรวด Falcon 9, Falcon Heavy และ Saturn V แบบ 3 มิติ">
+<meta name="description" content="Explore, disassemble, recolor and swap parts of Falcon 9, Falcon Heavy and Saturn V in 3D">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600&family=Noto+Sans+Thai:wght@300;400;500&display=swap" rel="stylesheet">
@@ -18,50 +18,51 @@
 </head>
 <body>
 <header class="bar">
-  <a class="logo" href="../index.html" aria-label="กลับหน้าหลัก Rocket">RO<br>CK</a>
-  <h1>3D Rocket Viewer</h1>
-  <div class="tabs" role="tablist" aria-label="โหมด">
-    <button id="tab-viewer" class="tab on" role="tab" aria-selected="true" aria-controls="stage">จรวดทั้งลำ</button>
-    <button id="tab-gallery" class="tab" role="tab" aria-selected="false" aria-controls="stage">Part Gallery</button>
+  <a class="logo" href="../index.html" data-i18n-attr="aria-label:v.home">RO<br>CK</a>
+  <h1 data-i18n="v.title">3D Rocket Viewer</h1>
+  <div class="tabs" role="tablist" data-i18n-attr="aria-label:v.modes">
+    <button id="tab-viewer" class="tab on" role="tab" aria-selected="true" aria-controls="stage" data-i18n="v.tab.viewer">Whole rocket</button>
+    <button id="tab-gallery" class="tab" role="tab" aria-selected="false" aria-controls="stage" data-i18n="v.tab.gallery">Part Gallery</button>
   </div>
-  <a class="back" href="../index.html">← หน้าหลัก</a>
+  <button class="lang" data-lang-btn type="button" aria-label="Language"><span data-l="en" class="on">EN</span><i>/</i><span data-l="th">TH</span></button>
+  <a class="back" href="../index.html" data-i18n="v.back">← Home</a>
 </header>
 
 <main class="app">
   <!-- left: controls -->
-  <aside class="panel left" aria-label="ตัวควบคุม">
+  <aside class="panel left" data-i18n-attr="aria-label:v.controls">
     <section id="sec-vehicle">
-      <h2>จรวด</h2>
-      <div class="seg" id="vehicles" role="radiogroup" aria-label="เลือกจรวด"></div>
-      <label class="field">Variant
-        <select id="variant" aria-label="Variant"></select>
+      <h2 data-i18n="cu.rocket">Rocket</h2>
+      <div class="seg" id="vehicles" role="radiogroup" data-i18n-attr="aria-label:cu.rocket.aria"></div>
+      <label class="field"><span data-i18n="cu.variant">Variant</span>
+        <select id="variant" data-i18n-attr="aria-label:cu.variant"></select>
       </label>
     </section>
 
     <section id="sec-gallery" hidden>
-      <h2>โมดูล <small>จากทุกลำ</small></h2>
+      <h2><span data-i18n="v.modules">Modules</span> <small data-i18n="v.fromAll">from every rocket</small></h2>
       <ul id="gallery-list" class="plist"></ul>
     </section>
 
     <section id="sec-explode">
-      <h2>ถอดแยกชิ้นส่วน</h2>
-      <label class="field">ระดับ (0–1)
-        <input id="explode" type="range" min="0" max="1" step="0.001" value="0" aria-label="ระดับการถอดแยก">
+      <h2 data-i18n="v.explode">Disassemble</h2>
+      <label class="field"><span data-i18n="v.level">Level (0–1)</span>
+        <input id="explode" type="range" min="0" max="1" step="0.001" value="0" data-i18n-attr="aria-label:cu.explode.slider">
         <output id="explode-out">0.00</output>
       </label>
       <div class="row">
-        <button class="btn primary" id="explode-anim" aria-pressed="false">ถอดแยก</button>
-        <button class="btn" id="explode-zero">ประกอบกลับ</button>
+        <button class="btn primary" id="explode-anim" aria-pressed="false" data-i18n="v.explodeBtn">Disassemble</button>
+        <button class="btn" id="explode-zero" data-i18n="v.assemble">Assemble</button>
       </div>
-      <label class="check"><input type="checkbox" id="stagger"> ทยอยถอดตามลำดับ (stagger)</label>
-      <label class="field">ขอบเขต
-        <select id="scope" aria-label="ขอบเขตการถอด"></select>
+      <label class="check"><input type="checkbox" id="stagger"> <span data-i18n="v.stagger">Stagger by assembly order</span></label>
+      <label class="field"><span data-i18n="v.scope">Scope</span>
+        <select id="scope" data-i18n-attr="aria-label:v.scopeAria"></select>
       </label>
     </section>
 
     <section id="sec-parts">
-      <h2>รายการชิ้นส่วน <small id="parts-count"></small></h2>
-      <input id="parts-search" type="search" placeholder="ค้นหาชิ้นส่วน / part id" aria-label="ค้นหาชิ้นส่วน">
+      <h2><span data-i18n="v.partsList">Parts</span> <small id="parts-count"></small></h2>
+      <input id="parts-search" type="search" data-i18n-attr="placeholder:cu.search,aria-label:cu.search">
       <ul id="parts-list" class="plist"></ul>
     </section>
 
@@ -69,23 +70,23 @@
 
   <!-- center: canvas -->
   <section class="stage" id="stage">
-    <canvas id="gl" tabindex="0" aria-label="โมเดลจรวด 3 มิติ ลากเพื่อหมุน ล้อเมาส์เพื่อซูม คลิกเพื่อเลือกชิ้นส่วน"></canvas>
+    <canvas id="gl" tabindex="0" data-i18n-attr="aria-label:v.canvas"></canvas>
     <div id="tooltip" class="tooltip" hidden></div>
-    <div id="loading" class="loading" role="status"><i></i><span>กำลังโหลด…</span></div>
+    <div id="loading" class="loading" role="status"><i></i><span data-i18n="v.loading">Loading…</span></div>
     <div class="hud-top">
       <button class="btn" id="reset-view">Reset view</button>
-      <button class="btn" id="show-all">แสดงทุกชิ้น</button>
+      <button class="btn" id="show-all" data-i18n="v.showAll">Show all</button>
     </div>
     <p id="notice" class="notice" role="status" aria-live="polite" hidden></p>
-    <p class="approx">ขนาดบางส่วนเป็นค่าประมาณ ดูระดับ accuracy ของแต่ละชิ้น</p>
+    <p class="approx" data-i18n="v.approx">Some dimensions are approximate — see each part's accuracy level</p>
   </section>
 
   <!-- right: selection -->
-  <aside class="panel right" aria-label="ชิ้นส่วนที่เลือก">
+  <aside class="panel right" data-i18n-attr="aria-label:v.selected">
     <section id="info">
-      <h2>ชิ้นส่วนที่เลือก</h2>
+      <h2 data-i18n="v.selected">Selected part</h2>
       <div id="info-empty">
-        <p>คลิกที่ชิ้นส่วนในโมเดลหรือเลือกจากรายการ</p>
+        <p data-i18n="v.selectHint">Click a part on the model or pick one from the list.</p>
         <dl class="legend" id="legend"></dl>
       </div>
       <div id="info-body" hidden>
@@ -97,58 +98,58 @@
           <dt>material</dt><dd id="i-mat"></dd>
           <dt>paint zone</dt><dd id="i-zone"></dd>
           <dt>slot</dt><dd id="i-slot"></dd>
-          <dt>จำนวน</dt><dd id="i-qty"></dd>
+          <dt data-i18n="kv.qty">quantity</dt><dd id="i-qty"></dd>
         </dl>
         <div class="row">
           <button class="btn" id="a-isolate">Isolate</button>
-          <button class="btn" id="a-hide">ซ่อน</button>
-          <button class="btn" id="a-clear">ยกเลิกเลือก</button>
+          <button class="btn" id="a-hide" data-i18n="v.hide">Hide</button>
+          <button class="btn" id="a-clear" data-i18n="v.clear">Deselect</button>
         </div>
       </div>
     </section>
 
     <section id="sec-paint">
-      <h2>เปลี่ยนสี</h2>
+      <h2 data-i18n="v.paint">Color</h2>
       <p id="paint-msg" class="msg"></p>
       <div id="paint-ui">
         <div class="row">
-          <input type="color" id="color" value="#f2f2ef" aria-label="เลือกสี">
-          <div id="swatches" class="swatches" aria-label="สีสำเร็จรูป"></div>
+          <input type="color" id="color" value="#f2f2ef" data-i18n-attr="aria-label:v.pick">
+          <div id="swatches" class="swatches" data-i18n-attr="aria-label:cu.swatches"></div>
         </div>
         <fieldset class="scope">
-          <legend>ขอบเขต</legend>
-          <label><input type="radio" name="pscope" value="mesh" checked> ชิ้นนี้</label>
-          <label><input type="radio" name="pscope" value="zone"> ทั้ง paint_zone</label>
-          <label><input type="radio" name="pscope" value="part"> ทุก instance ของ part</label>
+          <legend data-i18n="v.sc.legend">Scope</legend>
+          <label><input type="radio" name="pscope" value="mesh" checked> <span data-i18n="v.sc.mesh">This piece</span></label>
+          <label><input type="radio" name="pscope" value="zone"> <span data-i18n="v.sc.zone">Whole paint_zone</span></label>
+          <label><input type="radio" name="pscope" value="part"> <span data-i18n="v.sc.part">All instances of this part</span></label>
         </fieldset>
-        <label class="check" id="notex-wrap" hidden><input type="checkbox" id="notex"> ปิดลาย texture ของชิ้นนี้ (สี×ลาย)</label>
+        <label class="check" id="notex-wrap" hidden><input type="checkbox" id="notex"> <span data-i18n="v.notex">Disable pattern texture on this part (color × pattern)</span></label>
         <div class="row">
-          <button class="btn" id="paint-reset-part">Reset ชิ้นนี้</button>
-          <button class="btn" id="paint-reset-all">Reset ทั้งหมด</button>
+          <button class="btn" id="paint-reset-part" data-i18n="cu.resetPart">Reset part</button>
+          <button class="btn" id="paint-reset-all" data-i18n="cu.resetAll">Reset all</button>
         </div>
         <div class="row">
-          <button class="btn" id="paint-export">Export JSON</button>
-          <button class="btn" id="paint-import">Import JSON</button>
+          <button class="btn" id="paint-export" data-i18n="v.export">Export JSON</button>
+          <button class="btn" id="paint-import" data-i18n="v.import">Import JSON</button>
           <input type="file" id="paint-file" accept="application/json,.json" hidden>
         </div>
       </div>
     </section>
 
     <section id="sec-slot" hidden>
-      <h2>สลับชิ้นส่วน (slot)</h2>
+      <h2 data-i18n="v.slot">Swap part (slot)</h2>
       <p id="slot-msg" class="msg"></p>
       <div id="slot-ui">
-        <label class="field">ตัวเลือก
-          <select id="slot-select" aria-label="ตัวเลือกของ slot"></select>
+        <label class="field"><span data-i18n="v.option">Option</span>
+          <select id="slot-select" data-i18n-attr="aria-label:v.slotAria"></select>
         </label>
-        <button class="btn primary" id="slot-apply">ใช้ตัวเลือกนี้</button>
+        <button class="btn primary" id="slot-apply" data-i18n="v.apply">Use this option</button>
       </div>
     </section>
 
     <section id="sec-place" hidden>
       <h2>Part Gallery</h2>
       <p id="place-msg" class="msg"></p>
-      <button class="btn primary" id="place-btn" hidden>วางแทนในลำที่เปิดอยู่</button>
+      <button class="btn primary" id="place-btn" hidden data-i18n="v.place">Place into the open rocket</button>
     </section>
   </aside>
 </main>
