@@ -312,7 +312,8 @@ async function choose(key) {
     await loadVehicle(key);
   } else { S.chosen = true; syncChips(); }
   S.rvT0 = performance.now(); S.rv = reduce ? 1 : 0; // camera pans down onto the chosen rocket
-  if (first || scrollY < story.offsetHeight * 0.05) { const span = story.offsetHeight - innerHeight; scrollTo({ top: span * 0.13, behavior: reduce ? 'auto' : 'smooth' }); }
+  // whatever was on screen before, a (new) choice always starts from the whole, assembled rocket
+  { const span = story.offsetHeight - innerHeight, y = span * 0.13; if (first && !reduce) scrollTo({ top: y, behavior: 'smooth' }); else scrollTo({ top: y, behavior: 'instant' }); }
   S.p = trackProgress(); apply(S.p, S.spin);
 }
 for (const v of VEHICLES) {
