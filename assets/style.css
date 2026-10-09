@@ -335,3 +335,11 @@ body.app-page input[type=range]::-webkit-slider-thumb,body.app-page input[type=r
 #hero-chips button:hover{background:var(--accent);border-color:var(--accent);color:#0a0a0a;transform:translateY(-3px)}
 @media (max-width:900px){.stage .scroll-hint{bottom:60px}#hero-chips{flex-direction:column;align-items:stretch;width:min(280px,100%)}#hero-chips button{padding:18px 24px}.hero-go{padding:14px 26px}}
 .stage.away .hero-go{pointer-events:none}
+
+/* Customize page (side-by-side layout): the page itself is locked; only the options list scrolls inside its panel */
+@media (min-width:901px){
+  html:has(body.app-page){overflow:hidden;height:100%;overscroll-behavior:none}
+  body.app-page{position:fixed;inset:0;width:100%;height:100%;overflow:hidden;overscroll-behavior:none}
+  body.app-page .panel{overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+  body.app-page #gl3d{touch-action:none}
+}
