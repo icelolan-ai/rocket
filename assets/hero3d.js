@@ -10,7 +10,10 @@ const stage = $('hero-stage'), canvas = $('gl3d');
 const whenNear = el => new Promise(res => { const io = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { io.disconnect(); res(); } }, { rootMargin: '500px' }); io.observe(el); });
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-const S = { manifest: null, veh: null, model: null, base: null, sel: null, token: 0, dirty: true, anim: null, visible: true, idleAt: 0 };
+const S = { manifest: null, veh: null, model: null, base: null, sel: null, token: 0, dirty: true, anim: null, visible: true, idleAt: 0,
+  p: 0, manual: false, manualCam: false, fBase: null, fEx: null, stepKey: '' };
+const labEl = document.querySelector('#lab .hero'), wrap = $('lab');
+const DIR0 = new THREE.Vector3(0.5, 0.06, 1).normalize();
 let renderer, scene, camera, controls, boxHelper, shadow;
 
 /* ---------------- three.js ---------------- */
@@ -30,9 +33,9 @@ function setup() {
   controls.enableDamping = true;
   controls.dampingFactor = 0.1;
   controls.enableZoom = false; // the wheel would hijack page scroll; enabled once the canvas has focus
-  controls.autoRotate = !reduceMotion;
+  controls.autoRotate = false; // enabled only while the lab is at rest (scroll progress ~0)
   controls.autoRotateSpeed = 0.9;
-  controls.addEventListener('start', () => { controls.autoRotate = false; });
+  controls.addEventListener('start', () => { controls.autoRotate = false; S.manualCam = true; });
   controls.addEventListener('end', () => { S.idleAt = performance.now(); });
   controls.addEventListener('change', invalidate);
   canvas.style.touchAction = 'pan-y'; // vertical swipes still scroll the page on phones
@@ -54,16 +57,16 @@ function resize() {
   renderer.setSize(r.width, r.height, false);
   camera.aspect = r.width / r.height;
   camera.updateProjectionMatrix();
-  if (S.base) frame(S.model?.t > 0.05 ? S.model.box(S.model.meshes) : S.base, true);
+  if (S.base) { computeFrames(); driveFromScroll(); if (S.p < 0.02) frame(S.base, true); }
   invalidate();
 }
-function frame(box, keepDir = false) {
-  if (box.isEmpty()) return;
+function framing(box) {
   const c = box.getCenter(new THREE.Vector3()), sz = box.getSize(new THREE.Vector3());
   const tan = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
   const w = Math.max(sz.x, sz.z);
-  const dist = (Math.max(sz.y / 2 / tan, w / 2 / (tan * camera.aspect)) + w / 2) * 1.08;
-  const dir = keepDir ? camera.position.clone().sub(controls.target).normalize() : new THREE.Vector3(0.5, 0.06, 1).normalize();
+  return { c, dist: (Math.max(sz.y / 2 / tan, w / 2 / (tan * camera.aspect)) + w / 2) * 1.08 };
+}
+function applyFraming({ c, dist }, dir) {
   camera.position.copy(c).addScaledVector(dir, dist);
   camera.near = dist / 200; camera.far = dist * 40;
   camera.updateProjectionMatrix();
@@ -72,10 +75,60 @@ function frame(box, keepDir = false) {
   controls.update();
   invalidate();
 }
+function frame(box, keepDir = false) {
+  if (box.isEmpty()) return;
+  const dir = keepDir ? camera.position.clone().sub(controls.target).normalize() : DIR0.clone();
+  applyFraming(framing(box), dir);
+}
+// bounds of the assembled and fully exploded model, so scrolling can glide between them
+function computeFrames() {
+  const m = S.model; if (!m || !S.base) return;
+  const t = m.t;
+  m.setExplode(1); const ex = m.box(m.meshes); m.setExplode(t);
+  S.fBase = framing(S.base); S.fEx = framing(ex);
+}
+const ease = k => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
+const reduceScroll = reduceMotion; // reduced motion: no pinned scroll animation
+
+// scroll position inside the pinned lab (0..1) drives entrance, explode, camera orbit and captions
+function labProgress() {
+  const r = wrap.getBoundingClientRect(), span = r.height - innerHeight;
+  return span > 0 ? Math.min(Math.max(-r.top / span, 0), 1) : 0;
+}
+function driveFromScroll() {
+  const p = S.p = labProgress();
+  // entrance plays while the lab slides into view (before it pins)
+  const enter = Math.min(Math.max((innerHeight - wrap.getBoundingClientRect().top) / (innerHeight * 0.85), 0), 1);
+  labEl.style.setProperty('--enter', reduceScroll ? 1 : enter.toFixed(3));
+  if (p < 0.02) { S.manual = false; S.manualCam = false; }
+  const m = S.model;
+  if (!m || !S.fBase || reduceScroll) return;
+  setStep(p);
+  if (S.manual || S.anim) return;
+  const t = ease(Math.min(Math.max((p - 0.12) / 0.62, 0), 1));
+  if (Math.abs(t - m.t) > 0.0005) applyExplode(t);
+  if (!S.manualCam) {
+    const k = { c: S.fBase.c.clone().lerp(S.fEx.c, t), dist: S.fBase.dist + (S.fEx.dist - S.fBase.dist) * t };
+    const dir = DIR0.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), ease(Math.min(p / 0.8, 1)) * 1.15);
+    controls.autoRotate = false;
+    applyFraming(k, dir);
+  }
+}
+function setStep(p) {
+  const n = S.model.partIds().length;
+  const s = p < 0.12 ? ['01', 'Assembled', 'เลื่อนลงหรือปัดเพื่อถอดแยก'] : p < 0.76 ? ['02', 'Separating', `${n} parts`] : ['03', 'Exploded', 'แตะชิ้นส่วนเพื่อดูรายละเอียด'];
+  if (S.stepKey === s[0]) return;
+  S.stepKey = s[0];
+  const el = $('step');
+  el.innerHTML = `<b>${s[0]}</b><span>${s[1]}</span><small>${s[2]}</small>`;
+  el.classList.remove('swap'); void el.offsetWidth; el.classList.add('swap');
+}
+let scrollQueued = false;
+addEventListener('scroll', () => { if (scrollQueued) return; scrollQueued = true; requestAnimationFrame(() => { scrollQueued = false; driveFromScroll(); }); }, { passive: true });
 function loop(now) {
   requestAnimationFrame(loop);
   if (!S.visible) return;
-  if (!reduceMotion && !controls.autoRotate && S.idleAt && now - S.idleAt > 6000 && !S.sel) { controls.autoRotate = true; S.idleAt = 0; }
+  if (!reduceMotion && !controls.autoRotate && S.p < 0.03 && S.idleAt && now - S.idleAt > 6000 && !S.sel) { controls.autoRotate = true; S.idleAt = 0; }
   stepAnim(now);
   if (controls.update()) S.dirty = true;
   if (S.dirty) { S.dirty = false; renderer.render(scene, camera); }
@@ -100,9 +153,11 @@ async function loadVehicle(key) {
     S.base = model.box(model.meshes);
     applyExplode(0);
     frame(S.base);
+    computeFrames();
     buildVehicleUI();
     updateSelectionUI();
     $('loading3d').classList.add('done');
+    driveFromScroll();
   } catch (e) {
     console.error(e);
     $('loading3d').querySelector('span').innerHTML = 'โหลดโมเดลไม่สำเร็จ — <a href="rocket3d/viewer.html" style="text-decoration:underline">เปิด 3D Viewer</a>';
@@ -156,9 +211,9 @@ function stepAnim(now) {
   applyExplode(k >= 1 ? a.to : a.from + (a.to - a.from) * e); // ends on the exact value
   if (k >= 1) { S.anim = null; frame(a.to === 1 ? S.model.box(S.model.meshes) : S.base, true); }
 }
-$('explode-btn').onclick = () => { if (S.model) animateTo(S.model.t < 0.5 ? 1 : 0); };
+$('explode-btn').onclick = () => { if (S.model) { S.manual = true; animateTo(S.model.t < 0.5 ? 1 : 0); } };
 $('explode').addEventListener('input', e => {
-  S.anim = null; controls.autoRotate = false;
+  S.anim = null; controls.autoRotate = false; S.manual = true;
   applyExplode(+e.target.value);
   $('explode-btn').setAttribute('aria-pressed', +e.target.value >= 0.5);
 });
@@ -306,8 +361,8 @@ async function boot() {
     setup();
     S.manifest = await Manifest.load('rocket3d/parts_manifest.json');
     const parts = S.manifest.json.parts;
-    $('st-parts').textContent = parts.length;
-    $('st-docs').textContent = `${Math.round(parts.filter(p => p.accuracy === 'documented').length / parts.length * 100)}%`;
+    window.countUp?.($('st-parts'), parts.length);
+    window.countUp?.($('st-docs'), Math.round(parts.filter(p => p.accuracy === 'documented').length / parts.length * 100), '%');
     await whenNear(stage); // fetch the ~3 MB model only when the lab is about to be seen
     const want = new URLSearchParams(location.search).get('v');
     await loadVehicle(VEHICLES.some(v => v.key === want) ? want : 'f9');
