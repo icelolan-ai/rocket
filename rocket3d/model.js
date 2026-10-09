@@ -391,6 +391,7 @@ export class Model {
       if (!hex && !noTex && !fin) {
         if (m.material !== base) this.#dropClone(m);
         m.material = base;
+        this.#applyDim(m);
         continue;
       }
       let clone = m._clone;
@@ -406,13 +407,26 @@ export class Model {
       if ('roughness' in clone) { clone.roughness = fin ? fin.r : base.roughness; clone.metalness = fin ? fin.m : base.metalness; }
       clone.needsUpdate = true;
       m.material = clone;
+      this.#applyDim(m);
     }
+  }
+  // focus: a Set of meshes that stay fully visible; everything else fades a little (null = no dimming)
+  setFocus(set, opacity = 0.32) {
+    this.focus = set && set.size ? set : null; this.focusOpacity = opacity;
+    this.refreshMaterials();
+  }
+  #applyDim(m) {
+    if (!this.focus || this.focus.has(m)) return;
+    const src = m.material;
+    if (!m._fdim) { m._fdim = src.clone(); } else m._fdim.copy(src);
+    m._fdim.transparent = true; m._fdim.opacity = this.focusOpacity; m._fdim.depthWrite = false; m._fdim.needsUpdate = true;
+    m.material = m._fdim;
   }
   #dropClone(m) { m._clone?.dispose(); m._clone = null; }
 
   /* ---------- lifecycle ---------- */
   dispose() {
-    for (const m of this.meshes) this.#dropClone(m);
+    for (const m of this.meshes) { this.#dropClone(m); m._fdim?.dispose(); m._fdim = null; }
     // geometry/materials of the source gltf are cached and shared; only drop the clones
     this.root.removeFromParent();
   }

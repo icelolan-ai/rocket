@@ -210,6 +210,8 @@ function select(pid, mesh) {
   mesh ??= pid && (m.meshesOf(pid)[0] ?? m.meshesUnder(pid)[0]);
   S.sel = pid ? { pid, mesh } : null;
   if (pid) controls.autoRotate = false;
+  m.setFocus(pid ? new Set(m.meshesOf(pid).length ? m.meshesOf(pid) : m.meshesUnder(pid)) : null); // everything else fades a little
+  invalidate();
   updateSelectionUI();
 }
 const accHtml = acc => (acc ? `<span class="acc" data-l="${acc}">${t('accn.' + acc)}</span>` : `<span class="acc">${t('cu.unknown')}</span>`);
