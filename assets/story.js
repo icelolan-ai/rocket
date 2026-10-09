@@ -114,11 +114,12 @@ function computeKeys() {
     const bx = boxes[i], f = fit(bx.isEmpty() ? ex : bx, 1.45);
     const right = i % 2 === 0; // caption on the right -> model shifted left
     const ox = mobile() ? 0 : (right ? side : -side), oy = mobile() ? 0.17 : 0;
-    const a = A + i * W, k = K(f, 0.9 + (i + 1) * 0.7, 0.1 + 0.1 * Math.sin(i * 1.7), ox, oy, 1);
+    const a = A + i * W, k = K(f, 0.9 + (i + 1) * 1.5, 0.1 + 0.1 * Math.sin(i * 1.7), ox, oy, 1);
     keys.push({ p: a + 0.4 * W, k }, { p: a + 0.85 * W, k });
-    return { name, a, W, right, id: specs[i][1][0] };
+    const set = new Set(); for (const id of specs[i][1]) for (const mm of m.meshesUnder(id)) set.add(mm);
+    return { name, a, W, right, id: specs[i][1][0], set };
   });
-  const kr = K(fit(base, 1.5), 0.55 + Math.PI * 2, 0.1, 0, 0.07, 0); // a little smaller and higher: room for the button below
+  const kr = K(fit(base, 1.5), 0.55 + Math.PI * 2 * Math.ceil((0.9 + N * 1.5) / (Math.PI * 2)), 0.1, 0, 0.07, 0); // a little smaller and higher: room for the button below
   keys.push({ p: 0.95, k: kr }, { p: 1, k: kr });
   S.keys = keys;
 }
@@ -130,7 +131,7 @@ function evaluate(p) {
   const a = ks[i], b = ks[i + 1], s = ease(clamp((p - a.p) / Math.max(b.p - a.p, 1e-6)));
   const L = (x, y) => x + (y - x) * s;
   return {
-    c: a.k.c.clone().lerp(b.k.c, s), dist: L(a.k.dist, b.k.dist), azim: L(a.k.azim, b.k.azim), elev: L(a.k.elev, b.k.elev),
+    c: a.k.c.clone().lerp(b.k.c, s), dist: L(a.k.dist, b.k.dist), azim: L(a.k.azim, b.k.azim) + 0.5 * Math.sin(Math.PI * s), elev: L(a.k.elev, b.k.elev),
     ox: L(a.k.ox, b.k.ox), oy: L(a.k.oy, b.k.oy), t: L(a.k.t, b.k.t),
   };
 }
@@ -140,6 +141,27 @@ function trackProgress() {
   if (!S.armed) return 0; // ignore any restored scroll position until the loading screen is gone
   const r = story.getBoundingClientRect(), span = r.height - innerHeight;
   return span > 0 ? clamp(-r.top / span) : 0;
+}
+/* dim everything except the part being described (soft fade, restored when the tour is over) */
+const DIM = 0.22;
+function dimOthers(p) {
+  const m = S.model; let d = 0, ch = null;
+  if (S.chosen && p >= 0.22 && p < 0.95) {
+    const N = S.chapters.length, i = clamp(Math.floor((p - 0.22) / ((0.84 - 0.22) / N)), 0, N - 1), c = S.chapters[i];
+    ch = c; d = smooth(c.a + 0.1 * c.W, c.a + 0.4 * c.W, p) * (1 - smooth(c.a + 0.85 * c.W, c.a + 1.0 * c.W, p));
+    if (i === N - 1) d = Math.min(d, 1 - smooth(0.88, 0.94, p));
+  }
+  d = Math.round(d * 50) / 50;
+  if (d === S.dimD && ch === S.dimCh) return;
+  S.dimD = d; S.dimCh = ch;
+  for (const mesh of m.meshes) {
+    const keep = !ch || ch.set.has(mesh), base = mesh._clone || mesh._baseMat;
+    if (!base) continue;
+    if (d === 0 || keep) { if (mesh._dim && mesh.material === mesh._dim) mesh.material = base; continue; }
+    if (!mesh._dim) { mesh._dim = base.clone(); mesh._dim.transparent = true; }
+    mesh._dim.opacity = 1 - (1 - DIM) * d; mesh._dim.depthWrite = d < 0.3;
+    mesh.material = mesh._dim;
+  }
 }
 function apply(p, spinAdd = 0) {
   const m = S.model; if (!m || !S.keys.length) return;
@@ -152,6 +174,7 @@ function apply(p, spinAdd = 0) {
   const pan = S.rv < 1 ? Math.pow(1 - S.rv, 3) * 0.95 : 0; // extra downward pan while the chosen rocket comes into view
   if (Math.abs(st.ox) > 1e-3 || Math.abs(st.oy) > 1e-3 || pan > 1e-3) camera.setViewOffset(W, H, st.ox * W, (st.oy - pan) * H, W, H); else camera.clearViewOffset();
   camera.near = Math.max(0.2, st.dist / 300); camera.far = st.dist * 40; camera.updateProjectionMatrix();
+  dimOthers(p);
   updateCaption(p);
   S.dirty = true;
 }
@@ -224,8 +247,8 @@ async function loadVehicle(key) {
   try {
     const model = await loadModel(`rocket3d/models/${v.file}.glb`, S.manifest, key, f => window.__loader?.progress(0.12 + f * 0.72));
     if (token !== S.token) { model.dispose(); return; }
-    if (S.model) { const prev = S.veh; S.model.dispose(); unloadGLB(`rocket3d/models/${prev.file}.glb`); }
-    S.veh = v; S.model = model; S.key = key; S.ch = -1;
+    if (S.model) { const prev = S.veh; for (const mm of S.model.meshes) { mm._dim?.dispose(); mm._dim = null; } S.model.dispose(); unloadGLB(`rocket3d/models/${prev.file}.glb`); }
+    S.veh = v; S.model = model; S.key = key; S.ch = -1; S.dimD = -1; S.dimCh = null;
     scene.add(model.root);
     const saved = loadSaved(key);
     if (saved?.paint) model.importPaint(saved.paint); // colours picked on the customize page show up here too
