@@ -343,3 +343,6 @@ body.app-page input[type=range]::-webkit-slider-thumb,body.app-page input[type=r
   body.app-page .panel{overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
   body.app-page #gl3d{touch-action:none}
 }
+
+.zoom button[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:#000}
+@media (pointer:coarse){.zoom button{width:46px;height:46px}.zoom{gap:8px}}

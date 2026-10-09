@@ -82,11 +82,23 @@ export function focusBox(camera, controls, box, tick, margin = 1.5) {
   animateCamera(camera, controls, c.clone().addScaledVector(dir, dist), c, 520, tick);
 }
 
-// touch: pinch zooms about the screen centre (no drifting) and never pans; mouse keeps zoom-to-cursor + right-drag pan
-export function pointerModes(controls, canvas) {
-  const set = e => { const mouse = e.pointerType === 'mouse'; controls.zoomToCursor = mouse; controls.enablePan = mouse; };
+// touch: pinch zooms about the screen centre (no drifting) and never pans, unless the hand tool is on;
+// mouse keeps zoom-to-cursor + right-drag pan. `handBtn` (optional) toggles "hand" mode: one finger / left mouse drag moves the model.
+export function pointerModes(controls, canvas, handBtn) {
+  let hand = false;
+  const set = e => { const mouse = e.pointerType === 'mouse'; controls.zoomToCursor = mouse; controls.enablePan = mouse || hand; };
   canvas.addEventListener('pointerdown', set, { capture: true });
   controls.zoomToCursor = true;
+  if (!handBtn) return;
+  const apply = () => {
+    controls.mouseButtons.LEFT = hand ? 2 : 0; // THREE.MOUSE.PAN : ROTATE
+    controls.touches.ONE = hand ? 2 : 0;       // THREE.TOUCH.PAN : ROTATE
+    controls.touches.TWO = 2;                  // DOLLY_PAN
+    handBtn.setAttribute('aria-pressed', String(hand));
+    canvas.style.cursor = hand ? 'grab' : '';
+  };
+  handBtn.addEventListener('click', () => { hand = !hand; apply(); controls.enablePan = hand || controls.enablePan; });
+  apply();
 }
 
 // keep the orbit target inside `box` so the model can never be dragged/zoomed off screen;

@@ -40,7 +40,8 @@ function setup() {
   controls.enableZoom = true; // wheel / pinch zoom, towards the cursor so small parts can be inspected
   controls.zoomSpeed = 1.2;
   controls.screenSpacePanning = true; // right-drag pans (mouse only; touch pinch is pure zoom)
-  pointerModes(controls, canvas);
+  pointerModes(controls, canvas, document.getElementById('z-hand'));
+  window.__cu = { controls, camera };
   controls.autoRotate = !reduceMotion;
   controls.autoRotateSpeed = 0.8;
   controls.addEventListener('start', () => { controls.autoRotate = false; });
