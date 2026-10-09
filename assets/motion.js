@@ -16,11 +16,13 @@ window.countUp = (el, to, suffix = '', ms = 1400) => {
   };
   requestAnimationFrame(tick);
 };
-document.querySelectorAll('[data-count]').forEach(el => window.countUp(el, +el.dataset.count));
+// start entrance animations once the loading screen has revealed the page
+const whenRevealed = fn => (document.documentElement.classList.contains('loading') ? document.addEventListener('rocket:revealing', fn, { once: true }) : fn());
+whenRevealed(() => document.querySelectorAll('[data-count]').forEach(el => window.countUp(el, +el.dataset.count)));
 
 /* ---------- wordmark: settle, shine, periodic glitch ---------- */
 const word = $('word');
-if (word && !reduce) {
+if (word && !reduce) whenRevealed(() => {
   setTimeout(() => word.classList.add('ready'), 2200); // after the letters have landed
   const glitch = () => {
     word.classList.add('glitch');
@@ -28,7 +30,7 @@ if (word && !reduce) {
     setTimeout(glitch, 4200 + Math.random() * 3500);
   };
   setTimeout(glitch, 3200);
-}
+});
 
 /* ---------- pointer parallax (intro) ---------- */
 const intro = document.querySelector('.intro');
@@ -104,7 +106,9 @@ if (cv && !reduce) {
 if ($('st-parts')) {
   fetch('rocket3d/parts_manifest.json').then(r => r.json()).then(j => {
     const parts = j.parts;
-    window.countUp($('st-parts'), parts.length);
-    window.countUp($('st-docs'), Math.round(parts.filter(p => p.accuracy === 'documented').length / parts.length * 100), '%');
+    whenRevealed(() => {
+      window.countUp($('st-parts'), parts.length);
+      window.countUp($('st-docs'), Math.round(parts.filter(p => p.accuracy === 'documented').length / parts.length * 100), '%');
+    });
   }).catch(() => { $('st-parts').textContent = '145'; $('st-docs').textContent = '40%'; });
 }
