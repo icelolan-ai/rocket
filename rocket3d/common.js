@@ -46,3 +46,38 @@ export function placeShadow(mesh, box) {
   mesh.position.set(c.x, box.min.y - 0.05, c.z);
   mesh.visible = true;
 }
+
+/* ---------- camera helpers shared by the home page and the viewer ---------- */
+const clampN = (v, a, b) => Math.min(Math.max(v, a), b);
+
+// smoothly move camera + orbit target; `tick` is called every frame (e.g. to request a render)
+export function animateCamera(camera, controls, toPos, toTarget, ms = 450, tick = () => {}) {
+  const p0 = camera.position.clone(), t0 = controls.target.clone(), start = performance.now();
+  cancelAnimationFrame(animateCamera._raf);
+  const step = now => {
+    const k = clampN((now - start) / ms, 0, 1), e = 1 - Math.pow(1 - k, 3);
+    camera.position.lerpVectors(p0, toPos, e);
+    controls.target.lerpVectors(t0, toTarget, e);
+    controls.update(); tick();
+    if (k < 1) animateCamera._raf = requestAnimationFrame(step);
+  };
+  animateCamera._raf = requestAnimationFrame(step);
+}
+
+// dolly towards / away from the orbit target
+export function zoomStep(camera, controls, factor, tick) {
+  const dir = camera.position.clone().sub(controls.target);
+  const d = clampN(dir.length() * factor, controls.minDistance, controls.maxDistance);
+  animateCamera(camera, controls, controls.target.clone().add(dir.setLength(d)), controls.target.clone(), 260, tick);
+}
+
+// fit the camera on a bounding box, keeping the current viewing direction
+export function focusBox(camera, controls, box, tick, margin = 1.5) {
+  if (box.isEmpty()) return;
+  const c = box.getCenter(new THREE.Vector3()), sz = box.getSize(new THREE.Vector3());
+  const tan = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+  const r = Math.max(sz.x, sz.y, sz.z) / 2;
+  const dist = clampN((r * margin) / tan, controls.minDistance, controls.maxDistance);
+  const dir = camera.position.clone().sub(controls.target).normalize();
+  animateCamera(camera, controls, c.clone().addScaledVector(dir, dist), c, 520, tick);
+}

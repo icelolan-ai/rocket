@@ -5,7 +5,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { Manifest, loadModel, unloadGLB } from '../rocket3d/model.js';
-import { VEHICLES, SWATCHES, loadSaved, saveState, makeShadow, placeShadow } from '../rocket3d/common.js';
+import { VEHICLES, SWATCHES, loadSaved, saveState, makeShadow, placeShadow, zoomStep, focusBox } from '../rocket3d/common.js';
 import { t, partName, partNameAlt, zoneLabel, onLang } from '../rocket3d/i18n.js';
 
 const $ = id => document.getElementById(id);
@@ -38,15 +38,16 @@ function setup() {
   controls = new OrbitControls(camera, canvas);
   controls.enableDamping = true;
   controls.dampingFactor = 0.1;
-  controls.enableZoom = false; // the wheel would hijack page scroll; enabled once the canvas has focus
+  controls.enableZoom = true; // wheel / pinch zoom, towards the cursor so small parts can be inspected
+  controls.zoomToCursor = true;
+  controls.zoomSpeed = 1.2;
+  controls.screenSpacePanning = true; // right-drag / two-finger drag pans
   controls.autoRotate = !reduceMotion;
   controls.autoRotateSpeed = 0.8;
   controls.addEventListener('start', () => { controls.autoRotate = false; });
   controls.addEventListener('end', () => { S.idleAt = performance.now(); });
   controls.addEventListener('change', invalidate);
-  canvas.style.touchAction = 'pan-y'; // vertical swipes still scroll the page on phones
-  canvas.addEventListener('focus', () => { controls.enableZoom = true; });
-  canvas.addEventListener('blur', () => { controls.enableZoom = false; });
+  canvas.style.touchAction = 'pan-y'; // vertical one-finger swipes scroll the page; pinch / drag go to the 3D view
   boxHelper = new THREE.Box3Helper(new THREE.Box3(), 0xff6a1f);
   boxHelper.visible = false;
   shadow = makeShadow();
@@ -74,10 +75,10 @@ function frame(box, keepDir = false) {
   const dist = (Math.max(sz.y / 2 / tan, w / 2 / (tan * camera.aspect)) + w / 2) * 1.12;
   const dir = keepDir ? camera.position.clone().sub(controls.target).normalize() : DIR0.clone();
   camera.position.copy(c).addScaledVector(dir, dist);
-  camera.near = dist / 200; camera.far = dist * 40;
+  camera.near = 0.2; camera.far = dist * 40;
   camera.updateProjectionMatrix();
   controls.target.copy(c);
-  controls.minDistance = dist * 0.05; controls.maxDistance = dist * 4;
+  controls.minDistance = 1.5; controls.maxDistance = dist * 4;
   controls.update();
   invalidate();
 }
@@ -249,6 +250,18 @@ function updateHighlight() {
 $('isolate').onclick = () => { const s = S.sel; if (!s) return; S.model.setIsolated(S.model.isolated === s.pid ? null : s.pid); updateSelectionUI(); invalidate(); };
 $('showall').onclick = () => { S.model.showAll(); updateSelectionUI(); invalidate(); };
 
+/* ---------------- zoom / focus ---------------- */
+const selBox = () => {
+  const sel = S.sel, m = S.model;
+  if (!sel || !m) return null;
+  return m.box(m.meshesUnder(sel.pid).filter(x => x.visible && (!sel.mesh?.isInstancedMesh || x.isInstancedMesh)));
+};
+const fitAll = () => { controls.autoRotate = false; focusBox(camera, controls, S.model.t > 0.05 ? S.model.box(S.model.meshes) : S.base, invalidate, 1.15); };
+$('z-in').onclick = () => { controls.autoRotate = false; zoomStep(camera, controls, 0.6, invalidate); };
+$('z-out').onclick = () => { controls.autoRotate = false; zoomStep(camera, controls, 1.6, invalidate); };
+$('z-fit').onclick = () => S.model && fitAll();
+$('z-focus').onclick = () => { const b = selBox(); controls.autoRotate = false; b ? focusBox(camera, controls, b, invalidate) : S.model && fitAll(); };
+
 /* ---------------- picking ---------------- */
 const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
 const visibleDeep = o => { for (; o; o = o.parent) if (!o.visible) return false; return true; };
@@ -262,7 +275,7 @@ function pick(ev) {
   }
   return null;
 }
-let down = null;
+let down = null, lastTap = null;
 canvas.addEventListener('pointerdown', e => { down = { x: e.clientX, y: e.clientY, t: performance.now() }; });
 canvas.addEventListener('pointerup', e => {
   if (!down) return;
@@ -271,6 +284,14 @@ canvas.addEventListener('pointerup', e => {
   if (moved > 5 || dt > 600) return; // camera drag, not a click
   const h = pick(e);
   h ? select(h.pid, h.mesh) : select(null);
+  // double-click / double-tap: focus the part (or fit everything when tapping empty space)
+  const now = performance.now();
+  if (lastTap && now - lastTap.t < 350 && Math.hypot(e.clientX - lastTap.x, e.clientY - lastTap.y) < 24) {
+    lastTap = null;
+    const b = h ? selBox() : null;
+    controls.autoRotate = false;
+    b ? focusBox(camera, controls, b, invalidate) : fitAll();
+  } else lastTap = { t: now, x: e.clientX, y: e.clientY };
 });
 let hoverQueued = false;
 canvas.addEventListener('pointermove', e => {
@@ -355,4 +376,4 @@ async function boot() {
   }
 }
 boot();
-window.__hero = { S, controls, select, applyExplode, loadVehicle };
+window.__hero = { S, controls, get camera() { return camera; }, select, applyExplode, loadVehicle };

@@ -65,6 +65,13 @@
     <div class="floor" aria-hidden="true"></div>
     <canvas id="gl3d" tabindex="0" data-i18n-attr="aria-label:cu.canvas"></canvas>
     <div class="chip" id="chip" hidden></div>
+    <div class="zoom" role="group" data-i18n-attr="aria-label:cu.zoomHint">
+      <button id="z-in" type="button" data-i18n-attr="aria-label:cu.zoomIn,title:cu.zoomIn">+</button>
+      <button id="z-out" type="button" data-i18n-attr="aria-label:cu.zoomOut,title:cu.zoomOut">−</button>
+      <button id="z-focus" type="button" data-i18n-attr="aria-label:cu.focus,title:cu.focus"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 3v4M12 17v4M3 12h4M17 12h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+      <button id="z-fit" type="button" data-i18n-attr="aria-label:cu.fit,title:cu.fit"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
+    <p class="zoom-hint" data-i18n="cu.zoomHint">Scroll or pinch to zoom · double-click a part to focus</p>
     <dl class="specs" data-i18n-attr="aria-label:spec.aria">
       <div><dt data-i18n="spec.model">Model</dt><dd id="sp-model">–</dd></div>
       <div><dt data-i18n="spec.height">Height</dt><dd id="sp-height">–</dd></div>
