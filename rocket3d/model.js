@@ -15,9 +15,9 @@ const CAD_AXES = {
 const loader = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
 const gltfCache = new Map();
 
-export function loadGLB(url) {
+export function loadGLB(url, onProgress) {
   if (!gltfCache.has(url)) {
-    gltfCache.set(url, new Promise((res, rej) => loader.load(url, res, undefined, rej)));
+    gltfCache.set(url, new Promise((res, rej) => loader.load(url, res, onProgress && (e => e.total && onProgress(e.loaded / e.total)), rej)));
     gltfCache.get(url).catch(() => gltfCache.delete(url));
   }
   return gltfCache.get(url);
@@ -398,8 +398,8 @@ export class Model {
   }
 }
 
-export async function loadModel(url, manifest, key) {
-  const gltf = await loadGLB(url);
+export async function loadModel(url, manifest, key, onProgress) {
+  const gltf = await loadGLB(url, onProgress);
   // clone so a cached gltf can back several Model instances; materials/geometry stay shared
   const clone = { ...gltf, scene: gltf.scene.clone(true) };
   return new Model(clone, manifest, key);

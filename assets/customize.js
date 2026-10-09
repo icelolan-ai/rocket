@@ -99,7 +99,7 @@ async function loadVehicle(key) {
   $('loading3d').classList.remove('done');
   $('loading3d').querySelector('span').textContent = t('cu.loadingV', { name: v.label });
   try {
-    const model = await loadModel(`rocket3d/models/${v.file}.glb`, S.manifest, key);
+    const model = await loadModel(`rocket3d/models/${v.file}.glb`, S.manifest, key, f => window.__loader?.progress(0.12 + f * 0.72));
     if (token !== S.token) { model.dispose(); return; }
     if (S.model) { const prev = S.veh; S.model.dispose(); unloadGLB(`rocket3d/models/${prev.file}.glb`); }
     S.veh = v; S.model = model; S.sel = null;
@@ -115,9 +115,12 @@ async function loadVehicle(key) {
     buildVehicleUI();
     updateSelectionUI();
     $('loading3d').classList.add('done');
+    window.__loader?.progress(0.97);
+    requestAnimationFrame(() => requestAnimationFrame(() => window.__loader?.finish())); // after the first rendered frame
   } catch (e) {
     console.error(e);
     $('loading3d').querySelector('span').innerHTML = t('cu.loadErr');
+    window.__loader?.finish();
   }
 }
 
@@ -347,6 +350,7 @@ async function boot() {
   try {
     setup();
     S.manifest = await Manifest.load('rocket3d/parts_manifest.json');
+    window.__loader?.progress(0.12);
     const parts = S.manifest.json.parts;
     window.countUp?.($('st-parts'), parts.length);
     window.countUp?.($('st-docs'), Math.round(parts.filter(p => p.accuracy === 'documented').length / parts.length * 100), '%');
@@ -357,6 +361,7 @@ async function boot() {
     console.error(e);
     $('loading3d').querySelector('i').hidden = true;
     $('loading3d').querySelector('span').innerHTML = t('cu.webgl');
+    window.__loader?.finish();
   }
 }
 boot();
