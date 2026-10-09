@@ -5,7 +5,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { Manifest, loadModel, unloadGLB } from '../rocket3d/model.js';
-import { VEHICLES, SWATCHES, loadSaved, saveState, makeShadow, placeShadow, zoomStep, focusBox, pointerModes, keepTargetInside } from '../rocket3d/common.js';
+import { VEHICLES, SWATCHES, FINISHES, loadSaved, saveState, makeShadow, placeShadow, zoomStep, focusBox, pointerModes, keepTargetInside } from '../rocket3d/common.js';
 import { t, partName, partNameAlt, zoneLabel, onLang } from '../rocket3d/i18n.js';
 
 const $ = id => document.getElementById(id);
@@ -295,38 +295,109 @@ canvas.addEventListener('pointermove', e => {
 });
 
 /* ---------------- paint ---------------- */
+const hexOk = v => /^#[0-9a-f]{6}$/i.test(v);
+function hex2hsl(hex) {
+  const n = parseInt(hex.slice(1), 16), r = (n >> 16 & 255) / 255, g = (n >> 8 & 255) / 255, b = (n & 255) / 255;
+  const mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2, d = mx - mn;
+  let h = 0, s = 0;
+  if (d) { s = d / (1 - Math.abs(2 * l - 1)); h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; h = (h * 60 + 360) % 360; }
+  return [h, s * 100, l * 100];
+}
+function hsl2hex(h, s, l) {
+  s /= 100; l /= 100;
+  const a = s * Math.min(l, 1 - l), f = n => { const k = (n + h / 30) % 12; return Math.round(255 * (l - a * Math.max(-1, Math.min(k - 3, 9 - k, 1)))); };
+  return '#' + [f(0), f(8), f(4)].map(v => v.toString(16).padStart(2, '0')).join('');
+}
+let recent = [];
+try { recent = JSON.parse(localStorage.getItem('rocket3d:recent') || '[]').filter(hexOk).slice(0, 8); } catch { /* storage unavailable */ }
+function pushRecent(hex) {
+  recent = [hex, ...recent.filter(c => c !== hex)].slice(0, 8);
+  try { localStorage.setItem('rocket3d:recent', JSON.stringify(recent)); } catch { /* storage unavailable */ }
+  renderRecent();
+}
+function renderRecent() {
+  const box = $('recent'); box.textContent = '';
+  for (const c of recent) {
+    const b = document.createElement('button');
+    b.type = 'button'; b.style.setProperty('--sw', c); b.dataset.c = c; b.setAttribute('aria-label', t('cu.swatch', { c }));
+    b.onclick = () => paint(c);
+    box.append(b);
+  }
+}
+function setMixUI(hex) {
+  $('color').value = hex; $('hex').value = hex.slice(1);
+  const [h, s, l] = hex2hsl(hex);
+  $('c-h').value = Math.round(h); $('c-s').value = Math.round(s); $('c-l').value = Math.round(l);
+  $('c-s').style.setProperty('--from', hsl2hex(h, 0, l)); $('c-s').style.setProperty('--to', hsl2hex(h, 100, l));
+  $('c-l').style.setProperty('--mid', hsl2hex(h, s, 50));
+}
 function updatePaintUI() {
-  const sel = S.sel, wrapEl = $('paint'), hint = $('paint-hint');
+  const sel = S.sel, wrapEl = $('paint'), matEl = $('material'), hint = $('paint-hint');
   hint.title = '';
-  if (!sel?.mesh) { wrapEl.classList.add('off'); hint.textContent = t('cu.paint.none'); return; }
+  const off = on => { wrapEl.classList.toggle('off', on); matEl.classList.toggle('off', on); };
+  if (!sel?.mesh) { off(true); hint.textContent = t('cu.paint.none'); return; }
   const m = S.model, p = S.manifest.get(sel.pid), name = partName(p, sel.pid);
   if (!m.isPaintable(sel.mesh)) {
-    wrapEl.classList.add('off'); hint.textContent = t('cu.paint.no', { name });
+    off(true); hint.textContent = t('cu.paint.no', { name });
     hint.title = t('cu.paint.why', { m: sel.mesh._baseMat?.name ?? '?' });
     return;
   }
-  wrapEl.classList.remove('off');
+  off(false);
   hint.textContent = name;
-  const cur = m.colorOf(sel.mesh) ?? m.defaultColor(sel.mesh);
-  $('color').value = cur;
+  const cur = (m.colorOf(sel.mesh) ?? m.defaultColor(sel.mesh)).toLowerCase();
+  setMixUI(cur);
   document.querySelectorAll('#swatches button').forEach(b => b.classList.toggle('on', b.dataset.c === cur));
+  const fin = m.finishOf(sel.mesh), has = !!m.paint.fin?.[sel.pid];
+  $('m-r').value = Math.round(fin.r * 100); $('m-m').value = Math.round(fin.m * 100);
+  document.querySelectorAll('#finishes button').forEach(b => {
+    const f = FINISHES.find(x => x.key === b.dataset.k);
+    b.setAttribute('aria-pressed', String(f ? has && Math.abs(f.r - fin.r) < 0.01 && Math.abs(f.m - fin.m) < 0.01 : !has));
+  });
 }
-function paint(hex) {
+const persist = () => saveState(S.veh.key, { paint: S.model.exportPaint() });
+function paint(hex, keepRecent = false) {
+  const sel = S.sel; if (!sel?.mesh || !hexOk(hex)) return;
+  S.model.setColor(sel.mesh, hex.toLowerCase(), 'part'); // all instances of the part
+  persist(); updatePaintUI(); invalidate();
+  if (!keepRecent) pushRecent(hex.toLowerCase());
+}
+function finish(fin) {
   const sel = S.sel; if (!sel?.mesh) return;
-  S.model.setColor(sel.mesh, hex, 'part'); // all instances of the part
-  saveState(S.veh.key, { paint: S.model.exportPaint() });
-  updatePaintUI(); invalidate();
+  S.model.setFinish(sel.mesh, fin);
+  persist(); updatePaintUI(); invalidate();
 }
 for (const c of SWATCHES) {
   const b = document.createElement('button');
-  b.dataset.c = c; b.style.setProperty('--sw', c);
-  b.onclick = () => paint(c);
+  b.type = 'button'; b.dataset.c = c; b.style.setProperty('--sw', c);
+  b.onclick = () => paint(c, true);
   $('swatches').append(b);
 }
 let paintRaf = 0;
-$('color').addEventListener('input', e => { const v = e.target.value; cancelAnimationFrame(paintRaf); paintRaf = requestAnimationFrame(() => paint(v)); });
-$('reset-part').onclick = () => { if (S.sel) { S.model.resetPaint(S.sel.pid); saveState(S.veh.key, { paint: S.model.exportPaint() }); updatePaintUI(); invalidate(); } };
-$('reset-all').onclick = () => { S.model.resetPaint(); saveState(S.veh.key, { paint: S.model.exportPaint() }); updatePaintUI(); invalidate(); };
+const live = hex => { cancelAnimationFrame(paintRaf); paintRaf = requestAnimationFrame(() => paint(hex, true)); };
+$('color').addEventListener('input', e => live(e.target.value));
+$('color').addEventListener('change', e => pushRecent(e.target.value.toLowerCase()));
+$('hex').addEventListener('input', e => { const v = '#' + e.target.value.replace(/[^0-9a-f]/gi, ''); if (v.length === 7) live(v); });
+$('hex').addEventListener('change', e => { const v = '#' + e.target.value.replace(/[^0-9a-f]/gi, ''); if (v.length === 7) pushRecent(v.toLowerCase()); });
+const hsl = () => hsl2hex(+$('c-h').value, +$('c-s').value, +$('c-l').value);
+for (const id of ['c-h', 'c-s', 'c-l']) { $(id).addEventListener('input', () => live(hsl())); $(id).addEventListener('change', () => pushRecent(hsl())); }
+{ // finishes
+  const box = $('finishes');
+  const mk = (k, label, onclick) => { const b = document.createElement('button'); b.type = 'button'; b.dataset.k = k; b.setAttribute('aria-pressed', 'false'); b.dataset.fin = k; b.textContent = label; b.onclick = onclick; box.append(b); return b; };
+  mk('original', t('fin.original'), () => finish(null));
+  for (const f of FINISHES) mk(f.key, t('fin.' + f.key), () => finish(f));
+}
+const slFinish = () => finish({ r: $('m-r').value / 100, m: $('m-m').value / 100 });
+$('m-r').addEventListener('input', () => { cancelAnimationFrame(paintRaf); paintRaf = requestAnimationFrame(slFinish); });
+$('m-m').addEventListener('input', () => { cancelAnimationFrame(paintRaf); paintRaf = requestAnimationFrame(slFinish); });
+$('apply-all').onclick = () => {
+  const sel = S.sel; if (!sel?.mesh || !S.model.isPaintable(sel.mesh)) return;
+  S.model.paintAll({ hex: S.model.colorOf(sel.mesh) ?? S.model.defaultColor(sel.mesh), fin: S.model.paint.fin?.[sel.pid] ?? null });
+  persist(); updatePaintUI(); invalidate();
+};
+$('reset-part').onclick = () => { if (S.sel) { S.model.resetPaint(S.sel.pid); persist(); updatePaintUI(); invalidate(); } };
+$('reset-all').onclick = () => { S.model.resetPaint(); persist(); updatePaintUI(); invalidate(); };
+renderRecent();
+onLang(() => { renderRecent(); document.querySelectorAll('#finishes button').forEach(b => { b.textContent = t('fin.' + b.dataset.k); }); });
 
 /* ---------------- vehicle switch ---------------- */
 VEHICLES.forEach((v, i) => {

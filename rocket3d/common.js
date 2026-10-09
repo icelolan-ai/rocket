@@ -6,7 +6,17 @@ export const VEHICLES = [
   { key: 'fh', code: 'FH', label: 'Falcon Heavy', note: '3 core', file: 'VEH_FH_full', variant: 'CLEAN' },
   { key: 'sv', code: 'SV', label: 'Saturn V', note: '110.6 m', file: 'SV_full', variant: 'SV_AS506' },
 ];
-export const SWATCHES = ['#f2f2ef', '#151515', '#e6f23a', '#e2674a', '#3b82c4', '#2f9e6b', '#c9a23f', '#8a8a85'];
+export const SWATCHES = [
+  '#f2f2ef', '#d9d9d4', '#8a8a85', '#4a4a48', '#151515', '#ffffff',
+  '#e2674a', '#ff6a1f', '#f5a623', '#e6f23a', '#c9a23f', '#9a6b3c',
+  '#2f9e6b', '#1f6f4a', '#35b8e8', '#3b82c4', '#1f3f8a', '#6b4fd1',
+  '#b04fd1', '#e0457b', '#b3202a', '#6d1a24', '#2b3a42', '#0b1e3a',
+];
+// surface finishes: roughness / metalness
+export const FINISHES = [
+  { key: 'matte', r: 0.9, m: 0 }, { key: 'satin', r: 0.5, m: 0 }, { key: 'gloss', r: 0.12, m: 0 },
+  { key: 'metal', r: 0.32, m: 0.9 }, { key: 'brushed', r: 0.5, m: 1 }, { key: 'chrome', r: 0.06, m: 1 }, { key: 'rubber', r: 1, m: 0 },
+];
 
 // paint/variant/slot choices are shared between the home page and the viewer
 const storeKey = k => `rocket3d:v1:${k}`;
