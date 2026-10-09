@@ -6,13 +6,14 @@
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
+html{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 html,body{overflow-x:hidden;overflow-x:clip;overscroll-behavior-x:none}
 body{font-family:var(--font);color:var(--text);-webkit-font-smoothing:antialiased;background:var(--bg);
   background-image:radial-gradient(70% 55% at 50% 30%,rgba(35,105,125,.35),transparent 70%);
   display:flex;flex-direction:column;min-height:100vh}
 a{color:inherit;text-decoration:none}
 button,input,select{font:inherit;color:inherit}
-button{cursor:pointer;border:0;background:none}
+button{cursor:pointer;border:0;background:none;touch-action:manipulation;-webkit-user-select:none;user-select:none}
 [hidden]{display:none!important}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 

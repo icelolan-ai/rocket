@@ -4,11 +4,11 @@
   --font:'Jost','Noto Sans Thai',system-ui,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth;overflow-x:hidden;overflow-x:clip;overscroll-behavior-x:none}
+html{touch-action:manipulation;-webkit-tap-highlight-color:transparent;scroll-behavior:smooth;overflow-x:hidden;overflow-x:clip;overscroll-behavior-x:none}
 body{font-family:var(--font);background:linear-gradient(180deg,#0b1319,#070b0e 40%,#070b0e);color:var(--text);-webkit-font-smoothing:antialiased;overflow-x:hidden;overflow-x:clip;overscroll-behavior-x:none;max-width:100%}
 a{color:inherit;text-decoration:none}
 button,input,textarea{font:inherit;color:inherit}
-button{cursor:pointer;border:0;background:none}
+button{cursor:pointer;border:0;background:none;touch-action:manipulation;-webkit-user-select:none;user-select:none}
 ul,ol{list-style:none}
 [hidden]{display:none!important}
 :focus-visible{outline:2px solid var(--accent);outline-offset:3px}
