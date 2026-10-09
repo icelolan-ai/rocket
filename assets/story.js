@@ -149,8 +149,9 @@ function apply(p, spinAdd = 0) {
 }
 
 function updateCaption(p) {
-  const f = clamp((p - 0.012) / 0.08); // the page opens on the wordmark only; the rocket fades in as you scroll
-  canvas.style.opacity = f; canvas.style.transform = `translateY(${((1 - f) * 40).toFixed(1)}px)`;
+  const f = clamp((p - 0.012) / 0.1); // the page opens on the wordmark only; the rocket fades in as you scroll
+  const bk = 1.9, e = f >= 1 ? 1 : 1 + (bk + 1) * Math.pow(f - 1, 3) + bk * Math.pow(f - 1, 2); // ease-out-back: pops out with a little overshoot
+  canvas.style.opacity = Math.min(f * 2.5, 1); canvas.style.transform = f >= 1 ? '' : `scale(${(0.35 + 0.65 * e).toFixed(3)})`;
   document.querySelector('.picker').style.opacity = f; document.querySelector('.picker').style.pointerEvents = f < 0.5 ? 'none' : '';
   const cap = $('cap'), N = S.chapters.length;
   const inTour = p >= 0.22 && p < 0.9;
