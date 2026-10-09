@@ -5,7 +5,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { Manifest, loadModel, unloadGLB } from '../rocket3d/model.js';
-import { VEHICLES, SWATCHES, loadSaved, saveState, makeShadow, placeShadow, zoomStep, focusBox } from '../rocket3d/common.js';
+import { VEHICLES, SWATCHES, loadSaved, saveState, makeShadow, placeShadow, zoomStep, focusBox, pointerModes, keepTargetInside } from '../rocket3d/common.js';
 import { t, partName, partNameAlt, zoneLabel, onLang } from '../rocket3d/i18n.js';
 
 const $ = id => document.getElementById(id);
@@ -39,14 +39,14 @@ function setup() {
   controls.enableDamping = true;
   controls.dampingFactor = 0.1;
   controls.enableZoom = true; // wheel / pinch zoom, towards the cursor so small parts can be inspected
-  controls.zoomToCursor = true;
   controls.zoomSpeed = 1.2;
-  controls.screenSpacePanning = true; // right-drag / two-finger drag pans
+  controls.screenSpacePanning = true; // right-drag pans (mouse only; touch pinch is pure zoom)
+  pointerModes(controls, canvas);
   controls.autoRotate = !reduceMotion;
   controls.autoRotateSpeed = 0.8;
   controls.addEventListener('start', () => { controls.autoRotate = false; });
   controls.addEventListener('end', () => { S.idleAt = performance.now(); });
-  controls.addEventListener('change', invalidate);
+  controls.addEventListener('change', () => { keepTargetInside(controls, camera, S.limit); invalidate(); });
   canvas.style.touchAction = 'pan-y'; // vertical one-finger swipes scroll the page; pinch / drag go to the 3D view
   boxHelper = new THREE.Box3Helper(new THREE.Box3(), 0xff6a1f);
   boxHelper.visible = false;
@@ -69,6 +69,7 @@ function resize() {
 }
 function frame(box, keepDir = false) {
   if (box.isEmpty()) return;
+  if (S.base) { const s = S.base.getSize(new THREE.Vector3()); S.limit = S.base.clone().expandByScalar(Math.max(s.x, s.y, s.z) * 0.3 + 15); }
   const c = box.getCenter(new THREE.Vector3()), sz = box.getSize(new THREE.Vector3());
   const tan = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
   const w = Math.max(sz.x, sz.z);

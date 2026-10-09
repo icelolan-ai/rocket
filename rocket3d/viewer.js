@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { Manifest, loadModel, unloadGLB } from './model.js';
-import { VEHICLES, SWATCHES, loadSaved, saveState, makeShadow, placeShadow, zoomStep, focusBox } from './common.js';
+import { VEHICLES, SWATCHES, loadSaved, saveState, makeShadow, placeShadow, zoomStep, focusBox, pointerModes, keepTargetInside } from './common.js';
 import { t, partName, partNameAlt, zoneLabel, onLang, initLangButtons, getLang } from './i18n.js';
 import { slotInfo, applySlot, placeTarget, placeModule } from './slots.js';
 
@@ -40,10 +40,11 @@ const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 1000);
 const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
 controls.dampingFactor = 0.12;
-controls.zoomToCursor = true; // wheel / pinch zooms towards the cursor so small parts can be inspected
+pointerModes(controls, canvas); // mouse: zoom to cursor + pan; touch: pure pinch zoom, no drifting
+let limit = null;
 controls.zoomSpeed = 1.2;
 controls.screenSpacePanning = true;
-controls.addEventListener('change', invalidate);
+controls.addEventListener('change', () => { keepTargetInside(controls, camera, limit); invalidate(); });
 // on phones the stage is tall: let vertical swipes scroll the page instead of trapping them
 const touchMode = () => { canvas.style.touchAction = matchMedia('(max-width: 760px)').matches ? 'pan-y' : 'none'; };
 touchMode(); addEventListener('resize', touchMode);
@@ -68,6 +69,7 @@ new ResizeObserver(resize).observe($('stage'));
 
 function frame(box) {
   if (box.isEmpty()) return;
+  { const s = box.getSize(new THREE.Vector3()); limit = box.clone().expandByScalar(Math.max(s.x, s.y, s.z) * 0.3 + 15); }
   const c = box.getCenter(new THREE.Vector3()), sz = box.getSize(new THREE.Vector3());
   const tan = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
   const w = Math.max(sz.x, sz.z);
