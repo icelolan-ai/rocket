@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600&family=Noto+Sans+Thai:wght@300;400;500&display=swap" rel="stylesheet">
-<script>try{var c=/customize/.test(location.pathname);if(c)window.__loaderManual=true;if(c||!sessionStorage.getItem('rocket:seen'))document.documentElement.classList.add('loading');setTimeout(function(){document.documentElement.classList.remove('loading')},20000)}catch(e){}</script>
+<script>try{var c=/customize/.test(location.pathname);if(c||!/(rockets|features|contact)/.test(location.pathname))window.__loaderManual=true;if(c||!sessionStorage.getItem('rocket:seen'))document.documentElement.classList.add('loading');setTimeout(function(){document.documentElement.classList.remove('loading')},20000)}catch(e){}</script>
 <link rel="stylesheet" href="assets/style.css">
 <script type="importmap">
 { "imports": {
@@ -38,28 +38,42 @@
 </header>
 
 
-<!-- ============ INTRO ============ -->
-<section class="intro" id="top">
-  <div class="intro-body">
-    <p class="eyebrow" data-i18n="intro.eyebrow">Launch vehicles in 3D</p>
-    <h1 class="word" id="word" aria-label="ROCKET"><span class="l" style="--i:0"><b>R</b></span><span class="l" style="--i:1"><b>O</b></span><span class="l" style="--i:2"><b>C</b></span><span class="l" style="--i:3"><b>K</b></span><span class="l" style="--i:4"><b>E</b></span><span class="l" style="--i:5"><b>T</b></span></h1>
-    <p class="sub" data-i18n="intro.sub">Explore, disassemble and recolor launch vehicles</p>
-    <a class="go" href="customize.html"><span data-i18n="intro.go">Let's explore</span> <span aria-hidden="true">→</span></a>
-  </div>
-  <ul class="social intro-social" aria-label="Social">
-    <li><a href="#" aria-label="Facebook">f</a></li>
-    <li><a href="#" aria-label="Instagram">in</a></li>
-    <li><a href="#" aria-label="Twitter">t</a></li>
-  </ul>
-  <a class="scroll-cue" href="customize.html"><span data-i18n="intro.scroll">Scroll</span><i></i></a>
-  <div class="stats" data-i18n-attr="aria-label:stat.aria">
-    <div><b id="st-parts">0</b><span data-i18n="stat.parts">Parts in manifest</span></div>
-    <div><b data-count="3">0</b><span data-i18n="stat.rockets">Launch vehicles</span></div>
-    <div><b data-count="24">0</b><span data-i18n="stat.modules">3D modules</span></div>
-    <div><b id="st-docs">–</b><span data-i18n="stat.docs">Documented parts</span></div>
-  </div>
-</section>
+<!-- ============ STORY: 3D rocket that takes itself apart as you scroll ============ -->
+<main class="story" id="story">
+  <section class="stage intro" id="top" data-i18n-attr="aria-label:st.aria">
+    <div class="intro-body">
+      <p class="eyebrow" data-i18n="intro.eyebrow">Launch vehicles in 3D</p>
+      <h1 class="word" id="word" aria-label="ROCKET"><span class="l" style="--i:0"><b>R</b></span><span class="l" style="--i:1"><b>O</b></span><span class="l" style="--i:2"><b>C</b></span><span class="l" style="--i:3"><b>K</b></span><span class="l" style="--i:4"><b>E</b></span><span class="l" style="--i:5"><b>T</b></span></h1>
+      <p class="sub" data-i18n="intro.sub">Explore, disassemble and recolor launch vehicles</p>
+    </div>
 
+    <canvas id="gl3d" aria-hidden="true"></canvas>
+    <div class="loading" id="loading3d" role="status"><i></i><span data-i18n="cu.loading">Loading 3D model…</span></div>
+
+    <div class="picker">
+      <label for="rocket-pick" data-i18n="st.pick">Rocket</label>
+      <select id="rocket-pick" data-i18n-attr="aria-label:st.pick"></select>
+    </div>
+
+    <aside class="cap" id="cap" aria-live="polite" hidden>
+      <p class="cap-n"><b id="cap-i">01</b><span id="cap-of">/ 07</span></p>
+      <h2 id="cap-t"></h2>
+      <p id="cap-d"></p>
+      <small id="cap-id"></small>
+    </aside>
+    <nav class="dots" id="dots" data-i18n-attr="aria-label:st.chapters"></nav>
+
+    <p class="scroll-hint" id="scroll-hint"><span data-i18n="st.scroll">Scroll to take it apart</span><i></i></p>
+    <a class="cta" id="cta" href="customize.html" hidden><span data-i18n="intro.go">Let's explore</span><b aria-hidden="true">→</b></a>
+
+    <div class="stats" data-i18n-attr="aria-label:stat.aria">
+      <div><b id="st-parts">0</b><span data-i18n="stat.parts">Parts in manifest</span></div>
+      <div><b data-count="3">0</b><span data-i18n="stat.rockets">Launch vehicles</span></div>
+      <div><b data-count="24">0</b><span data-i18n="stat.modules">3D modules</span></div>
+      <div><b id="st-docs">–</b><span data-i18n="stat.docs">Documented parts</span></div>
+    </div>
+  </section>
+</main>
 
 <footer class="foot">
   <a class="logo" href="index.html" data-i18n-attr="aria-label:nav.home.aria"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 2c3 3 4.5 7 4.5 11l-2 3h-5l-2-3C7.5 9 9 5 12 2Zm-2 15h4l-1 5h-2l-1-5Z" fill="currentColor"/></svg><span>ROCKET</span></a>
@@ -70,5 +84,6 @@
 <script type="module" src="assets/loader.js"></script>
 <script type="module" src="assets/main.js"></script>
 <script type="module" src="assets/motion.js"></script>
+<script type="module" src="assets/story.js"></script>
 </body>
 </html>
