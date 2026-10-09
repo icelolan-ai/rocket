@@ -12,15 +12,15 @@ addEventListener('scroll', onScroll, { passive: true }); onScroll();
 
 // Mobile menu
 const menuBtn = document.getElementById('menu-btn'), links = document.getElementById('nav-links');
-menuBtn.addEventListener('click', () => {
+menuBtn?.addEventListener('click', () => {
   const open = links.classList.toggle('open');
   menuBtn.setAttribute('aria-expanded', open);
 });
-links.addEventListener('click', e => { if (e.target.closest('a')) { links.classList.remove('open'); menuBtn.setAttribute('aria-expanded', false); } });
+links?.addEventListener('click', e => { if (e.target.closest('a')) { links.classList.remove('open'); menuBtn.setAttribute('aria-expanded', false); } });
 
 // Form (front-end only)
 const form = document.getElementById('form');
-form.addEventListener('submit', e => {
+form?.addEventListener('submit', e => {
   e.preventDefault();
   const s = form.querySelector('.status');
   if (!form.name.value.trim() || !form.email.value || !form.email.validity.valid) {

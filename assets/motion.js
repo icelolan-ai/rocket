@@ -57,7 +57,7 @@ addEventListener('scroll', onScroll, { passive: true });
 onScroll();
 
 /* ---------- starfield: streaks stretch with scroll / swipe speed ---------- */
-const cv = $('stars');
+const cv = document.body.dataset.stars === 'off' ? null : $('stars'); // the customize page keeps the GPU for the 3D view
 if (cv && !reduce) {
   const ctx = cv.getContext('2d');
   let W = 0, H = 0, stars = [];
@@ -98,4 +98,13 @@ if (cv && !reduce) {
     }
   };
   requestAnimationFrame(frame);
+}
+
+/* ---------- home stats from the manifest ---------- */
+if ($('st-parts')) {
+  fetch('rocket3d/parts_manifest.json').then(r => r.json()).then(j => {
+    const parts = j.parts;
+    window.countUp($('st-parts'), parts.length);
+    window.countUp($('st-docs'), Math.round(parts.filter(p => p.accuracy === 'documented').length / parts.length * 100), '%');
+  }).catch(() => { $('st-parts').textContent = '145'; $('st-docs').textContent = '40%'; });
 }
