@@ -101,7 +101,7 @@ function computeKeys() {
   const K = (f, azim, elev, ox, oy, tt) => ({ c: f.c.clone(), dist: f.dist, azim, elev, ox, oy, t: tt });
   const keys = [
     { p: 0, k: K(fb, 0.55, 0.1, 0, 0, 0) },
-    { p: 0.06, k: K(fb, 0.55, 0.1, 0, 0, 0) },
+    { p: 0.12, k: K(fb, 0.55, 0.1, 0, 0, 0) },
     { p: A, k: K(fe, 0.9, 0.14, 0, 0, 1) },
   ];
   S.chapters = specs.map(([name], i) => {
@@ -151,14 +151,16 @@ function apply(p, spinAdd = 0) {
 
 function updateCaption(p) {
   // hero (wordmark + Let's explore) -> rocket chooser -> chosen rocket pans in
-  const hp = 1 - smooth(0.012, 0.045, p), cp = smooth(0.025, 0.055, p);
+  const hp = 1 - smooth(0.004, 0.05, p), cp = smooth(0.07, 0.1, p); // the ROCKET page scrolls away first, then the chooser comes in
+  stage.style.setProperty('--hs', smooth(0, 0.05, p).toFixed(3));
   stage.style.setProperty('--hp', hp.toFixed(3));
   stage.style.setProperty('--cp', S.chosen ? 0 : cp.toFixed(3));
   stage.classList.toggle('picking', !S.chosen && cp > 0.4);
   stage.classList.toggle('chosen', S.chosen);
+  stage.classList.toggle('away', hp < 0.3);
   canvas.style.opacity = S.chosen ? Math.min(S.rv * 3, 1) : 0;
-  document.querySelector('.picker').style.opacity = S.chosen ? smooth(0.04, 0.09, p) : 0;
-  document.querySelector('.picker').style.pointerEvents = S.chosen && p > 0.05 ? '' : 'none';
+  document.querySelector('.picker').style.opacity = S.chosen ? smooth(0.1, 0.14, p) : 0;
+  document.querySelector('.picker').style.pointerEvents = S.chosen && p > 0.11 ? '' : 'none';
   const cap = $('cap'), N = S.chapters.length;
   const inTour = S.chosen && p >= 0.22 && p < 0.9;
   let i = -1, o = 0;
@@ -276,7 +278,7 @@ async function choose(key) {
     await loadVehicle(key);
   } else { S.chosen = true; syncChips(); }
   S.rvT0 = performance.now(); S.rv = reduce ? 1 : 0; // camera pans down onto the chosen rocket
-  if (first || scrollY < story.offsetHeight * 0.03) { const span = story.offsetHeight - innerHeight; scrollTo({ top: span * 0.07, behavior: reduce ? 'auto' : 'smooth' }); }
+  if (first || scrollY < story.offsetHeight * 0.05) { const span = story.offsetHeight - innerHeight; scrollTo({ top: span * 0.13, behavior: reduce ? 'auto' : 'smooth' }); }
   S.p = trackProgress(); apply(S.p, S.spin);
 }
 for (const v of VEHICLES) {
