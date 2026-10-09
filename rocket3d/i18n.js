@@ -12,7 +12,7 @@ const DICT = {
     'intro.scroll': 'Scroll', 'stat.parts': 'Parts in manifest', 'stat.rockets': 'Launch vehicles', 'stat.modules': '3D modules', 'stat.docs': 'Documented parts',
     'stat.aria': 'Key numbers',
     // story (home)
-    'st.aria': 'A rocket that takes itself apart as you scroll', 'st.pick': 'Rocket', 'st.scroll': 'Scroll to take it apart', 'st.chapters': 'Parts tour', 'st.go': 'Go to part',
+    'st.aria': 'A rocket that takes itself apart as you scroll', 'st.pick': 'Rocket', 'st.choose': 'Choose a rocket', 'st.scroll': 'Scroll to take it apart', 'st.chapters': 'Parts tour', 'st.go': 'Go to part',
     // customize
     'cu.aria': 'Customize the rocket in 3D', 'cu.canvas': '3D rocket model. Drag to rotate, click a part to select it',
     'cu.kicker': 'Customize', 'cu.rocket': 'Rocket', 'cu.rocket.aria': 'Choose a rocket', 'cu.variant': 'Variant', 'cu.explode': 'Disassemble',
@@ -96,7 +96,7 @@ const DICT = {
     'intro.eyebrow': 'จรวดแบบ 3 มิติ', 'intro.sub': 'สำรวจ ถอดแยก และเปลี่ยนสีจรวด', 'intro.go': 'เริ่มสำรวจ',
     'intro.scroll': 'เลื่อนลง', 'stat.parts': 'ชิ้นส่วนทั้งหมด', 'stat.rockets': 'จรวด', 'stat.modules': 'โมดูล 3D', 'stat.docs': 'ชิ้นที่มีแหล่งอ้างอิง',
     'stat.aria': 'ตัวเลขสำคัญ',
-    'st.aria': 'จรวดที่ค่อย ๆ แยกชิ้นส่วนเมื่อเลื่อนหน้า', 'st.pick': 'จรวด', 'st.scroll': 'เลื่อนลงเพื่อถอดแยก', 'st.chapters': 'ทัวร์ชิ้นส่วน', 'st.go': 'ไปที่ชิ้นส่วน',
+    'st.aria': 'จรวดที่ค่อย ๆ แยกชิ้นส่วนเมื่อเลื่อนหน้า', 'st.pick': 'จรวด', 'st.choose': 'เลือกจรวด', 'st.scroll': 'เลื่อนลงเพื่อถอดแยก', 'st.chapters': 'ทัวร์ชิ้นส่วน', 'st.go': 'ไปที่ชิ้นส่วน',
     'cu.aria': 'ปรับแต่งจรวด 3D', 'cu.canvas': 'โมเดลจรวด 3 มิติ ลากเพื่อหมุน คลิกชิ้นส่วนเพื่อเลือก',
     'cu.kicker': 'ปรับแต่ง', 'cu.rocket': 'จรวด', 'cu.rocket.aria': 'เลือกจรวด', 'cu.variant': 'รุ่น / สภาพ', 'cu.explode': 'ถอดแยกชิ้นส่วน',
     'cu.explode.btn': 'ถอดแยก / ประกอบกลับ', 'cu.explode.slider': 'ระดับการถอดแยก', 'cu.color': 'สี',
