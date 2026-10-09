@@ -8,6 +8,8 @@ import { VEHICLES, loadSaved, makeShadow, placeShadow } from '../rocket3d/common
 import { t, getLang, onLang } from '../rocket3d/i18n.js';
 
 const $ = id => document.getElementById(id);
+try { history.scrollRestoration = 'manual'; } catch { /* unsupported */ }
+scrollTo(0, 0); // always open on the ROCKET page, never mid-story
 const story = $('story'), stage = $('top'), canvas = $('gl3d');
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const clamp = (v, a = 0, b = 1) => Math.min(Math.max(v, a), b);
