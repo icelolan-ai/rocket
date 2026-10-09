@@ -10,9 +10,13 @@ import { t, getLang, onLang } from '../rocket3d/i18n.js';
 const $ = id => document.getElementById(id);
 try { history.scrollRestoration = 'manual'; } catch { /* unsupported */ }
 scrollTo(0, 0); // always open on the ROCKET page, never mid-story
+const arm = () => { scrollTo(0, 0); S.armed = true; S.p = 0; if (S.model) apply(0, 0); };
+if (document.documentElement.classList.contains('loading')) { document.addEventListener('rocket:revealing', () => scrollTo(0, 0), { once: true }); document.addEventListener('rocket:revealed', arm, { once: true }); setTimeout(() => { if (!S.armed) arm(); }, 21000); } else queueMicrotask(() => { S.armed = true; });
+addEventListener('pageshow', e => { if (e.persisted) arm(); });
 const story = $('story'), stage = $('top'), canvas = $('gl3d');
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const clamp = (v, a = 0, b = 1) => Math.min(Math.max(v, a), b);
+const back = k => { k = clamp(k); return k >= 1 ? 1 : 1 + 2.9 * Math.pow(k - 1, 3) + 1.9 * Math.pow(k - 1, 2); }; // ease-out-back
 const smooth = (a, b, v) => { const k = clamp((v - a) / (b - a)); return k * k * (3 - 2 * k); };
 const ease = k => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
 
@@ -40,7 +44,7 @@ const CH = {
   sv: [['les', ['SV-LES-000']], ['csm', ['SV-CSM-000']], ['sla', ['SV-SLA-000']], ['iu', ['SV-IU-000']], ['ivb', ['SV-IVB-000']], ['sii', ['SV-II-000']], ['sic', ['SV-IC-000']]],
 };
 
-const S = { manifest: null, veh: null, model: null, key: null, token: 0, dirty: true, visible: true, p: 0, keys: [], chapters: [], ch: -1, ctaOn: false, spin: 0, chosen: false, rv: 0, rvT0: 0 };
+const S = { manifest: null, veh: null, model: null, key: null, token: 0, dirty: true, visible: true, p: 0, keys: [], chapters: [], ch: -1, ctaOn: false, spin: 0, chosen: false, armed: false, rv: 0, rvT0: 0 };
 let renderer, scene, camera, shadow;
 
 /* ---------------- three.js ---------------- */
@@ -133,6 +137,7 @@ function evaluate(p) {
 
 /* ---------------- per-frame state ---------------- */
 function trackProgress() {
+  if (!S.armed) return 0; // ignore any restored scroll position until the loading screen is gone
   const r = story.getBoundingClientRect(), span = r.height - innerHeight;
   return span > 0 ? clamp(-r.top / span) : 0;
 }
@@ -157,10 +162,12 @@ function updateCaption(p) {
   stage.style.setProperty('--hs', smooth(0, 0.05, p).toFixed(3));
   stage.style.setProperty('--hp', hp.toFixed(3));
   stage.style.setProperty('--cp', S.chosen ? 0 : cp.toFixed(3));
+  stage.style.setProperty('--cb', back(cp).toFixed(3)); // chooser buttons bounce in
   stage.classList.toggle('picking', !S.chosen && cp > 0.4);
   stage.classList.toggle('chosen', S.chosen);
   stage.classList.toggle('away', hp < 0.3);
   canvas.style.opacity = S.chosen ? Math.min(S.rv * 3, 1) : 0;
+  canvas.style.transform = S.chosen && S.rv < 1 ? `scale(${(0.3 + 0.7 * back(S.rv)).toFixed(3)})` : ''; // the chosen rocket pops out
   document.querySelector('.picker').style.opacity = S.chosen ? smooth(0.1, 0.14, p) : 0;
   document.querySelector('.picker').style.pointerEvents = S.chosen && p > 0.11 ? '' : 'none';
   const cap = $('cap'), N = S.chapters.length;
@@ -204,7 +211,7 @@ addEventListener('scroll', () => { if (scrollQ) return; scrollQ = true; requestA
 function loop(now) {
   requestAnimationFrame(loop);
   if (!S.visible || !S.model) return;
-  if (S.chosen && S.rv < 1) { S.rv = Math.min((now - S.rvT0) / 1600, 1); apply(S.p, S.spin); }
+  if (S.chosen && S.rv < 1) { S.rv = Math.min((now - S.rvT0) / 1400, 1); apply(S.p, S.spin); }
   if (S.ctaOn && !reduce) { S.spin = (now / 1000) * 0.18; apply(S.p, S.spin); } // slow turntable at the end
   if (S.dirty) { S.dirty = false; renderer.render(scene, camera); }
 }
