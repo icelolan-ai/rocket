@@ -319,3 +319,12 @@ html.loading:not(.ld-reveal) .word .l b{animation-play-state:paused}
 /* Customize page: blue UI (matches the blue loader); home keeps orange */
 body.app-page{--accent:#35b8e8}
 body.app-page input[type=range]::-webkit-slider-thumb,body.app-page input[type=range]::-moz-range-thumb{box-shadow:0 0 0 4px rgba(53,184,232,.25)}
+
+/* hero: wordmark + rocket choice first, the 3D model comes in on scroll */
+.hero-pick{display:grid;justify-items:center;gap:12px;margin-top:10px;pointer-events:auto}
+.hero-pick>span{font-size:.58rem;letter-spacing:.3em;text-transform:uppercase;color:var(--mut)}
+#hero-chips{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
+#hero-chips button{padding:12px 22px;border-radius:40px;border:1px solid var(--line);background:rgba(10,16,20,.6);backdrop-filter:blur(8px);color:#fff;font-size:.8rem;letter-spacing:.06em;cursor:pointer;transition:.2s}
+#hero-chips button:hover,#hero-chips button[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:#0a0a0a}
+.stage .scroll-hint{bottom:70px}
+@media (max-width:900px){.stage .scroll-hint{bottom:60px}#hero-chips button{padding:11px 18px}}

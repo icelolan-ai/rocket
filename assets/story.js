@@ -149,6 +149,9 @@ function apply(p, spinAdd = 0) {
 }
 
 function updateCaption(p) {
+  const f = clamp((p - 0.012) / 0.08); // the page opens on the wordmark only; the rocket fades in as you scroll
+  canvas.style.opacity = f; canvas.style.transform = `translateY(${((1 - f) * 40).toFixed(1)}px)`;
+  document.querySelector('.picker').style.opacity = f; document.querySelector('.picker').style.pointerEvents = f < 0.5 ? 'none' : '';
   const cap = $('cap'), N = S.chapters.length;
   const inTour = p >= 0.22 && p < 0.9;
   let i = -1, o = 0;
@@ -254,10 +257,25 @@ for (const v of VEHICLES) { const o = document.createElement('option'); o.value 
 let startKey = 'f9';
 try { const k = localStorage.getItem('rocket3d:pick'); if (VEHICLES.some(v => v.key === k)) startKey = k; } catch { /* storage unavailable */ }
 pick.value = startKey;
-pick.addEventListener('change', () => {
-  try { localStorage.setItem('rocket3d:pick', pick.value); } catch { /* storage unavailable */ }
-  loadVehicle(pick.value);
-});
+const chips = $('hero-chips');
+const syncChips = () => chips.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.k === pick.value)));
+function choose(key, scroll) {
+  if (pick.value !== key) {
+    pick.value = key;
+    try { localStorage.setItem('rocket3d:pick', key); } catch { /* storage unavailable */ }
+    loadVehicle(key);
+  }
+  syncChips();
+  if (scroll) { const span = story.offsetHeight - innerHeight; scrollTo({ top: Math.max(scrollY, span * 0.045), behavior: reduce ? 'auto' : 'smooth' }); }
+}
+for (const v of VEHICLES) {
+  const b = document.createElement('button');
+  b.type = 'button'; b.dataset.k = v.key; b.textContent = v.label;
+  b.addEventListener('click', () => choose(v.key, true));
+  chips.append(b);
+}
+syncChips();
+pick.addEventListener('change', () => choose(pick.value, false));
 
 onLang(() => { if (S.model) { renderCaption(); buildDots(); updateCaption(S.p); } });
 
