@@ -6,6 +6,7 @@
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
+html,body{overflow-x:hidden;overflow-x:clip;overscroll-behavior-x:none}
 body{font-family:var(--font);color:var(--text);-webkit-font-smoothing:antialiased;background:var(--bg);
   background-image:radial-gradient(70% 55% at 50% 30%,rgba(35,105,125,.35),transparent 70%);
   display:flex;flex-direction:column;min-height:100vh}

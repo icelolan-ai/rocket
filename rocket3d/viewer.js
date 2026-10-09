@@ -41,6 +41,9 @@ const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
 controls.dampingFactor = 0.12;
 controls.addEventListener('change', invalidate);
+// on phones the stage is tall: let vertical swipes scroll the page instead of trapping them
+const touchMode = () => { canvas.style.touchAction = matchMedia('(max-width: 760px)').matches ? 'pan-y' : 'none'; };
+touchMode(); addEventListener('resize', touchMode);
 controls.listenToKeyEvents(canvas); // arrow keys pan (canvas is focusable)
 const boxHelper = new THREE.Box3Helper(new THREE.Box3(), 0xff6a1f);
 const shadow = makeShadow();
