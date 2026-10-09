@@ -103,6 +103,7 @@ h1{font-size:clamp(4rem,14vw,9.5rem);font-weight:600;letter-spacing:.04em;line-h
 .actions{display:flex;gap:8px;flex-wrap:wrap}
 .btn{padding:11px 16px;background:#cfcfcb;font-size:.52rem;letter-spacing:.12em;text-transform:uppercase;transition:.25s}
 .btn.primary{background:var(--ink);color:#fff}
+a.btn{display:inline-block}
 .btn:hover{background:var(--lime);color:#000}
 
 /* CONTACT */
