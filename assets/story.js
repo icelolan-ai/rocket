@@ -38,7 +38,7 @@ const CH = {
   sv: [['les', ['SV-LES-000']], ['csm', ['SV-CSM-000']], ['sla', ['SV-SLA-000']], ['iu', ['SV-IU-000']], ['ivb', ['SV-IVB-000']], ['sii', ['SV-II-000']], ['sic', ['SV-IC-000']]],
 };
 
-const S = { manifest: null, veh: null, model: null, key: null, token: 0, dirty: true, visible: true, p: 0, keys: [], chapters: [], ch: -1, ctaOn: false, spin: 0 };
+const S = { manifest: null, veh: null, model: null, key: null, token: 0, dirty: true, visible: true, p: 0, keys: [], chapters: [], ch: -1, ctaOn: false, spin: 0, chosen: false, rv: 0, rvT0: 0 };
 let renderer, scene, camera, shadow;
 
 /* ---------------- three.js ---------------- */
@@ -142,19 +142,25 @@ function apply(p, spinAdd = 0) {
   camera.position.copy(st.c).add(V3(Math.sin(az) * cd, Math.sin(st.elev), Math.cos(az) * cd).multiplyScalar(st.dist));
   camera.lookAt(st.c);
   const W = renderer.domElement.clientWidth, H = renderer.domElement.clientHeight;
-  if (Math.abs(st.ox) > 1e-3 || Math.abs(st.oy) > 1e-3) camera.setViewOffset(W, H, st.ox * W, st.oy * H, W, H); else camera.clearViewOffset();
+  const pan = S.rv < 1 ? Math.pow(1 - S.rv, 3) * 0.95 : 0; // extra downward pan while the chosen rocket comes into view
+  if (Math.abs(st.ox) > 1e-3 || Math.abs(st.oy) > 1e-3 || pan > 1e-3) camera.setViewOffset(W, H, st.ox * W, (st.oy - pan) * H, W, H); else camera.clearViewOffset();
   camera.near = Math.max(0.2, st.dist / 300); camera.far = st.dist * 40; camera.updateProjectionMatrix();
   updateCaption(p);
   S.dirty = true;
 }
 
 function updateCaption(p) {
-  const f = clamp((p - 0.012) / 0.1); // the page opens on the wordmark only; the rocket fades in as you scroll
-  const bk = 1.9, e = f >= 1 ? 1 : 1 + (bk + 1) * Math.pow(f - 1, 3) + bk * Math.pow(f - 1, 2); // ease-out-back: pops out with a little overshoot
-  canvas.style.opacity = Math.min(f * 2.5, 1); canvas.style.transform = f >= 1 ? '' : `scale(${(0.35 + 0.65 * e).toFixed(3)})`;
-  document.querySelector('.picker').style.opacity = f; document.querySelector('.picker').style.pointerEvents = f < 0.5 ? 'none' : '';
+  // hero (wordmark + Let's explore) -> rocket chooser -> chosen rocket pans in
+  const hp = 1 - smooth(0.012, 0.045, p), cp = smooth(0.025, 0.055, p);
+  stage.style.setProperty('--hp', hp.toFixed(3));
+  stage.style.setProperty('--cp', S.chosen ? 0 : cp.toFixed(3));
+  stage.classList.toggle('picking', !S.chosen && cp > 0.4);
+  stage.classList.toggle('chosen', S.chosen);
+  canvas.style.opacity = S.chosen ? Math.min(S.rv * 3, 1) : 0;
+  document.querySelector('.picker').style.opacity = S.chosen ? smooth(0.04, 0.09, p) : 0;
+  document.querySelector('.picker').style.pointerEvents = S.chosen && p > 0.05 ? '' : 'none';
   const cap = $('cap'), N = S.chapters.length;
-  const inTour = p >= 0.22 && p < 0.9;
+  const inTour = S.chosen && p >= 0.22 && p < 0.9;
   let i = -1, o = 0;
   if (inTour) {
     i = clamp(Math.floor((p - 0.22) / ((0.84 - 0.22) / N)), 0, N - 1);
@@ -169,7 +175,7 @@ function updateCaption(p) {
   document.querySelectorAll('#dots button').forEach((b, k) => b.classList.toggle('on', k === i));
   $('dots').style.setProperty('--dots-o', p >= 0.2 && p < 0.93 ? 1 : 0);
   // end of the story: reassembled rocket + button
-  const showCta = p >= 0.955;
+  const showCta = S.chosen && p >= 0.955;
   if (showCta !== S.ctaOn) {
     S.ctaOn = showCta;
     const cta = $('cta');
@@ -194,6 +200,7 @@ addEventListener('scroll', () => { if (scrollQ) return; scrollQ = true; requestA
 function loop(now) {
   requestAnimationFrame(loop);
   if (!S.visible || !S.model) return;
+  if (S.chosen && S.rv < 1) { S.rv = Math.min((now - S.rvT0) / 1600, 1); apply(S.p, S.spin); }
   if (S.ctaOn && !reduce) { S.spin = (now / 1000) * 0.18; apply(S.p, S.spin); } // slow turntable at the end
   if (S.dirty) { S.dirty = false; renderer.render(scene, camera); }
 }
@@ -259,26 +266,26 @@ let startKey = 'f9';
 try { const k = localStorage.getItem('rocket3d:pick'); if (VEHICLES.some(v => v.key === k)) startKey = k; } catch { /* storage unavailable */ }
 pick.value = startKey;
 const chips = $('hero-chips');
-const syncChips = () => chips.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.k === pick.value)));
-function choose(key, scroll) {
-  if (pick.value !== key) {
+const syncChips = () => chips.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(S.chosen && b.dataset.k === pick.value)));
+async function choose(key) {
+  const first = !S.chosen;
+  if (pick.value !== key || S.key !== key) {
     pick.value = key;
     try { localStorage.setItem('rocket3d:pick', key); } catch { /* storage unavailable */ }
-    loadVehicle(key);
-  }
-  syncChips();
-  if (scroll) { const span = story.offsetHeight - innerHeight; scrollTo({ top: Math.max(scrollY, span * 0.045), behavior: reduce ? 'auto' : 'smooth' }); }
+    S.chosen = true; syncChips();
+    await loadVehicle(key);
+  } else { S.chosen = true; syncChips(); }
+  S.rvT0 = performance.now(); S.rv = reduce ? 1 : 0; // camera pans down onto the chosen rocket
+  if (first || scrollY < story.offsetHeight * 0.03) { const span = story.offsetHeight - innerHeight; scrollTo({ top: span * 0.07, behavior: reduce ? 'auto' : 'smooth' }); }
+  S.p = trackProgress(); apply(S.p, S.spin);
 }
 for (const v of VEHICLES) {
   const b = document.createElement('button');
   b.type = 'button'; b.dataset.k = v.key; b.textContent = v.label;
-  b.addEventListener('click', () => choose(v.key, true));
+  b.addEventListener('click', () => choose(v.key));
   chips.append(b);
 }
-syncChips();
-pick.addEventListener('change', () => choose(pick.value, false));
-
-onLang(() => { if (S.model) { renderCaption(); buildDots(); updateCaption(S.p); } });
+pick.addEventListener('change', () => choose(pick.value));
 
 /* ---------------- boot ---------------- */
 async function boot() {
