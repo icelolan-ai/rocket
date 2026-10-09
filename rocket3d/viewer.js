@@ -3,23 +3,16 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { Manifest, loadModel, unloadGLB } from './model.js';
+import { VEHICLES, SWATCHES, ACC_TH, loadSaved, saveState, makeShadow, placeShadow } from './common.js';
 import { slotInfo, applySlot, placeTarget, placeModule } from './slots.js';
 
 const $ = id => document.getElementById(id);
 
-const VEHICLES = [
-  { key: 'f9', label: 'Falcon 9', note: '69.9 m', file: 'VEH_full', variant: 'CLEAN' },
-  { key: 'fh', label: 'Falcon Heavy', note: '3 core', file: 'VEH_FH_full', variant: 'CLEAN' },
-  { key: 'sv', label: 'Saturn V', note: '110.6 m', file: 'SV_full', variant: 'SV_AS506' },
-];
 const GALLERY = [
   ['Falcon 9 / Heavy', ['S1_TNK', 'S1_AFT', 'S1_LEG', 'IS', 'S2', 'PL', 'ENG_M1D', 'ENG_M1D_x9', 'ENG_MVAC']],
   ['ชิ้นสลับ (slot)', ['IS_GRIDFIN_AL', 'PL_FAIRING_EXT', 'PL_PAYLOAD_B']],
   ['Saturn V', ['SV_IC', 'SV_II', 'SV_IVB', 'SV_IU', 'SV_SLA', 'SV_CSM', 'SV_LES', 'ENG_F1', 'ENG_J2']],
 ];
-const SWATCHES = ['#f2f2ef', '#151515', '#e6f23a', '#e2674a', '#3b82c4', '#2f9e6b', '#c9a23f', '#8a8a85'];
-const ACC_TH = { documented: 'มีแหล่งอ้างอิง', 'standard-based': 'ตามมาตรฐาน', representative: 'ค่าประมาณ' };
-
 const S = {
   manifest: null, mode: 'viewer', veh: null, main: null, gal: null, galKey: null,
   sel: null, vehToken: 0, galToken: 0, dirty: true, anim: null, cams: {},
@@ -42,7 +35,9 @@ controls.enableDamping = true;
 controls.dampingFactor = 0.12;
 controls.addEventListener('change', invalidate);
 controls.listenToKeyEvents(canvas); // arrow keys pan (canvas is focusable)
-const boxHelper = new THREE.Box3Helper(new THREE.Box3(), 0xe6f23a);
+const boxHelper = new THREE.Box3Helper(new THREE.Box3(), 0x16171a);
+const shadow = makeShadow();
+scene.add(shadow);
 boxHelper.visible = false;
 scene.add(boxHelper);
 
@@ -76,7 +71,12 @@ function frame(box) {
 }
 function resetView() {
   const m = cur();
-  if (m) frame(m.box(m.meshes));
+  if (m) { frame(m.box(m.meshes)); }
+}
+function updateShadow() {
+  const m = cur();
+  if (m) placeShadow(shadow, m.box(m.meshes.filter(x => x.visible)));
+  invalidate();
 }
 
 /* ---------------- notices / loading ---------------- */
@@ -93,20 +93,15 @@ function loading(on, text) {
 }
 
 /* ---------------- persistence (per vehicle) ---------------- */
-const storeKey = k => `rocket3d:v1:${k}`;
 function save() {
   const m = S.main;
   if (!m) return;
-  try {
-    localStorage.setItem(storeKey(S.veh.key), JSON.stringify({
-      variant: m.variant, paint: m.exportPaint(),
-      slots: Object.fromEntries(Object.entries(m.slots ?? {}).map(([k, v]) => [k, v.current])),
-    }));
-  } catch { /* storage unavailable */ }
+  saveState(S.veh.key, {
+    variant: m.variant, paint: m.exportPaint(),
+    slots: Object.fromEntries(Object.entries(m.slots ?? {}).map(([k, v]) => [k, v.current])),
+  });
 }
-function restore(key) {
-  try { return JSON.parse(localStorage.getItem(storeKey(key)) || 'null'); } catch { return null; }
-}
+const restore = loadSaved;
 
 /* ---------------- vehicle loading ---------------- */
 async function loadVehicle(key) {
@@ -184,7 +179,7 @@ function applyExplode(t) {
   $('explode').value = t;
   $('explode-out').textContent = t.toFixed(2);
   updateHighlight();
-  invalidate();
+  updateShadow();
 }
 function animateExplode(to) {
   const m = cur(); if (!m) return;
