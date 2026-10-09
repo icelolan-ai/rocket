@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Rocket — Treatment Dynamics</title>
-<meta name="description" content="Visual design landing page: dark minimal hero, clinical timeline dashboard and contact form.">
+<title>Rocket — Explore launch vehicles in 3D</title>
+<meta name="description" content="ดู ถอดแยก และเปลี่ยนสีจรวด Falcon 9, Falcon Heavy และ Saturn V แบบ 3 มิติ">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600&family=Noto+Sans+Thai:wght@300;400;500&display=swap" rel="stylesheet">
@@ -18,144 +18,179 @@
 </head>
 <body>
 
-<!-- 01 HERO -->
-<section class="screen hero" id="top">
-  <header class="nav">
-    <a class="logo" href="#top" aria-label="Rocket">RO<br>CK</a>
-    <nav>
-      <a href="#dynamics">Dynamics</a>
-      <a href="rocket3d/viewer.html">3D Viewer</a>
-      <a href="#contact">Contact</a>
-    </nav>
-  </header>
-  <div class="hero-body">
-    <p class="eyebrow">I am</p>
-    <h1>ROCKET</h1>
-    <p class="sub">A visual design<br>for modern care</p>
+<header class="nav" id="nav">
+  <a class="logo" href="#top" aria-label="Rocket — home"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 2c3 3 4.5 7 4.5 11l-2 3h-5l-2-3C7.5 9 9 5 12 2Zm-2 15h4l-1 5h-2l-1-5Z" fill="currentColor"/></svg><span>ROCKET</span></a>
+  <nav class="links" id="nav-links" aria-label="เมนูหลัก">
+    <a href="#top">Home</a>
+    <a href="#lab">Customize</a>
+    <a href="#rockets">Rockets</a>
+    <a href="#features">Features</a>
+    <a href="#contact">Contact</a>
+  </nav>
+  <a class="btn-outline" href="rocket3d/viewer.html">Open viewer</a>
+  <button class="menu" id="menu-btn" aria-label="เมนู" aria-expanded="false" aria-controls="nav-links"><i></i><i></i><i></i></button>
+</header>
+
+<!-- ============ INTRO ============ -->
+<section class="intro" id="top">
+  <div class="intro-body">
+    <p class="eyebrow">Launch vehicles in 3D</p>
+    <h1 class="word">ROCKET</h1>
+    <p class="sub">Explore, disassemble and recolor launch vehicles</p>
+    <a class="go" href="#lab">Let's explore <span aria-hidden="true">→</span></a>
   </div>
-  <ul class="social" aria-label="Social">
+  <ul class="social intro-social" aria-label="Social">
     <li><a href="#" aria-label="Facebook">f</a></li>
-    <li><a href="#" aria-label="Twitter">t</a></li>
     <li><a href="#" aria-label="Instagram">in</a></li>
+    <li><a href="#" aria-label="Twitter">t</a></li>
   </ul>
-  <a class="scroll" href="#dynamics"><span>Scroll</span><i></i></a>
-  <span class="index">.01</span>
+  <a class="scroll-cue" href="#lab" aria-label="เลื่อนลง"><span>Scroll</span><i></i></a>
+  <div class="stats" aria-label="ตัวเลขสำคัญ">
+    <div><b id="st-parts">145</b><span>Parts in manifest</span></div>
+    <div><b>3</b><span>Launch vehicles</span></div>
+    <div><b>24</b><span>3D modules</span></div>
+    <div><b id="st-docs">–</b><span>Documented parts</span></div>
+  </div>
 </section>
 
-<!-- 02 ROCKET LAB (live 3D) -->
-<section class="screen light" id="dynamics">
-  <div class="device">
-    <div class="topbar">
-      <button class="close" aria-label="Close">&times;</button>
-      <h2>Rocket Lab</h2>
-      <div class="tabs" role="tablist" aria-label="เมนู">
-        <button class="pill active" role="tab" aria-selected="true" data-tab="assembly">Assembly</button>
-        <button class="pill" role="tab" aria-selected="false" data-tab="parts">Parts</button>
-        <button class="pill" role="tab" aria-selected="false" data-tab="colors">Colors</button>
-        <button class="pill" role="tab" aria-selected="false" data-tab="specs">Specs</button>
-        <a class="pill" href="rocket3d/viewer.html">Full viewer ↗</a>
-      </div>
+<!-- ============ CUSTOMIZE (live 3D) ============ -->
+<section class="hero" id="lab" aria-label="ปรับแต่งจรวด 3D">
+  <div class="floor" aria-hidden="true"></div>
+
+  <div class="hero-stage" id="hero-stage">
+    <canvas id="gl3d" tabindex="0" aria-label="โมเดลจรวด 3 มิติ ลากเพื่อหมุน คลิกชิ้นส่วนเพื่อเลือก"></canvas>
+    <div class="chip" id="chip" hidden></div>
+    <div class="loading" id="loading3d" role="status"><i></i><span>กำลังโหลดโมเดล 3D…</span></div>
+  </div>
+
+  <ol class="veh" id="veh" aria-label="เลือกจรวด"></ol>
+
+  <dl class="specs" aria-label="ข้อมูลโมเดลที่เลือก">
+    <div><dt>Model</dt><dd id="sp-model">–</dd></div>
+    <div><dt>Height</dt><dd id="sp-height">–</dd></div>
+    <div><dt>Parts</dt><dd id="sp-parts">–</dd></div>
+    <div><dt>Variant</dt><dd><span class="vchips" id="variants" role="radiogroup" aria-label="Variant"></span></dd></div>
+  </dl>
+
+  <div class="dock" role="group" aria-label="ควบคุมโมเดล">
+    <div class="dock-item explode">
+      <button class="play" id="explode-btn" aria-label="ถอดแยก / ประกอบกลับ" aria-pressed="false">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 3v6M12 15v6M9 6l3-3 3 3M9 18l3 3 3-3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <label><span>Explode</span>
+        <input id="explode" type="range" min="0" max="1" step="0.001" value="0" aria-label="ระดับการถอดแยก"></label>
+      <output id="explode-out">0%</output>
     </div>
-
-    <div class="panel hud">
-      <div class="ghost" id="lab-ghost" aria-hidden="true">F9</div>
-
-      <aside class="hud-left">
-        <div class="ruler" aria-hidden="true"></div>
-        <div class="tag"><small>Rocket design dept.</small><strong id="tag-code">F9</strong><span id="tag-name">FALCON 9</span></div>
-        <div class="specs">
-          <h3>ข้อมูลจากโมเดล</h3>
-          <div class="bar"><span>Height</span><i id="b-h"></i><b id="v-h">–</b></div>
-          <div class="bar"><span>Parts</span><i id="b-p"></i><b id="v-p">–</b></div>
-          <div class="bar"><span>Documented</span><i id="b-d"></i><b id="v-d">–</b></div>
-        </div>
-        <ul class="hud-social" aria-label="Social">
-          <li><a href="#" aria-label="Facebook">f</a></li>
-          <li><a href="#" aria-label="Twitter">t</a></li>
-          <li><a href="#" aria-label="YouTube">▶</a></li>
-        </ul>
-      </aside>
-
-      <div class="stage3d" id="lab-stage">
-        <canvas id="lab-gl" tabindex="0" aria-label="โมเดลจรวด 3 มิติ ลากเพื่อหมุน คลิกชิ้นส่วนเพื่อเลือก"></canvas>
-        <div class="lab-chip" id="lab-chip" hidden></div>
-        <div class="lab-loading" id="lab-loading" role="status"><i></i><span>กำลังโหลดโมเดล 3D…</span></div>
-        <p class="lab-hint">ลากเพื่อหมุน · คลิกชิ้นส่วนเพื่อเลือก · คลิกที่โมเดลก่อนเพื่อซูมด้วยล้อเมาส์</p>
-      </div>
-
-      <aside class="hud-right" aria-label="ควบคุมโมเดล">
-        <!-- Assembly -->
-        <div class="card" data-pane="assembly">
-          <h4>จรวด</h4>
-          <div class="seg" id="lab-vehicles" role="radiogroup" aria-label="เลือกจรวด"></div>
-          <h4>Variant</h4>
-          <div class="chips" id="lab-variants" role="radiogroup" aria-label="Variant"></div>
-          <h4>ถอดแยกชิ้นส่วน</h4>
-          <div class="explode">
-            <button class="play" id="lab-explode-btn" aria-label="ถอดแยก / ประกอบ" aria-pressed="false">
-              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 3v6M12 15v6M9 6l3-3 3 3M9 18l3 3 3-3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </button>
-            <input id="lab-explode" type="range" min="0" max="1" step="0.001" value="0" aria-label="ระดับการถอดแยก">
-            <output id="lab-explode-out">0%</output>
-          </div>
-          <a class="link" href="rocket3d/viewer.html">เปิด 3D Viewer เต็มจอ — สลับชิ้นส่วน, Part Gallery →</a>
-        </div>
-
-        <!-- Parts -->
-        <div class="card" data-pane="parts" hidden>
-          <h4>ชิ้นส่วน <small id="lab-parts-count"></small></h4>
-          <input id="lab-search" type="search" placeholder="ค้นหาชิ้นส่วน / part id" aria-label="ค้นหาชิ้นส่วน">
-          <ul class="plist" id="lab-parts"></ul>
-        </div>
-
-        <!-- Colors -->
-        <div class="card" data-pane="colors" hidden>
-          <h4>เปลี่ยนสี</h4>
-          <p class="msg" id="lab-paint-msg">คลิกชิ้นส่วนบนโมเดลหรือเลือกจากแท็บ Parts</p>
-          <div id="lab-paint-ui" hidden>
-            <div class="swatches" id="lab-swatches" aria-label="สีสำเร็จรูป"></div>
-            <label class="picker">เลือกสีเอง <input type="color" id="lab-color" value="#f2f2ef" aria-label="เลือกสี"></label>
-            <div class="row">
-              <button class="btn" id="lab-reset-part">Reset ชิ้นนี้</button>
-              <button class="btn" id="lab-reset-all">Reset ทั้งหมด</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Specs -->
-        <div class="card" data-pane="specs" hidden>
-          <h4>รายละเอียดชิ้นส่วน</h4>
-          <div id="lab-info-empty"><p class="msg">คลิกชิ้นส่วนบนโมเดลเพื่อดูรายละเอียด</p><dl class="legend" id="lab-legend"></dl></div>
-          <div id="lab-info" hidden>
-            <p class="name-th" id="li-th"></p><p class="name-en" id="li-en"></p>
-            <dl class="kv">
-              <dt>part id</dt><dd id="li-id"></dd>
-              <dt>accuracy</dt><dd id="li-acc"></dd>
-              <dt>material</dt><dd id="li-mat"></dd>
-              <dt>paint zone</dt><dd id="li-zone"></dd>
-            </dl>
-            <div class="row">
-              <button class="btn" id="lab-isolate">Isolate</button>
-              <button class="btn" id="lab-showall">แสดงทุกชิ้น</button>
-            </div>
-          </div>
-        </div>
-      </aside>
+    <div class="dock-item paint" id="paint">
+      <span class="lbl">Paint <small id="paint-hint">เลือกชิ้นส่วนก่อน</small></span>
+      <div class="swatches" id="swatches" aria-label="สีสำเร็จรูป"></div>
+      <input type="color" id="color" value="#f2f2ef" aria-label="เลือกสีเอง">
+      <button class="mini" id="reset-part" title="Reset สีชิ้นนี้">Reset</button>
+    </div>
+    <div class="dock-item end">
+      <button class="parts-btn" id="open-parts" aria-expanded="false" aria-controls="drawer">Parts <i>▸</i></button>
+      <ul class="social" aria-label="Social">
+        <li><a href="#" aria-label="Facebook">f</a></li>
+        <li><a href="#" aria-label="Instagram">in</a></li>
+        <li><a href="#" aria-label="Twitter">t</a></li>
+      </ul>
     </div>
   </div>
-  <span class="index">.02</span>
+
+  <aside class="drawer" id="drawer" aria-label="รายการชิ้นส่วน" hidden>
+    <header><h2>Parts <small id="parts-count"></small></h2><button class="x" id="close-drawer" aria-label="ปิด">&times;</button></header>
+    <input id="parts-search" type="search" placeholder="ค้นหาชิ้นส่วน / part id" aria-label="ค้นหาชิ้นส่วน">
+    <ul class="plist" id="parts-list"></ul>
+    <div class="info" id="info" hidden>
+      <p class="name-th" id="d-th"></p><p class="name-en" id="d-en"></p>
+      <dl class="kv">
+        <dt>part id</dt><dd id="d-id"></dd>
+        <dt>accuracy</dt><dd id="d-acc"></dd>
+        <dt>material</dt><dd id="d-mat"></dd>
+        <dt>paint zone</dt><dd id="d-zone"></dd>
+      </dl>
+      <div class="row"><button class="mini" id="isolate">Isolate</button><button class="mini" id="showall">แสดงทุกชิ้น</button></div>
+    </div>
+  </aside>
 </section>
 
-<!-- 03 CONTACT -->
-<section class="screen contact" id="contact">
-  <header class="nav">
-    <a class="logo" href="#top" aria-label="Rocket">RO<br>CK</a>
-    <nav><a href="#dynamics">Dynamics</a><a href="rocket3d/viewer.html">3D Viewer</a><a href="#contact">Contact</a></nav>
+<!-- ============ ROCKETS ============ -->
+<section class="rockets reveal" id="rockets">
+  <header class="sec-head">
+    <p class="kicker">Collection</p>
+    <h2>ROCKETS</h2>
+    <p class="lead">เลือกจรวดเพื่อเปิดดูแบบ 3 มิติ — ถอดแยกทีละชิ้น เปลี่ยนสี และดูระดับความแม่นยำของแต่ละชิ้นส่วน</p>
   </header>
+  <div class="cards">
+    <article class="rk" data-key="f9">
+      <button class="rk-img" data-key="f9" aria-label="ดู Falcon 9 ใน 3D"><img src="assets/img/f9.jpg" alt="Falcon 9" width="480" height="560" loading="lazy"></button>
+      <span class="n">001</span>
+      <h3>Falcon 9</h3>
+      <p>จรวด 2 สเตจ สูง 69.9 m เครื่อง Merlin 1D ×9 ขาลงจอด 4 ขา พร้อม variant สภาพใหม่ / บูสเตอร์ใช้ซ้ำ</p>
+      <button class="link" data-key="f9">View in 3D →</button>
+    </article>
+    <article class="rk" data-key="fh">
+      <button class="rk-img" data-key="fh" aria-label="ดู Falcon Heavy ใน 3D"><img src="assets/img/fh.jpg" alt="Falcon Heavy" width="480" height="560" loading="lazy"></button>
+      <span class="n">002</span>
+      <h3>Falcon Heavy</h3>
+      <p>แกนกลาง + บูสเตอร์ข้าง 2 ท่อน ใช้ชิ้นส่วนร่วมกับ Falcon 9 ถอดบูสเตอร์ออกด้านข้างได้</p>
+      <button class="link" data-key="fh">View in 3D →</button>
+    </article>
+    <article class="rk" data-key="sv">
+      <button class="rk-img" data-key="sv" aria-label="ดู Saturn V ใน 3D"><img src="assets/img/sv.jpg" alt="Saturn V" width="480" height="560" loading="lazy"></button>
+      <span class="n">003</span>
+      <h3>Saturn V</h3>
+      <p>สูง 110.6 m เครื่อง F-1 ×5 และ J-2 ×6 แยกเป็นโมดูล S-IC, S-II, S-IVB, IU, SLA, CSM, LES</p>
+      <button class="link" data-key="sv">View in 3D →</button>
+    </article>
+  </div>
+</section>
+
+<!-- ============ FEATURES ============ -->
+<section class="features reveal" id="features">
+  <div class="feat-intro">
+    <p class="kicker">What you can do</p>
+    <h2>TAKE IT<br>APART.</h2>
+    <p class="lead">ทุกลำสร้างจากโมเดล CAD แยกเป็นชิ้นส่วนจริง ไม่ใช่ภาพนิ่ง — หมุน ถอด สลับ และทาสีใหม่ได้ในเบราว์เซอร์</p>
+    <a class="btn-solid" href="rocket3d/viewer.html">Open full viewer</a>
+  </div>
+  <div class="feat-grid">
+    <article>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v6M12 15v6M9 6l3-3 3 3M9 18l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <h3>Disassemble</h3>
+      <p>ถอดแยกทั้งลำหรือเฉพาะโมดูล ทยอยตามลำดับการประกอบ แล้วประกอบกลับที่เดิมพอดี</p>
+    </article>
+    <article>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18c1.4 0 2-1 1.6-2-.5-1.2.2-2.5 1.6-2.5H17a4 4 0 0 0 4-4C21 6.6 17 3 12 3Z" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="8" cy="11" r="1.1" fill="currentColor"/><circle cx="12" cy="7.5" r="1.1" fill="currentColor"/><circle cx="16" cy="10" r="1.1" fill="currentColor"/></svg>
+      <h3>Recolor</h3>
+      <p>เลือกสีให้แต่ละชิ้น ทั้ง paint zone หรือทุก instance บันทึกในเครื่อง และ Export / Import ได้</p>
+    </article>
+    <article>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h11l-3-3M17 17H6l3 3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <h3>Swap parts</h3>
+      <p>สลับกริดฟิน แฟริ่ง และ payload เทียบขนาดกับชิ้นเดิม และดูโมดูลจากทุกลำใน Part Gallery</p>
+    </article>
+  </div>
+</section>
+
+<!-- ============ ACCURACY ============ -->
+<section class="accuracy reveal" aria-labelledby="acc-h">
+  <h2 id="acc-h">HOW ACCURATE?</h2>
+  <p class="lead">ขนาดบางส่วนเป็นค่าประมาณ — ทุกชิ้นส่วนระบุระดับความแม่นยำไว้เสมอ</p>
+  <div class="acc-grid">
+    <div><span class="dot doc"></span><h3>documented</h3><p>รูปทรงและขนาดจากแหล่งอ้างอิงที่ระบุได้</p></div>
+    <div><span class="dot std"></span><h3>standard-based</h3><p>สร้างตามมาตรฐานวิศวกรรม เช่น ISO</p></div>
+    <div><span class="dot rep"></span><h3>representative</h3><p>ชิ้นส่วนมีอยู่จริง แต่รูปทรงเป็นค่าประมาณที่สมเหตุสมผล</p></div>
+  </div>
+</section>
+
+<!-- ============ CONTACT ============ -->
+<section class="contact reveal" id="contact">
   <div class="contact-grid">
     <div class="info">
-      <h2>CONTACT</h2>
-      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.</p>
+      <p class="kicker">Get in touch</p>
+      <h2>TALK TO US</h2>
+      <p class="lead">สนใจโมเดล 3D หรืออยากให้เพิ่มจรวดลำอื่น ส่งข้อความมาได้เลย</p>
       <dl>
         <dt>Address</dt><dd>Bangkok, Thailand</dd>
         <dt>Phone</dt><dd>+66 80 123 45 67</dd>
@@ -163,24 +198,23 @@
       </dl>
     </div>
     <form class="form" id="form" novalidate>
-      <h2>CONTACT FORM</h2>
-      <label><input name="name" placeholder="Your name" required></label>
-      <label><input name="phone" placeholder="Your phone" type="tel"></label>
-      <label><input name="email" placeholder="Your e-mail" type="email" required></label>
-      <label><textarea name="message" rows="2" placeholder="Message"></textarea></label>
-      <button type="submit">Send message <span>+</span></button>
+      <label><input name="name" placeholder="Your name" required aria-label="Your name"></label>
+      <label><input name="phone" placeholder="Your phone" type="tel" aria-label="Your phone"></label>
+      <label><input name="email" placeholder="Your e-mail" type="email" required aria-label="Your e-mail"></label>
+      <label><textarea name="message" rows="3" placeholder="Message" aria-label="Message"></textarea></label>
+      <button type="submit" class="btn-solid">Send message</button>
       <p class="status" role="status" aria-live="polite"></p>
     </form>
   </div>
-  <span class="index">.03</span>
 </section>
 
-<footer class="end">
-  <small>The end</small>
-  <strong>THANKS FOR WATCHING!</strong>
+<footer class="foot">
+  <a class="logo" href="#top" aria-label="Rocket — home"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 2c3 3 4.5 7 4.5 11l-2 3h-5l-2-3C7.5 9 9 5 12 2Zm-2 15h4l-1 5h-2l-1-5Z" fill="currentColor"/></svg><span>ROCKET</span></a>
+  <nav aria-label="ลิงก์ท้ายหน้า"><a href="#lab">Customize</a><a href="#rockets">Rockets</a><a href="#features">Features</a><a href="rocket3d/viewer.html">3D Viewer</a><a href="#contact">Contact</a></nav>
+  <small>3D models built from CAD · sizes partly approximate</small>
 </footer>
 
 <script src="assets/main.js"></script>
-<script type="module" src="assets/rocket-lab.js"></script>
+<script type="module" src="assets/hero3d.js"></script>
 </body>
 </html>

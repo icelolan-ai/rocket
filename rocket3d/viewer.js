@@ -28,14 +28,16 @@ const pmrem = new THREE.PMREMGenerator(renderer);
 scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
 const sun = new THREE.DirectionalLight(0xffffff, 1.6);
 sun.position.set(40, 80, 60);
-scene.add(sun, new THREE.HemisphereLight(0xffffff, 0x778899, 0.5));
+const rim = new THREE.DirectionalLight(0x9fe8ff, 1.0); // cool rim light for the teal backdrop
+rim.position.set(-60, 30, -40);
+scene.add(sun, rim, new THREE.HemisphereLight(0xcfe9f2, 0x1a2a33, 0.4));
 const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 1000);
 const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
 controls.dampingFactor = 0.12;
 controls.addEventListener('change', invalidate);
 controls.listenToKeyEvents(canvas); // arrow keys pan (canvas is focusable)
-const boxHelper = new THREE.Box3Helper(new THREE.Box3(), 0x16171a);
+const boxHelper = new THREE.Box3Helper(new THREE.Box3(), 0xff6a1f);
 const shadow = makeShadow();
 scene.add(shadow);
 boxHelper.visible = false;
