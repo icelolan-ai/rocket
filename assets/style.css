@@ -326,7 +326,8 @@ body.app-page input[type=range]::-webkit-slider-thumb,body.app-page input[type=r
 .hero-go{pointer-events:auto;display:inline-flex;align-items:center;gap:14px;margin-top:18px;padding:16px 34px;border-radius:50px;background:var(--accent);color:#0a0a0a;font-size:.8rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;transition:transform .25s,box-shadow .25s;box-shadow:0 14px 40px -12px rgba(255,106,31,.6)}
 .hero-go:hover{transform:translateY(-2px)}
 .stage .scroll-hint{bottom:70px;opacity:var(--hp,1)}
-.chooser{position:absolute;z-index:7;inset:0;display:grid;align-content:center;justify-items:center;gap:22px;padding:0 20px;text-align:center;opacity:var(--cp,0);pointer-events:none;transform:translateY(calc((1 - var(--cp,0))*40px))}
+.chooser{position:absolute;z-index:7;inset:0;display:grid;align-content:center;justify-items:center;gap:22px;padding:0 20px;text-align:center;opacity:var(--cp,0);pointer-events:none;}
+.chooser #hero-chips,.chooser p{transform:scale(calc(.25 + .75*var(--cb,0)));transform-origin:50% 50%}
 .stage.picking .chooser{pointer-events:auto}
 .chooser p{font-size:.64rem;letter-spacing:.34em;text-transform:uppercase;color:var(--accent)}
 #hero-chips{display:flex;flex-wrap:wrap;justify-content:center;gap:14px}
