@@ -10,7 +10,7 @@ import { t, getLang, onLang } from '../rocket3d/i18n.js';
 const $ = id => document.getElementById(id);
 try { history.scrollRestoration = 'manual'; } catch { /* unsupported */ }
 scrollTo(0, 0); // always open on the ROCKET page, never mid-story
-const arm = () => { scrollTo(0, 0); S.armed = true; S.p = 0; if (S.model) apply(0, 0); };
+const arm = () => { scrollTo(0, 0); S.armed = true; S.p = S.tp = 0; if (S.model) apply(0, 0); };
 if (document.documentElement.classList.contains('loading')) { document.addEventListener('rocket:revealing', () => scrollTo(0, 0), { once: true }); document.addEventListener('rocket:revealed', arm, { once: true }); setTimeout(() => { if (!S.armed) arm(); }, 21000); } else queueMicrotask(() => { S.armed = true; });
 addEventListener('pageshow', e => { if (e.persisted) arm(); });
 const story = $('story'), stage = $('top'), canvas = $('gl3d');
@@ -44,7 +44,7 @@ const CH = {
   sv: [['les', ['SV-LES-000']], ['csm', ['SV-CSM-000']], ['sla', ['SV-SLA-000']], ['iu', ['SV-IU-000']], ['ivb', ['SV-IVB-000']], ['sii', ['SV-II-000']], ['sic', ['SV-IC-000']]],
 };
 
-const S = { manifest: null, veh: null, model: null, key: null, token: 0, dirty: true, visible: true, p: 0, keys: [], chapters: [], ch: -1, ctaOn: false, spin: 0, chosen: false, armed: false, rv: 0, rvT0: 0 };
+const S = { manifest: null, veh: null, model: null, key: null, token: 0, dirty: true, visible: true, p: 0, keys: [], chapters: [], ch: -1, ctaOn: false, spin: 0, tp: 0, chosen: false, armed: false, rv: 0, rvT0: 0 };
 let renderer, scene, camera, shadow;
 
 /* ---------------- three.js ---------------- */
@@ -189,7 +189,7 @@ function updateCaption(p) {
   stage.classList.toggle('picking', !S.chosen && cp > 0.4);
   stage.classList.toggle('chosen', S.chosen);
   stage.classList.toggle('away', hp < 0.3);
-  const away = smooth(0.045, 0.07, p); // the 3D model never shows on the ROCKET hero page, even after a choice
+  const away = smooth(0.045, 0.07, Math.min(p, S.tp)); // the 3D model never shows on the ROCKET hero page, even after a choice
   canvas.style.opacity = S.chosen ? Math.min(S.rv * 3, 1) * away : 0;
   canvas.style.visibility = S.chosen && away > 0 ? 'visible' : 'hidden';
   canvas.style.transform = S.chosen && S.rv < 1 ? `scale(${(0.3 + 0.7 * back(S.rv)).toFixed(3)})` : ''; // the chosen rocket pops out
@@ -231,11 +231,13 @@ function renderCaption() {
 }
 
 let scrollQ = false;
-addEventListener('scroll', () => { if (trackProgress() < 0.045) { canvas.style.visibility = 'hidden'; canvas.style.opacity = 0; } /* instant guard: never any 3D on the hero */ if (scrollQ) return; scrollQ = true; requestAnimationFrame(() => { scrollQ = false; S.p = trackProgress(); apply(S.p, S.spin); }); }, { passive: true });
+addEventListener('scroll', () => { if (trackProgress() < 0.045) { canvas.style.visibility = 'hidden'; canvas.style.opacity = 0; } /* instant guard: never any 3D on the hero */ if (scrollQ) return; scrollQ = true; requestAnimationFrame(() => { scrollQ = false; S.tp = trackProgress(); }); }, { passive: true });
 
 function loop(now) {
   requestAnimationFrame(loop);
   if (!S.visible || !S.model) return;
+  const dt = Math.min((now - (S.lastT || now)) / 1000, 0.1); S.lastT = now;
+  if (Math.abs(S.tp - S.p) > 0.00012) { S.p += (S.tp - S.p) * (1 - Math.exp(-dt * (reduce ? 60 : 4.2))); apply(S.p, S.spin); } else if (S.p !== S.tp) { S.p = S.tp; apply(S.p, S.spin); } // eased follow: the story glides after the finger / wheel
   if (S.chosen && S.rv < 1) { S.rv = Math.min((now - S.rvT0) / 1400, 1); apply(S.p, S.spin); }
   if (S.ctaOn && !reduce) { S.spin = (now / 1000) * 0.18; apply(S.p, S.spin); } // slow turntable at the end
   if (S.dirty) { S.dirty = false; renderer.render(scene, camera); }
@@ -261,7 +263,7 @@ async function loadVehicle(key) {
     buildDots();
     sizeTrack();
     computeKeys();
-    S.p = trackProgress();
+    S.p = S.tp = trackProgress();
     apply(S.p);
     $('loading3d').classList.add('done');
     window.__loader?.progress(0.97);
@@ -275,7 +277,7 @@ async function loadVehicle(key) {
 function sizeTrack() {
   const n = CH[S.key].length, unit = CSS.supports('height', '1svh') ? 'svh' : 'vh';
   const p0 = trackProgress();
-  story.style.height = reduce ? '' : `${n * 88 + 420}${unit}`;
+  story.style.height = reduce ? '' : `${n * 130 + 520}${unit}`;
   const r = story.getBoundingClientRect(), span = r.height - innerHeight;
   if (span > 0 && p0 > 0) scrollTo(0, scrollY + r.top + p0 * span); // stay at the same point of the story after the track length changes
 }
@@ -314,7 +316,7 @@ async function choose(key) {
   S.rvT0 = performance.now(); S.rv = reduce ? 1 : 0; // camera pans down onto the chosen rocket
   // whatever was on screen before, a (new) choice always starts from the whole, assembled rocket
   { const span = story.offsetHeight - innerHeight, y = span * 0.13; if (first && !reduce) scrollTo({ top: y, behavior: 'smooth' }); else scrollTo({ top: y, behavior: 'instant' }); }
-  S.p = trackProgress(); apply(S.p, S.spin);
+  S.p = S.tp = trackProgress(); apply(S.p, S.spin);
 }
 for (const v of VEHICLES) {
   const b = document.createElement('button');
