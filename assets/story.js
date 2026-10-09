@@ -189,7 +189,9 @@ function updateCaption(p) {
   stage.classList.toggle('picking', !S.chosen && cp > 0.4);
   stage.classList.toggle('chosen', S.chosen);
   stage.classList.toggle('away', hp < 0.3);
-  canvas.style.opacity = S.chosen ? Math.min(S.rv * 3, 1) : 0;
+  const away = smooth(0.045, 0.07, p); // the 3D model never shows on the ROCKET hero page, even after a choice
+  canvas.style.opacity = S.chosen ? Math.min(S.rv * 3, 1) * away : 0;
+  canvas.style.visibility = S.chosen && away > 0 ? 'visible' : 'hidden';
   canvas.style.transform = S.chosen && S.rv < 1 ? `scale(${(0.3 + 0.7 * back(S.rv)).toFixed(3)})` : ''; // the chosen rocket pops out
   document.querySelector('.picker').style.opacity = S.chosen ? smooth(0.1, 0.14, p) : 0;
   document.querySelector('.picker').style.pointerEvents = S.chosen && p > 0.11 ? '' : 'none';
@@ -229,7 +231,7 @@ function renderCaption() {
 }
 
 let scrollQ = false;
-addEventListener('scroll', () => { if (scrollQ) return; scrollQ = true; requestAnimationFrame(() => { scrollQ = false; S.p = trackProgress(); apply(S.p, S.spin); }); }, { passive: true });
+addEventListener('scroll', () => { if (trackProgress() < 0.045) { canvas.style.visibility = 'hidden'; canvas.style.opacity = 0; } /* instant guard: never any 3D on the hero */ if (scrollQ) return; scrollQ = true; requestAnimationFrame(() => { scrollQ = false; S.p = trackProgress(); apply(S.p, S.spin); }); }, { passive: true });
 
 function loop(now) {
   requestAnimationFrame(loop);
