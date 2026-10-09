@@ -1,0 +1,6000 @@
+{
+  "schema_version": "1.0",
+  "project": "Rocket 3D — web disassembly / part-swap viewer",
+  "reference_vehicle": "Falcon 9 Block 5 (reference model; no real logos or trademarks)",
+  "generated": "2026-10-08",
+  "units": {
+    "cad": "mm (FreeCAD)",
+    "blender": "m (1 unit = 1 m)",
+    "gltf": "m"
+  },
+  "axes": {
+    "cad_blender": "Z-up, vehicle axis = +Z",
+    "gltf": "Y-up (converted by the Blender glTF exporter)",
+    "vehicle_origin": "centre of the S1 aft plane (bottom of aft skirt), Z=0",
+    "part_origin": "each part's local origin sits at its primary mating point (its socket)"
+  },
+  "accuracy_levels": {
+    "documented": "shape/dimensions from a cited source",
+    "standard-based": "built to a published engineering standard (ISO etc.)",
+    "representative": "the part exists on the real vehicle, but geometry is a plausible estimate (no public drawings)"
+  },
+  "detail_tiers": {
+    "A": "hero detail, real fastener geometry, ≤40k tris",
+    "B": "medium, ≤12k tris",
+    "C": "simple shell + normal maps, ≤4k tris",
+    "H": "hardware (instanced): fasteners <=1,100 tris/instance, gears <=7,000 tris/instance"
+  },
+  "status_flow": [
+    "planned",
+    "cad",
+    "cad_checked",
+    "blender",
+    "blender_checked",
+    "web_ready"
+  ],
+  "sources": {
+    "FUG": "SpaceX Falcon User's Guide (2025-05-09) — Project doc claude/rocket-3d-knowledge-base.md §1.3, §2.3",
+    "KB": "Project docs: rocket-3d-knowledge-base.md, rocket-3d-realism-guide.md",
+    "SP125": "NASA SP-125 Design of Liquid Propellant Rocket Engines (NTRS 19710019929)",
+    "STD": "ISO fastener / gear standards via FreeCAD Fasteners & Gears workbenches",
+    "WP-F9FT": "Wikipedia 'Falcon 9 Full Thrust' (accessed 2026-10-02): first stage 41.2 m, second stage 13.8 m, interstage 4.5 m, fairing 13.2 m x 5.2 m, total 70 m",
+    "WP-F9PROTO": "Wikipedia 'Falcon 9 prototypes' (accessed 2026-10-02): F9R Dev1 landing legs, 4 legs, span ~18 m, telescoping piston on an A-frame, helium-actuated. Leg length / section / attach points are NOT published -> representative",
+    "D-003": "00_docs/decisions/D-003_p1_blockout_and_leg_assumptions.md"
+  },
+  "slots": {
+    "SLOT_FAIRING": {
+      "socket": "SKT_PL-030_fairing_base",
+      "interface_diameter_m": 5.2,
+      "variants": [
+        "PL-020",
+        "PL-021",
+        null
+      ],
+      "default": "PL-020"
+    },
+    "SLOT_PAYLOAD": {
+      "socket": "SKT_PL-010_paf_top",
+      "interface_diameter_m": 1.666,
+      "variants": [
+        "PL-050",
+        "PL-051",
+        null
+      ],
+      "default": "PL-050"
+    },
+    "SLOT_GRIDFIN": {
+      "socket": "SKT_IS-030_hinge (x4)",
+      "variants": [
+        "IS-020",
+        "IS-021"
+      ],
+      "default": "IS-020",
+      "count": 4
+    },
+    "SLOT_S1_ENGINE": {
+      "socket": "SKT_S1-AFT-040_mount (x9)",
+      "variants": [
+        "ENG-M1D-000"
+      ],
+      "default": "ENG-M1D-000",
+      "count": 9
+    },
+    "SLOT_S2_ENGINE": {
+      "socket": "SKT_S2-040_mount",
+      "variants": [
+        "ENG-MVAC-000"
+      ],
+      "default": "ENG-MVAC-000"
+    },
+    "SLOT_SV_PATTERN": {
+      "socket": "SV-000 (materials only)",
+      "variants": [
+        "SV_AS501",
+        "SV_AS506"
+      ],
+      "default": "SV_AS506",
+      "count": 1
+    }
+  },
+  "paint_zones": {
+    "PAINT_body": {
+      "default": "#F2F2EF",
+      "label_th": "ลำตัว"
+    },
+    "PAINT_interstage": {
+      "default": "#151515",
+      "label_th": "interstage"
+    },
+    "PAINT_legs": {
+      "default": "#151515",
+      "label_th": "ขาลงจอด"
+    },
+    "PAINT_fairing": {
+      "default": "#F2F2EF",
+      "label_th": "แฟริ่ง"
+    },
+    "PAINT_payload": {
+      "default": "#C9A23F",
+      "label_th": "ดาวเทียม"
+    },
+    "PAINT_sv_body": {
+      "default": "#F2F2EF",
+      "label_th": "ลำตัว Saturn V (ขาว)"
+    },
+    "PAINT_sv_black": {
+      "default": "#151515",
+      "label_th": "ลาย roll pattern (ดำ)"
+    },
+    "PAINT_sv_csm": {
+      "default": "#C8C8C4",
+      "label_th": "Service Module"
+    }
+  },
+  "material_variants": {
+    "CLEAN": "สภาพใหม่",
+    "FLIGHT_PROVEN": "บูสเตอร์ใช้ซ้ำ มีเขม่าไล่จากฐาน",
+    "SV_AS501": "AS-501 (Apollo 4): แถบดำ S-IC ยาว + ลายดำ-ขาว",
+    "SV_AS506": "AS-506 (Apollo 11): ลายดำ-ขาวสุดท้าย"
+  },
+  "parts": [
+    {
+      "id": "VEH-000",
+      "name_en": "Full vehicle",
+      "name_th": "จรวดทั้งลำ",
+      "type": "assembly",
+      "module": "VEH",
+      "subsystem": null,
+      "parent": null,
+      "qty_per_parent": 1,
+      "detail_tier": "-",
+      "accuracy": "documented",
+      "sources": [
+        "FUG",
+        "KB"
+      ],
+      "material": "-",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "VEH",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/VEH/VEH-000_full_vehicle.FCStd",
+        "step": null,
+        "cad_mesh": null,
+        "blend": "05_blender/master/MASTER_rocket.blend",
+        "review_dir": "07_review/VEH-000/",
+        "web": "06_web_export/optimized/VEH_full.glb"
+      },
+      "tri_budget": null,
+      "tri_actual": null,
+      "phase": "P7",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": "ความสูงรวม 70 m (แฟริ่งมาตรฐาน) / 75.2 m (แฟริ่งยาว), Ø 3.66 m; blockout P3: aft จริง + เครื่อง 9 ตัว + ขา 4 ชุด, พื้น z=-0.90 m | P7: VEH_full.glb = ทั้งลำ 69.9 m, variants CLEAN/FLIGHT_PROVEN | P7: VEH_full.glb = ทั้งลำ 69.9 m, variants CLEAN/FLIGHT_PROVEN"
+    },
+    {
+      "id": "S1-000",
+      "name_en": "First stage",
+      "name_th": "สเตจ 1",
+      "type": "assembly",
+      "module": "S1",
+      "subsystem": null,
+      "parent": "VEH-000",
+      "qty_per_parent": 1,
+      "detail_tier": "-",
+      "accuracy": "documented",
+      "sources": [
+        "FUG",
+        "KB"
+      ],
+      "material": "-",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "S1",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/S1/S1-000_first_stage.FCStd",
+        "step": null,
+        "cad_mesh": null,
+        "blend": "05_blender/modules/S1.blend",
+        "review_dir": "07_review/S1-000/",
+        "web": "06_web_export/optimized/VEH_full.glb"
+      },
+      "tri_budget": null,
+      "tri_actual": null,
+      "phase": "P7",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "S1-TNK-000",
+      "name_en": "S1 tank structure",
+      "name_th": "โครงสร้างถังสเตจ 1",
+      "type": "assembly",
+      "module": "S1",
+      "subsystem": "TNK",
+      "parent": "S1-000",
+      "qty_per_parent": 1,
+      "detail_tier": "C",
+      "accuracy": "documented",
+      "sources": [
+        "FUG"
+      ],
+      "material": "-",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "S1-TNK",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/S1/TNK/S1-TNK-000_s1_tank_structure.FCStd",
+        "step": null,
+        "cad_mesh": null,
+        "blend": "05_blender/modules/S1_TNK.blend",
+        "review_dir": "07_review/S1-TNK-000/",
+        "web": "06_web_export/optimized/S1_TNK.glb"
+      },
+      "tri_budget": null,
+      "tri_actual": 20014,
+      "phase": "P7",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": "assembly 8 ชิ้น; tri รวมของชิ้นย่อย"
+    },
+    {
+      "id": "S1-TNK-010",
+      "name_en": "LOX tank barrel (Al-Li monocoque)",
+      "name_th": "ผนังถัง LOX",
+      "type": "part",
+      "module": "S1",
+      "subsystem": "TNK",
+      "parent": "S1-TNK-000",
+      "qty_per_parent": 1,
+      "detail_tier": "C",
+      "accuracy": "documented",
+      "sources": [
+        "FUG"
+      ],
+      "material": "MAT_PAINT_white_body",
+      "paint_zone": "PAINT_body",
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "S1-TNK",
+        "order": 5,
+        "mode": "translate",
+        "direction": "+X",
+        "distance_m": 3.0
+      },
+      "files": {
+        "freecad": "03_freecad/S1/TNK/S1-TNK-010_lox_tank_barrel.FCStd",
+        "step": "04_cad_export/S1/S1-TNK-010.step",
+        "cad_mesh": "04_cad_export/S1/S1-TNK-010.obj",
+        "blend": "05_blender/modules/S1_TNK.blend",
+        "review_dir": "07_review/S1-TNK-010/",
+        "web": "06_web_export/optimized/S1_TNK.glb"
+      },
+      "tri_budget": 4000,
+      "tri_actual": 2688,
+      "phase": "P7",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": "monocoque, friction-stir welded"
+    },
+    {
+      "id": "S1-TNK-020",
+      "name_en": "RP-1 tank barrel (skin-and-stringer)",
+      "name_th": "ผนังถัง RP-1",
+      "type": "part",
+      "module": "S1",
+      "subsystem": "TNK",
+      "parent": "S1-TNK-000",
+      "qty_per_parent": 1,
+      "detail_tier": "C",
+      "accuracy": "documented",
+      "sources": [
+        "FUG"
+      ],
+      "material": "MAT_PAINT_white_body",
+      "paint_zone": "PAINT_body",
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "S1-TNK",
+        "order": 4,
+        "mode": "translate",
+        "direction": "+X",
+        "distance_m": 3.0
+      },
+      "files": {
+        "freecad": "03_freecad/S1/TNK/S1-TNK-020_rp_1_tank_barrel.FCStd",
+        "step": "04_cad_export/S1/S1-TNK-020.step",
+        "cad_mesh": "04_cad_export/S1/S1-TNK-020.obj",
+        "blend": "05_blender/modules/S1_TNK.blend",
+        "review_dir": "07_review/S1-TNK-020/",
+        "web": "06_web_export/optimized/S1_TNK.glb"
+      },
+      "tri_budget": 4000,
+      "tri_actual": 4080,
+      "phase": "P7",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "S1-TNK-030",
+      "name_en": "Common dome",
+      "name_th": "โดมกั้นร่วม LOX/RP-1",
+      "type": "part",
+      "module": "S1",
+      "subsystem": "TNK",
+      "parent": "S1-TNK-000",
+      "qty_per_parent": 1,
+      "detail_tier": "C",
+      "accuracy": "documented",
+      "sources": [
+        "FUG"
+      ],
+      "material": "MAT_METAL_alu_li",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "S1-TNK",
+        "order": 4,
+        "mode": "translate",
+        "direction": "+Z",
+        "distance_m": 1.5
+      },
+      "files": {
+        "freecad": "03_freecad/S1/TNK/S1-TNK-030_common_dome.FCStd",
+        "step": "04_cad_export/S1/S1-TNK-030.step",
+        "cad_mesh": "04_cad_export/S1/S1-TNK-030.obj",
+        "blend": "05_blender/modules/S1_TNK.blend",
+        "review_dir": "07_review/S1-TNK-030/",
+        "web": "06_web_export/optimized/S1_TNK.glb"
+      },
+      "tri_budget": 4000,
+      "tri_actual": 2998,
+      "phase": "P7",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "S1-TNK-040",
+      "name_en": "LOX forward dome",
+      "name_th": "โดมบนถัง LOX",
+      "type": "part",
+      "module": "S1",
+      "subsystem": "TNK",
+      "parent": "S1-TNK-000",
+      "qty_per_parent": 1,
+      "detail_tier": "C",
+      "accuracy": "standard-based",
+      "sources": [
+        "KB"
+      ],
+      "material": "MAT_METAL_alu_li",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "S1-TNK",
+        "order": 6,
+        "mode": "translate",
+        "direction": "+Z",
+        "distance_m": 3.0
+      },
+      "files": {
+        "freecad": "03_freecad/S1/TNK/S1-TNK-040_lox_forward_dome.FCStd",
+        "step": "04_cad_export/S1/S1-TNK-040.step",
+        "cad_mesh": "04_cad_export/S1/S1-TNK-040.obj",
+        "blend": "05_blender/modules/S1_TNK.blend",
+        "review_dir": "07_review/S1-TNK-040/",
+        "web": "06_web_export/optimized/S1_TNK.glb"
+      },
+      "tri_budget": 4000,
+      "tri_actual": 3858,
+      "phase": "P7",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "S1-TNK-050",
+      "name_en": "RP-1 aft dome",
+      "name_th": "โดมล่างถัง RP-1",
+      "type": "part",
+      "module": "S1",
+      "subsystem": "TNK",
+      "parent": "S1-TNK-000",
+      "qty_per_parent": 1,
+      "detail_tier": "C",
+      "accuracy": "standard-based",
+      "sources": [
+        "KB"
+      ],
+      "material": "MAT_METAL_alu_li",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "S1-TNK",
+        "order": 3,
+        "mode": "translate",
+        "direction": "-Z",
+        "distance_m": 1.2
+      },
+      "files": {
+        "freecad": "03_freecad/S1/TNK/S1-TNK-050_rp_1_aft_dome.FCStd",
+        "step": "04_cad_export/S1/S1-TNK-050.step",
+        "cad_mesh": "04_cad_export/S1/S1-TNK-050.obj",
+        "blend": "05_blender/modules/S1_TNK.blend",
+        "review_dir": "07_review/S1-TNK-050/",
+        "web": "06_web_export/optimized/S1_TNK.glb"
+      },
+      "tri_budget": 4000,
+      "tri_actual": 2590,
+      "phase": "P7",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "S1-TNK-060",
+      "name_en": "LOX downcomer (through RP-1 tank)",
+      "name_th": "ท่อ LOX ผ่านกลางถัง RP-1",
+      "type": "part",
+      "module": "S1",
+      "subsystem": "TNK",
+      "parent": "S1-TNK-000",
+      "qty_per_parent": 1,
+      "detail_tier": "B",
+      "accuracy": "representative",
+      "sources": [
+        "FUG"
+      ],
+      "material": "MAT_METAL_alu_li",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "S1-TNK",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/S1/TNK/S1-TNK-060_lox_downcomer.FCStd",
+        "step": "04_cad_export/S1/S1-TNK-060.step",
+        "cad_mesh": "04_cad_export/S1/S1-TNK-060.obj",
+        "blend": "05_blender/modules/S1_TNK.blend",
+        "review_dir": "07_review/S1-TNK-060/",
+        "web": "06_web_export/optimized/S1_TNK.glb"
+      },
+      "tri_budget": 12000,
+      "tri_actual": 2582,
+      "phase": "P3",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": "มีอยู่จริง (FUG) แต่ขนาดเป็นค่าประมาณ"
+    },
+    {
+      "id": "S1-TNK-070",
+      "name_en": "Raceway",
+      "name_th": "รางครอบสายไฟตามลำตัว",
+      "type": "part",
+      "module": "S1",
+      "subsystem": "TNK",
+      "parent": "S1-TNK-000",
+      "qty_per_parent": 1,
+      "detail_tier": "B",
+      "accuracy": "representative",
+      "sources": [
+        "KB"
+      ],
+      "material": "MAT_PAINT_white_body",
+      "paint_zone": "PAINT_body",
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "S1-TNK",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/S1/TNK/S1-TNK-070_raceway.FCStd",
+        "step": "04_cad_export/S1/S1-TNK-070.step",
+        "cad_mesh": "04_cad_export/S1/S1-TNK-070.obj",
+        "blend": "05_blender/modules/S1_TNK.blend",
+        "review_dir": "07_review/S1-TNK-070/",
+        "web": "06_web_export/optimized/S1_TNK.glb"
+      },
+      "tri_budget": 12000,
+      "tri_actual": 1244,
+      "phase": "P3",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "S1-TNK-080",
+      "name_en": "Forward skirt / interstage joint ring",
+      "name_th": "วงแหวนต่อ interstage",
+      "type": "part",
+      "module": "S1",
+      "subsystem": "TNK",
+      "parent": "S1-TNK-000",
+      "qty_per_parent": 1,
+      "detail_tier": "C",
+      "accuracy": "representative",
+      "sources": [
+        "KB"
+      ],
+      "material": "MAT_PAINT_white_body",
+      "paint_zone": "PAINT_body",
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "S1-TNK",
+        "order": 7,
+        "mode": "translate",
+        "direction": "+Z",
+        "distance_m": 4.5
+      },
+      "files": {
+        "freecad": "03_freecad/S1/TNK/S1-TNK-080_forward_skirt_interstage_joint_ring.FCStd",
+        "step": "04_cad_export/S1/S1-TNK-080.step",
+        "cad_mesh": "04_cad_export/S1/S1-TNK-080.obj",
+        "blend": "05_blender/modules/S1_TNK.blend",
+        "review_dir": "07_review/S1-TNK-080/",
+        "web": "06_web_export/optimized/S1_TNK.glb"
+      },
+      "tri_budget": 4000,
+      "tri_actual": 3432,
+      "phase": "P7",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "S1-AFT-000",
+      "name_en": "S1 aft section",
+      "name_th": "ส่วนท้ายสเตจ 1",
+      "type": "assembly",
+      "module": "S1",
+      "subsystem": "AFT",
+      "parent": "S1-000",
+      "qty_per_parent": 1,
+      "detail_tier": "A",
+      "accuracy": "representative",
+      "sources": [
+        "FUG",
+        "KB"
+      ],
+      "material": "-",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "S1-AFT",
+        "order": 2,
+        "mode": "translate",
+        "direction": "-Z",
+        "distance_m": 2.0
+      },
+      "files": {
+        "freecad": "03_freecad/S1/AFT/S1-AFT-000_s1_aft_section.FCStd",
+        "step": "04_cad_export/S1/S1-AFT-000.step",
+        "cad_mesh": "04_cad_export/S1/S1-AFT-000.obj",
+        "blend": "05_blender/modules/S1_AFT.blend",
+        "review_dir": "07_review/S1-AFT-000/",
+        "web": "06_web_export/optimized/S1_AFT.glb"
+      },
+      "tri_budget": 40000,
+      "tri_actual": 29048,
+      "phase": "P3",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "S1-AFT-010",
+      "name_en": "Octaweb thrust structure",
+      "name_th": "โครง Octaweb รับเครื่องยนต์ 8+1",
+      "type": "part",
+      "module": "S1",
+      "subsystem": "AFT",
+      "parent": "S1-AFT-000",
+      "qty_per_parent": 1,
+      "detail_tier": "A",
+      "accuracy": "representative",
+      "sources": [
+        "FUG",
+        "KB"
+      ],
+      "material": "MAT_METAL_alu_li",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "S1-AFT",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/S1/AFT/S1-AFT-010_octaweb_thrust_structure.FCStd",
+        "step": "04_cad_export/S1/S1-AFT-010.step",
+        "cad_mesh": "04_cad_export/S1/S1-AFT-010.obj",
+        "blend": "05_blender/modules/S1_AFT.blend",
+        "review_dir": "07_review/S1-AFT-010/",
+        "web": "06_web_export/optimized/S1_AFT.glb"
+      },
+      "tri_budget": 40000,
+      "tri_actual": 17520,
+      "phase": "P3",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": "ผัง 8 ล้อม 1 เป็นข้อมูลจริง"
+    },
+    {
+      "id": "S1-AFT-020",
+      "name_en": "Engine section heat shield",
+      "name_th": "แผ่นกันความร้อนรอบเครื่องยนต์",
+      "type": "part",
+      "module": "S1",
+      "subsystem": "AFT",
+      "parent": "S1-AFT-000",
+      "qty_per_parent": 1,
+      "detail_tier": "B",
+      "accuracy": "representative",
+      "sources": [
+        "KB"
+      ],
+      "material": "MAT_INSUL_heat_shield",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "S1-AFT",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/S1/AFT/S1-AFT-020_engine_section_heat_shield.FCStd",
+        "step": "04_cad_export/S1/S1-AFT-020.step",
+        "cad_mesh": "04_cad_export/S1/S1-AFT-020.obj",
+        "blend": "05_blender/modules/S1_AFT.blend",
+        "review_dir": "07_review/S1-AFT-020/",
+        "web": "06_web_export/optimized/S1_AFT.glb"
+      },
+      "tri_budget": 12000,
+      "tri_actual": 3924,
+      "phase": "P3",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "S1-AFT-030",
+      "name_en": "Aft skirt shell",
+      "name_th": "เปลือกกระโปรงท้าย",
+      "type": "part",
+      "module": "S1",
+      "subsystem": "AFT",
+      "parent": "S1-AFT-000",
+      "qty_per_parent": 1,
+      "detail_tier": "B",
+      "accuracy": "representative",
+      "sources": [
+        "KB"
+      ],
+      "material": "MAT_PAINT_white_body",
+      "paint_zone": "PAINT_body",
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "S1-AFT",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/S1/AFT/S1-AFT-030_aft_skirt_shell.FCStd",
+        "step": "04_cad_export/S1/S1-AFT-030.step",
+        "cad_mesh": "04_cad_export/S1/S1-AFT-030.obj",
+        "blend": "05_blender/modules/S1_AFT.blend",
+        "review_dir": "07_review/S1-AFT-030/",
+        "web": "06_web_export/optimized/S1_AFT.glb"
+      },
+      "tri_budget": 12000,
+      "tri_actual": 5264,
+      "phase": "P3",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "S1-AFT-040",
+      "name_en": "Engine mount fitting",
+      "name_th": "ตัวยึดเครื่องยนต์",
+      "type": "part",
+      "module": "S1",
+      "subsystem": "AFT",
+      "parent": "S1-AFT-000",
+      "qty_per_parent": 9,
+      "detail_tier": "A",
+      "accuracy": "representative",
+      "sources": [
+        "D-005"
+      ],
+      "material": "MAT_METAL_steel_structural",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "S1-AFT",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/S1/AFT/S1-AFT-040_engine_mount_fitting.FCStd",
+        "step": "04_cad_export/S1/S1-AFT-040.step",
+        "cad_mesh": "04_cad_export/S1/S1-AFT-040.obj",
+        "blend": "05_blender/modules/S1_AFT.blend",
+        "review_dir": "07_review/S1-AFT-040/",
+        "web": "06_web_export/optimized/S1_AFT.glb"
+      },
+      "tri_budget": 40000,
+      "tri_actual": 260,
+      "phase": "P3",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "S1-AFT-050",
+      "name_en": "Landing-leg attach fitting",
+      "name_th": "ตัวยึดขาลงจอดกับลำตัว",
+      "type": "part",
+      "module": "S1",
+      "subsystem": "AFT",
+      "parent": "S1-AFT-000",
+      "qty_per_parent": 4,
+      "detail_tier": "A",
+      "accuracy": "representative",
+      "sources": [
+        "D-003"
+      ],
+      "material": "MAT_METAL_steel_structural",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "S1-AFT",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/S1/AFT/S1-AFT-050_landing_leg_attach_fitting.FCStd",
+        "step": "04_cad_export/S1/S1-AFT-050.step",
+        "cad_mesh": "04_cad_export/S1/S1-AFT-050.obj",
+        "blend": "05_blender/modules/S1_AFT.blend",
+        "review_dir": "07_review/S1-AFT-050/"
+      },
+      "tri_budget": 40000,
+      "tri_actual": 1906,
+      "phase": "P1",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": "ส่วนหนึ่งของ vertical slice; P3: ย้ายจุดบานพับเป็น z=2.08 m (D-005)"
+    },
+    {
+      "id": "S1-LEG-000",
+      "name_en": "Landing leg assembly",
+      "name_th": "ชุดขาลงจอด",
+      "type": "assembly",
+      "module": "S1",
+      "subsystem": "LEG",
+      "parent": "S1-000",
+      "qty_per_parent": 4,
+      "detail_tier": "A",
+      "accuracy": "representative",
+      "sources": [
+        "WP-F9PROTO",
+        "D-003"
+      ],
+      "material": "-",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "S1-LEG",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/S1/LEG/S1-LEG-000_landing_leg_assembly.FCStd",
+        "step": "04_cad_export/S1/S1-LEG-000.step",
+        "cad_mesh": "04_cad_export/S1/S1-LEG-000.obj",
+        "blend": "05_blender/modules/S1_LEG.blend",
+        "review_dir": "07_review/S1-LEG-000/"
+      },
+      "tri_budget": 40000,
+      "tri_actual": 29364,
+      "phase": "P1",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": "VERTICAL SLICE: ทำครบทั้ง pipeline ถึงเว็บก่อนชิ้นอื่น"
+    },
+    {
+      "id": "S1-LEG-010",
+      "name_en": "Main leg strut (carbon/honeycomb)",
+      "name_th": "แขนขาหลัก",
+      "type": "part",
+      "module": "S1",
+      "subsystem": "LEG",
+      "parent": "S1-LEG-000",
+      "qty_per_parent": 1,
+      "detail_tier": "A",
+      "accuracy": "representative",
+      "sources": [
+        "WP-F9PROTO",
+        "D-003"
+      ],
+      "material": "MAT_COMP_carbon_black",
+      "paint_zone": "PAINT_legs",
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "S1-LEG",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/S1/LEG/S1-LEG-010_main_leg_strut.FCStd",
+        "step": "04_cad_export/S1/S1-LEG-010.step",
+        "cad_mesh": "04_cad_export/S1/S1-LEG-010.obj",
+        "blend": "05_blender/modules/S1_LEG.blend",
+        "review_dir": "07_review/S1-LEG-010/"
+      },
+      "tri_budget": 40000,
+      "tri_actual": 4208,
+      "phase": "P1",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "S1-LEG-020",
+      "name_en": "Telescoping deploy piston",
+      "name_th": "กระบอกสูบกางขา (ยืดหดได้)",
+      "type": "part",
+      "module": "S1",
+      "subsystem": "LEG",
+      "parent": "S1-LEG-000",
+      "qty_per_parent": 1,
+      "detail_tier": "A",
+      "accuracy": "representative",
+      "sources": [
+        "WP-F9PROTO",
+        "D-003"
+      ],
+      "material": "MAT_METAL_steel_chrome",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "S1-LEG",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/S1/LEG/S1-LEG-020_telescoping_deploy_piston.FCStd",
+        "step": "04_cad_export/S1/S1-LEG-020.step",
+        "cad_mesh": "04_cad_export/S1/S1-LEG-020.obj",
+        "blend": "05_blender/modules/S1_LEG.blend",
+        "review_dir": "07_review/S1-LEG-020/"
+      },
+      "tri_budget": 40000,
+      "tri_actual": 824,
+      "phase": "P1",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": "แยกเป็น cylinder + rod ใน CAD"
+    },
+    {
+      "id": "S1-LEG-030",
+      "name_en": "Leg root hinge fitting",
+      "name_th": "ข้อต่อบานพับโคนขา",
+      "type": "part",
+      "module": "S1",
+      "subsystem": "LEG",
+      "parent": "S1-LEG-000",
+      "qty_per_parent": 1,
+      "detail_tier": "A",
+      "accuracy": "representative",
+      "sources": [
+        "D-003"
+      ],
+      "material": "MAT_METAL_steel_structural",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "S1-LEG",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/S1/LEG/S1-LEG-030_leg_root_hinge_fitting.FCStd",
+        "step": "04_cad_export/S1/S1-LEG-030.step",
+        "cad_mesh": "04_cad_export/S1/S1-LEG-030.obj",
+        "blend": "05_blender/modules/S1_LEG.blend",
+        "review_dir": "07_review/S1-LEG-030/"
+      },
+      "tri_budget": 40000,
+      "tri_actual": 1148,
+      "phase": "P1",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "S1-LEG-040",
+      "name_en": "Foot pad",
+      "name_th": "แป้นเท้า",
+      "type": "part",
+      "module": "S1",
+      "subsystem": "LEG",
+      "parent": "S1-LEG-000",
+      "qty_per_parent": 1,
+      "detail_tier": "A",
+      "accuracy": "representative",
+      "sources": [
+        "D-003"
+      ],
+      "material": "MAT_METAL_alu_anodized",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "S1-LEG",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/S1/LEG/S1-LEG-040_foot_pad.FCStd",
+        "step": "04_cad_export/S1/S1-LEG-040.step",
+        "cad_mesh": "04_cad_export/S1/S1-LEG-040.obj",
+        "blend": "05_blender/modules/S1_LEG.blend",
+        "review_dir": "07_review/S1-LEG-040/"
+      },
+      "tri_budget": 40000,
+      "tri_actual": 2056,
+      "phase": "P1",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "S1-LEG-050",
+      "name_en": "Piston attach clevis",
+      "name_th": "ข้อต่อตัว U ยึดกระบอกสูบ",
+      "type": "part",
+      "module": "S1",
+      "subsystem": "LEG",
+      "parent": "S1-LEG-000",
+      "qty_per_parent": 2,
+      "detail_tier": "A",
+      "accuracy": "representative",
+      "sources": [
+        "D-003"
+      ],
+      "material": "MAT_METAL_steel_structural",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "S1-LEG",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/S1/LEG/S1-LEG-050_piston_attach_clevis.FCStd",
+        "step": "04_cad_export/S1/S1-LEG-050.step",
+        "cad_mesh": "04_cad_export/S1/S1-LEG-050.obj",
+        "blend": "05_blender/modules/S1_LEG.blend",
+        "review_dir": "07_review/S1-LEG-050/"
+      },
+      "tri_budget": 40000,
+      "tri_actual": 540,
+      "phase": "P1",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": "ISO 8140 fork ไม่มีใน Fasteners WB -> ทำเองตามสัดส่วนทั่วไป จึงลดระดับจาก standard-based (D-003)"
+    },
+    {
+      "id": "S1-LEG-060",
+      "name_en": "Stow latch / retention hook",
+      "name_th": "ตะขอล็อกขาตอนพับ",
+      "type": "part",
+      "module": "S1",
+      "subsystem": "LEG",
+      "parent": "S1-LEG-000",
+      "qty_per_parent": 1,
+      "detail_tier": "A",
+      "accuracy": "representative",
+      "sources": [
+        "D-003"
+      ],
+      "material": "MAT_METAL_steel_structural",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "S1-LEG",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/S1/LEG/S1-LEG-060_stow_latch_retention_hook.FCStd",
+        "step": "04_cad_export/S1/S1-LEG-060.step",
+        "cad_mesh": "04_cad_export/S1/S1-LEG-060.obj",
+        "blend": "05_blender/modules/S1_LEG.blend",
+        "review_dir": "07_review/S1-LEG-060/"
+      },
+      "tri_budget": 40000,
+      "tri_actual": 392,
+      "phase": "P1",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "S1-LEG-070",
+      "name_en": "Hinge pin set",
+      "name_th": "ชุดสลักบานพับ + ตัวล็อก",
+      "type": "hardware",
+      "module": "S1",
+      "subsystem": "LEG",
+      "parent": "S1-LEG-000",
+      "qty_per_parent": 4,
+      "detail_tier": "H",
+      "accuracy": "standard-based",
+      "sources": [
+        "STD"
+      ],
+      "material": "MAT_METAL_steel_fastener",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "S1-LEG",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/S1/LEG/S1-LEG-070_hinge_pin_set.FCStd",
+        "step": "04_cad_export/S1/S1-LEG-070.step",
+        "cad_mesh": "04_cad_export/S1/S1-LEG-070.obj",
+        "blend": "05_blender/modules/S1_LEG.blend",
+        "review_dir": "07_review/S1-LEG-070/"
+      },
+      "tri_budget": 1100,
+      "tri_actual": 4974,
+      "phase": "P1",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": "ISO 2341 B (ความยาว custom 280-500 mm เพราะ ISO จำกัดที่ 200) + split pin ISO 1234 ; 4 ชุด: root Ø40, piston บน/ล่าง Ø30, เท้า Ø30 (D-003)"
+    },
+    {
+      "id": "ENG-M1D-000",
+      "name_en": "Merlin 1D engine",
+      "name_th": "เครื่องยนต์ Merlin 1D",
+      "type": "assembly",
+      "module": "ENG",
+      "subsystem": "M1D",
+      "parent": "S1-AFT-000",
+      "qty_per_parent": 9,
+      "detail_tier": "A",
+      "accuracy": "representative",
+      "sources": [
+        "FUG",
+        "KB",
+        "SP125"
+      ],
+      "material": "-",
+      "paint_zone": null,
+      "socket": null,
+      "slot": "SLOT_S1_ENGINE",
+      "explode": {
+        "group": "ENG-M1D",
+        "order": 1,
+        "mode": "translate",
+        "direction": "-Z",
+        "distance_m": 4.5
+      },
+      "files": {
+        "freecad": "03_freecad/ENG/M1D/ENG-M1D-000_merlin_1d_engine.FCStd",
+        "step": "04_cad_export/ENG/ENG-M1D-000.step",
+        "cad_mesh": "04_cad_export/ENG/ENG-M1D-000.obj",
+        "blend": "05_blender/modules/ENG_M1D.blend",
+        "review_dir": "07_review/ENG-M1D-000/",
+        "web": "06_web_export/optimized/ENG_M1D.glb",
+        "web_cluster": "06_web_export/optimized/ENG_M1D_x9.glb"
+      },
+      "tri_budget": 40000,
+      "tri_actual": 32396,
+      "phase": "P2",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": "ชิ้นเด่น (hero) — instance 9 ตัวบน S1"
+    },
+    {
+      "id": "ENG-M1D-010",
+      "name_en": "Thrust chamber (regen-cooled)",
+      "name_th": "ห้องเผาไหม้ + คอคอด",
+      "type": "part",
+      "module": "ENG",
+      "subsystem": "M1D",
+      "parent": "ENG-M1D-000",
+      "qty_per_parent": 1,
+      "detail_tier": "A",
+      "accuracy": "representative",
+      "sources": [
+        "SP125"
+      ],
+      "material": "MAT_METAL_copper_alloy",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "ENG-M1D",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/ENG/M1D/ENG-M1D-010_thrust_chamber.FCStd",
+        "step": "04_cad_export/ENG/ENG-M1D-010.step",
+        "cad_mesh": "04_cad_export/ENG/ENG-M1D-010.obj",
+        "blend": "05_blender/modules/ENG_M1D.blend",
+        "review_dir": "07_review/ENG-M1D-010/",
+        "web": "06_web_export/optimized/ENG_M1D.glb"
+      },
+      "tri_budget": 40000,
+      "tri_actual": 2132,
+      "phase": "P2",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "ENG-M1D-020",
+      "name_en": "Nozzle bell (eps 16, exit Ø0.92 m)",
+      "name_th": "หัวฉีดทรงระฆัง",
+      "type": "part",
+      "module": "ENG",
+      "subsystem": "M1D",
+      "parent": "ENG-M1D-000",
+      "qty_per_parent": 1,
+      "detail_tier": "A",
+      "accuracy": "documented",
+      "sources": [
+        "KB",
+        "SP125"
+      ],
+      "material": "MAT_METAL_inconel_heat",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "ENG-M1D",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/ENG/M1D/ENG-M1D-020_nozzle_bell.FCStd",
+        "step": "04_cad_export/ENG/ENG-M1D-020.step",
+        "cad_mesh": "04_cad_export/ENG/ENG-M1D-020.obj",
+        "blend": "05_blender/modules/ENG_M1D.blend",
+        "review_dir": "07_review/ENG-M1D-020/",
+        "web": "06_web_export/optimized/ENG_M1D.glb"
+      },
+      "tri_budget": 40000,
+      "tri_actual": 9582,
+      "phase": "P2",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": "ε=16, Ø ปาก 0.92 m; ใช้ raoBell() จาก rocket_profiles.js"
+    },
+    {
+      "id": "ENG-M1D-030",
+      "name_en": "Pintle injector + LOX dome",
+      "name_th": "หัวฉีดเชื้อเพลิงแบบ pintle + โดม LOX",
+      "type": "part",
+      "module": "ENG",
+      "subsystem": "M1D",
+      "parent": "ENG-M1D-000",
+      "qty_per_parent": 1,
+      "detail_tier": "A",
+      "accuracy": "representative",
+      "sources": [
+        "FUG"
+      ],
+      "material": "MAT_METAL_steel_stainless",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "ENG-M1D",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/ENG/M1D/ENG-M1D-030_pintle_injector_lox_dome.FCStd",
+        "step": "04_cad_export/ENG/ENG-M1D-030.step",
+        "cad_mesh": "04_cad_export/ENG/ENG-M1D-030.obj",
+        "blend": "05_blender/modules/ENG_M1D.blend",
+        "review_dir": "07_review/ENG-M1D-030/",
+        "web": "06_web_export/optimized/ENG_M1D.glb"
+      },
+      "tri_budget": 40000,
+      "tri_actual": 4952,
+      "phase": "P2",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "ENG-M1D-040",
+      "name_en": "Turbopump assembly",
+      "name_th": "ชุดเทอร์โบปั๊ม",
+      "type": "assembly",
+      "module": "ENG",
+      "subsystem": "M1D",
+      "parent": "ENG-M1D-000",
+      "qty_per_parent": 1,
+      "detail_tier": "A",
+      "accuracy": "representative",
+      "sources": [
+        "FUG"
+      ],
+      "material": "-",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "ENG-M1D",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/ENG/M1D/ENG-M1D-040_turbopump_assembly.FCStd",
+        "step": "04_cad_export/ENG/ENG-M1D-040.step",
+        "cad_mesh": "04_cad_export/ENG/ENG-M1D-040.obj",
+        "blend": "05_blender/modules/ENG_M1D.blend",
+        "review_dir": "07_review/ENG-M1D-040/",
+        "web": "06_web_export/optimized/ENG_M1D.glb"
+      },
+      "tri_budget": 40000,
+      "tri_actual": 4028,
+      "phase": "P2",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": "แกนเดียว (single shaft) เป็นข้อมูลจริง"
+    },
+    {
+      "id": "ENG-M1D-041",
+      "name_en": "Turbine housing",
+      "name_th": "เสื้อกังหัน",
+      "type": "part",
+      "module": "ENG",
+      "subsystem": "M1D",
+      "parent": "ENG-M1D-040",
+      "qty_per_parent": 1,
+      "detail_tier": "A",
+      "accuracy": "representative",
+      "sources": [],
+      "material": "MAT_METAL_inconel_heat",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "ENG-M1D",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/ENG/M1D/ENG-M1D-041_turbine_housing.FCStd",
+        "step": "04_cad_export/ENG/ENG-M1D-041.step",
+        "cad_mesh": "04_cad_export/ENG/ENG-M1D-041.obj",
+        "blend": "05_blender/modules/ENG_M1D.blend",
+        "review_dir": "07_review/ENG-M1D-041/",
+        "web": "06_web_export/optimized/ENG_M1D.glb"
+      },
+      "tri_budget": 40000,
+      "tri_actual": 792,
+      "phase": "P2",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "ENG-M1D-042",
+      "name_en": "LOX pump housing / volute",
+      "name_th": "เสื้อปั๊ม LOX",
+      "type": "part",
+      "module": "ENG",
+      "subsystem": "M1D",
+      "parent": "ENG-M1D-040",
+      "qty_per_parent": 1,
+      "detail_tier": "A",
+      "accuracy": "representative",
+      "sources": [],
+      "material": "MAT_METAL_alu_cast",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "ENG-M1D",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/ENG/M1D/ENG-M1D-042_lox_pump_housing_volute.FCStd",
+        "step": "04_cad_export/ENG/ENG-M1D-042.step",
+        "cad_mesh": "04_cad_export/ENG/ENG-M1D-042.obj",
+        "blend": "05_blender/modules/ENG_M1D.blend",
+        "review_dir": "07_review/ENG-M1D-042/",
+        "web": "06_web_export/optimized/ENG_M1D.glb"
+      },
+      "tri_budget": 40000,
+      "tri_actual": 1526,
+      "phase": "P2",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "ENG-M1D-043",
+      "name_en": "Fuel pump housing / volute",
+      "name_th": "เสื้อปั๊มเชื้อเพลิง",
+      "type": "part",
+      "module": "ENG",
+      "subsystem": "M1D",
+      "parent": "ENG-M1D-040",
+      "qty_per_parent": 1,
+      "detail_tier": "A",
+      "accuracy": "representative",
+      "sources": [],
+      "material": "MAT_METAL_alu_cast",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "ENG-M1D",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/ENG/M1D/ENG-M1D-043_fuel_pump_housing_volute.FCStd",
+        "step": "04_cad_export/ENG/ENG-M1D-043.step",
+        "cad_mesh": "04_cad_export/ENG/ENG-M1D-043.obj",
+        "blend": "05_blender/modules/ENG_M1D.blend",
+        "review_dir": "07_review/ENG-M1D-043/",
+        "web": "06_web_export/optimized/ENG_M1D.glb"
+      },
+      "tri_budget": 40000,
+      "tri_actual": 966,
+      "phase": "P2",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "ENG-M1D-044",
+      "name_en": "Common shaft + bearings",
+      "name_th": "เพลาร่วม + ลูกปืน",
+      "type": "part",
+      "module": "ENG",
+      "subsystem": "M1D",
+      "parent": "ENG-M1D-040",
+      "qty_per_parent": 1,
+      "detail_tier": "A",
+      "accuracy": "representative",
+      "sources": [
+        "FUG"
+      ],
+      "material": "MAT_METAL_steel_stainless",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "ENG-M1D",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/ENG/M1D/ENG-M1D-044_common_shaft_bearings.FCStd",
+        "step": "04_cad_export/ENG/ENG-M1D-044.step",
+        "cad_mesh": "04_cad_export/ENG/ENG-M1D-044.obj",
+        "blend": "05_blender/modules/ENG_M1D.blend",
+        "review_dir": "07_review/ENG-M1D-044/",
+        "web": "06_web_export/optimized/ENG_M1D.glb"
+      },
+      "tri_budget": 40000,
+      "tri_actual": 744,
+      "phase": "P2",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": "ไม่มีเกียร์ในเครื่องจริง (direct drive)"
+    },
+    {
+      "id": "ENG-M1D-050",
+      "name_en": "Gas generator",
+      "name_th": "ห้องเผาไหม้ขับกังหัน (gas generator)",
+      "type": "part",
+      "module": "ENG",
+      "subsystem": "M1D",
+      "parent": "ENG-M1D-000",
+      "qty_per_parent": 1,
+      "detail_tier": "A",
+      "accuracy": "representative",
+      "sources": [
+        "KB"
+      ],
+      "material": "MAT_METAL_inconel_heat",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "ENG-M1D",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/ENG/M1D/ENG-M1D-050_gas_generator.FCStd",
+        "step": "04_cad_export/ENG/ENG-M1D-050.step",
+        "cad_mesh": "04_cad_export/ENG/ENG-M1D-050.obj",
+        "blend": "05_blender/modules/ENG_M1D.blend",
+        "review_dir": "07_review/ENG-M1D-050/",
+        "web": "06_web_export/optimized/ENG_M1D.glb"
+      },
+      "tri_budget": 40000,
+      "tri_actual": 1764,
+      "phase": "P2",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "ENG-M1D-060",
+      "name_en": "Turbine exhaust duct",
+      "name_th": "ท่อไอเสียกังหัน (สีดำข้างหัวฉีด)",
+      "type": "part",
+      "module": "ENG",
+      "subsystem": "M1D",
+      "parent": "ENG-M1D-000",
+      "qty_per_parent": 1,
+      "detail_tier": "A",
+      "accuracy": "representative",
+      "sources": [
+        "KB"
+      ],
+      "material": "MAT_METAL_exhaust_black",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "ENG-M1D",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/ENG/M1D/ENG-M1D-060_turbine_exhaust_duct.FCStd",
+        "step": "04_cad_export/ENG/ENG-M1D-060.step",
+        "cad_mesh": "04_cad_export/ENG/ENG-M1D-060.obj",
+        "blend": "05_blender/modules/ENG_M1D.blend",
+        "review_dir": "07_review/ENG-M1D-060/",
+        "web": "06_web_export/optimized/ENG_M1D.glb"
+      },
+      "tri_budget": 40000,
+      "tri_actual": 1072,
+      "phase": "P2",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "ENG-M1D-070",
+      "name_en": "Main fuel valve",
+      "name_th": "วาล์วเชื้อเพลิงหลัก",
+      "type": "part",
+      "module": "ENG",
+      "subsystem": "M1D",
+      "parent": "ENG-M1D-000",
+      "qty_per_parent": 1,
+      "detail_tier": "A",
+      "accuracy": "representative",
+      "sources": [],
+      "material": "MAT_METAL_alu_anodized",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "ENG-M1D",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/ENG/M1D/ENG-M1D-070_main_fuel_valve.FCStd",
+        "step": "04_cad_export/ENG/ENG-M1D-070.step",
+        "cad_mesh": "04_cad_export/ENG/ENG-M1D-070.obj",
+        "blend": "05_blender/modules/ENG_M1D.blend",
+        "review_dir": "07_review/ENG-M1D-070/",
+        "web": "06_web_export/optimized/ENG_M1D.glb"
+      },
+      "tri_budget": 40000,
+      "tri_actual": 744,
+      "phase": "P2",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "ENG-M1D-080",
+      "name_en": "Main LOX valve",
+      "name_th": "วาล์ว LOX หลัก",
+      "type": "part",
+      "module": "ENG",
+      "subsystem": "M1D",
+      "parent": "ENG-M1D-000",
+      "qty_per_parent": 1,
+      "detail_tier": "A",
+      "accuracy": "representative",
+      "sources": [],
+      "material": "MAT_METAL_alu_anodized",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "ENG-M1D",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/ENG/M1D/ENG-M1D-080_main_lox_valve.FCStd",
+        "step": "04_cad_export/ENG/ENG-M1D-080.step",
+        "cad_mesh": "04_cad_export/ENG/ENG-M1D-080.obj",
+        "blend": "05_blender/modules/ENG_M1D.blend",
+        "review_dir": "07_review/ENG-M1D-080/",
+        "web": "06_web_export/optimized/ENG_M1D.glb"
+      },
+      "tri_budget": 40000,
+      "tri_actual": 778,
+      "phase": "P2",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "ENG-M1D-090",
+      "name_en": "Feed lines + flanges",
+      "name_th": "ท่อป้อน + หน้าแปลน",
+      "type": "part",
+      "module": "ENG",
+      "subsystem": "M1D",
+      "parent": "ENG-M1D-000",
+      "qty_per_parent": 1,
+      "detail_tier": "A",
+      "accuracy": "standard-based",
+      "sources": [
+        "STD"
+      ],
+      "material": "MAT_METAL_steel_stainless",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "ENG-M1D",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/ENG/M1D/ENG-M1D-090_feed_lines_flanges.FCStd",
+        "step": "04_cad_export/ENG/ENG-M1D-090.step",
+        "cad_mesh": "04_cad_export/ENG/ENG-M1D-090.obj",
+        "blend": "05_blender/modules/ENG_M1D.blend",
+        "review_dir": "07_review/ENG-M1D-090/",
+        "web": "06_web_export/optimized/ENG_M1D.glb"
+      },
+      "tri_budget": 40000,
+      "tri_actual": 1896,
+      "phase": "P2",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": "หน้าแปลนยึดด้วยโบลต์ ISO"
+    },
+    {
+      "id": "ENG-M1D-100",
+      "name_en": "Gimbal block",
+      "name_th": "ข้อต่อ gimbal",
+      "type": "part",
+      "module": "ENG",
+      "subsystem": "M1D",
+      "parent": "ENG-M1D-000",
+      "qty_per_parent": 1,
+      "detail_tier": "A",
+      "accuracy": "representative",
+      "sources": [
+        "KB"
+      ],
+      "material": "MAT_METAL_steel_structural",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "ENG-M1D",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/ENG/M1D/ENG-M1D-100_gimbal_block.FCStd",
+        "step": "04_cad_export/ENG/ENG-M1D-100.step",
+        "cad_mesh": "04_cad_export/ENG/ENG-M1D-100.obj",
+        "blend": "05_blender/modules/ENG_M1D.blend",
+        "review_dir": "07_review/ENG-M1D-100/",
+        "web": "06_web_export/optimized/ENG_M1D.glb"
+      },
+      "tri_budget": 40000,
+      "tri_actual": 1030,
+      "phase": "P2",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "ENG-M1D-110",
+      "name_en": "TVC actuator (hydraulic)",
+      "name_th": "กระบอกไฮดรอลิกบังคับทิศ (TVC)",
+      "type": "part",
+      "module": "ENG",
+      "subsystem": "M1D",
+      "parent": "ENG-M1D-000",
+      "qty_per_parent": 2,
+      "detail_tier": "A",
+      "accuracy": "standard-based",
+      "sources": [
+        "KB",
+        "STD"
+      ],
+      "material": "MAT_METAL_steel_chrome",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "ENG-M1D",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/ENG/M1D/ENG-M1D-110_tvc_actuator.FCStd",
+        "step": "04_cad_export/ENG/ENG-M1D-110.step",
+        "cad_mesh": "04_cad_export/ENG/ENG-M1D-110.obj",
+        "blend": "05_blender/modules/ENG_M1D.blend",
+        "review_dir": "07_review/ENG-M1D-110/",
+        "web": "06_web_export/optimized/ENG_M1D.glb"
+      },
+      "tri_budget": 40000,
+      "tri_actual": 1100,
+      "phase": "P2",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": "ใช้ RP-1 แรงดันสูงเป็นน้ำมันไฮดรอลิก (KB)"
+    },
+    {
+      "id": "ENG-M1D-120",
+      "name_en": "Igniter (TEA-TEB) lines",
+      "name_th": "ท่อสารจุดระเบิด TEA-TEB",
+      "type": "part",
+      "module": "ENG",
+      "subsystem": "M1D",
+      "parent": "ENG-M1D-000",
+      "qty_per_parent": 1,
+      "detail_tier": "B",
+      "accuracy": "representative",
+      "sources": [],
+      "material": "MAT_METAL_steel_stainless",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "ENG-M1D",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/ENG/M1D/ENG-M1D-120_igniter_lines.FCStd",
+        "step": "04_cad_export/ENG/ENG-M1D-120.step",
+        "cad_mesh": "04_cad_export/ENG/ENG-M1D-120.obj",
+        "blend": "05_blender/modules/ENG_M1D.blend",
+        "review_dir": "07_review/ENG-M1D-120/",
+        "web": "06_web_export/optimized/ENG_M1D.glb"
+      },
+      "tri_budget": 12000,
+      "tri_actual": 1358,
+      "phase": "P2",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "ENG-M1D-130",
+      "name_en": "Engine thermal boot",
+      "name_th": "ปลอกกันความร้อนรอยต่อเครื่อง/แผ่นกันร้อน",
+      "type": "part",
+      "module": "ENG",
+      "subsystem": "M1D",
+      "parent": "ENG-M1D-000",
+      "qty_per_parent": 1,
+      "detail_tier": "B",
+      "accuracy": "representative",
+      "sources": [],
+      "material": "MAT_INSUL_heat_blanket",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "ENG-M1D",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/ENG/M1D/ENG-M1D-130_engine_thermal_boot.FCStd",
+        "step": "04_cad_export/ENG/ENG-M1D-130.step",
+        "cad_mesh": "04_cad_export/ENG/ENG-M1D-130.obj",
+        "blend": "05_blender/modules/ENG_M1D.blend",
+        "review_dir": "07_review/ENG-M1D-130/",
+        "web": "06_web_export/optimized/ENG_M1D.glb"
+      },
+      "tri_budget": 12000,
+      "tri_actual": 860,
+      "phase": "P2",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "ENG-MVAC-000",
+      "name_en": "Merlin Vacuum engine",
+      "name_th": "เครื่องยนต์ Merlin Vacuum",
+      "type": "assembly",
+      "module": "ENG",
+      "subsystem": "MVAC",
+      "parent": "S2-000",
+      "qty_per_parent": 1,
+      "detail_tier": "A",
+      "accuracy": "representative",
+      "sources": [
+        "FUG",
+        "KB"
+      ],
+      "material": "-",
+      "paint_zone": null,
+      "socket": null,
+      "slot": "SLOT_S2_ENGINE",
+      "explode": {
+        "group": "ENG-MVAC",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/ENG/MVAC/ENG-MVAC-000_merlin_vacuum_engine.FCStd",
+        "step": "04_cad_export/ENG/ENG-MVAC-000.step",
+        "cad_mesh": "04_cad_export/ENG/ENG-MVAC-000.obj",
+        "blend": "05_blender/modules/ENG_MVAC.blend",
+        "review_dir": "07_review/ENG-MVAC-000/",
+        "web": "06_web_export/optimized/ENG_MVAC.glb"
+      },
+      "tri_budget": 40000,
+      "tri_actual": 53494,
+      "phase": "P5",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "ENG-MVAC-010",
+      "name_en": "Engine core (shared with M1D)",
+      "name_th": "แกนเครื่องยนต์ (ใช้ชิ้นร่วมกับ M1D)",
+      "type": "part",
+      "module": "ENG",
+      "subsystem": "MVAC",
+      "parent": "ENG-MVAC-000",
+      "qty_per_parent": 1,
+      "detail_tier": "A",
+      "accuracy": "representative",
+      "sources": [
+        "D-007"
+      ],
+      "material": "-",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "ENG-MVAC",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/ENG/MVAC/ENG-MVAC-010_engine_core.FCStd",
+        "step": null,
+        "cad_mesh": null,
+        "blend": "05_blender/modules/ENG_MVAC.blend",
+        "review_dir": "07_review/ENG-MVAC-010/",
+        "web": "06_web_export/optimized/ENG_MVAC.glb"
+      },
+      "tri_budget": 40000,
+      "tri_actual": 31324,
+      "phase": "P5",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": "no new geometry: re-uses ENG-M1D-010..130 (without the 060 duct) via ENG_MVAC.blend; see D-007"
+    },
+    {
+      "id": "ENG-MVAC-020",
+      "name_en": "Nozzle extension (eps 165, exit Ø3.3 m)",
+      "name_th": "ส่วนต่อหัวฉีดสุญญากาศ",
+      "type": "part",
+      "module": "ENG",
+      "subsystem": "MVAC",
+      "parent": "ENG-MVAC-000",
+      "qty_per_parent": 1,
+      "detail_tier": "A",
+      "accuracy": "documented",
+      "sources": [
+        "FUG",
+        "KB",
+        "D-007"
+      ],
+      "material": "MAT_METAL_niobium",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "ENG-MVAC",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/ENG/MVAC/ENG-MVAC-020_nozzle_extension.FCStd",
+        "step": "04_cad_export/ENG/ENG-MVAC-020.step",
+        "cad_mesh": "04_cad_export/ENG/ENG-MVAC-020.obj",
+        "blend": "05_blender/modules/ENG_MVAC.blend",
+        "review_dir": "07_review/ENG-MVAC-020/",
+        "web": "06_web_export/optimized/ENG_MVAC.glb"
+      },
+      "tri_budget": 40000,
+      "tri_actual": 11274,
+      "phase": "P5",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": "ε=165, Ø ปาก 3.3 m"
+    },
+    {
+      "id": "ENG-MVAC-030",
+      "name_en": "Nozzle extension attach ring",
+      "name_th": "วงแหวนยึดส่วนต่อหัวฉีด",
+      "type": "part",
+      "module": "ENG",
+      "subsystem": "MVAC",
+      "parent": "ENG-MVAC-000",
+      "qty_per_parent": 1,
+      "detail_tier": "A",
+      "accuracy": "standard-based",
+      "sources": [
+        "STD",
+        "D-007"
+      ],
+      "material": "MAT_METAL_inconel_heat",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "ENG-MVAC",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/ENG/MVAC/ENG-MVAC-030_nozzle_extension_attach_ring.FCStd",
+        "step": "04_cad_export/ENG/ENG-MVAC-030.step",
+        "cad_mesh": "04_cad_export/ENG/ENG-MVAC-030.obj",
+        "blend": "05_blender/modules/ENG_MVAC.blend",
+        "review_dir": "07_review/ENG-MVAC-030/",
+        "web": "06_web_export/optimized/ENG_MVAC.glb"
+      },
+      "tri_budget": 40000,
+      "tri_actual": 780,
+      "phase": "P5",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "ENG-MVAC-040",
+      "name_en": "Turbine exhaust manifold",
+      "name_th": "ท่อร่วมไอเสียกังหัน",
+      "type": "part",
+      "module": "ENG",
+      "subsystem": "MVAC",
+      "parent": "ENG-MVAC-000",
+      "qty_per_parent": 1,
+      "detail_tier": "B",
+      "accuracy": "representative",
+      "sources": [
+        "D-007"
+      ],
+      "material": "MAT_METAL_inconel_heat",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "ENG-MVAC",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/ENG/MVAC/ENG-MVAC-040_turbine_exhaust_manifold.FCStd",
+        "step": "04_cad_export/ENG/ENG-MVAC-040.step",
+        "cad_mesh": "04_cad_export/ENG/ENG-MVAC-040.obj",
+        "blend": "05_blender/modules/ENG_MVAC.blend",
+        "review_dir": "07_review/ENG-MVAC-040/",
+        "web": "06_web_export/optimized/ENG_MVAC.glb"
+      },
+      "tri_budget": 12000,
+      "tri_actual": 10116,
+      "phase": "P5",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "IS-000",
+      "name_en": "Interstage",
+      "name_th": "ช่วงต่อสเตจ (interstage)",
+      "type": "assembly",
+      "module": "IS",
+      "subsystem": null,
+      "parent": "VEH-000",
+      "qty_per_parent": 1,
+      "detail_tier": "B",
+      "accuracy": "documented",
+      "sources": [
+        "FUG",
+        "KB"
+      ],
+      "material": "-",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "IS",
+        "order": 4,
+        "mode": "translate",
+        "direction": "+Z",
+        "distance_m": 4.0
+      },
+      "files": {
+        "freecad": "03_freecad/IS/IS-000_interstage.FCStd",
+        "step": "04_cad_export/IS/IS-000.step",
+        "cad_mesh": "04_cad_export/IS/IS-000.obj",
+        "blend": "05_blender/modules/IS.blend",
+        "review_dir": "07_review/IS-000/",
+        "web": "06_web_export/optimized/IS.glb"
+      },
+      "tri_budget": 12000,
+      "tri_actual": 23642,
+      "phase": "P4",
+      "status": "web_ready",
+      "rev": 2,
+      "notes": ""
+    },
+    {
+      "id": "IS-010",
+      "name_en": "Interstage shell",
+      "name_th": "เปลือก interstage (คาร์บอน + รังผึ้งอะลูมิเนียม)",
+      "type": "part",
+      "module": "IS",
+      "subsystem": null,
+      "parent": "IS-000",
+      "qty_per_parent": 1,
+      "detail_tier": "B",
+      "accuracy": "documented",
+      "sources": [
+        "FUG"
+      ],
+      "material": "MAT_COMP_carbon_black",
+      "paint_zone": "PAINT_interstage",
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "IS",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/IS/IS-010_interstage_shell.FCStd",
+        "step": "04_cad_export/IS/IS-010.step",
+        "cad_mesh": "04_cad_export/IS/IS-010.obj",
+        "blend": "05_blender/modules/IS.blend",
+        "review_dir": "07_review/IS-010/",
+        "web": "06_web_export/optimized/IS.glb"
+      },
+      "tri_budget": 12000,
+      "tri_actual": 5036,
+      "phase": "P4",
+      "status": "web_ready",
+      "rev": 2,
+      "notes": "วัสดุเป็นข้อมูลจริง ความยาวเป็นค่าประมาณ"
+    },
+    {
+      "id": "IS-020",
+      "name_en": "Grid fin - titanium (Block 5)",
+      "name_th": "กริดฟิน ไทเทเนียม",
+      "type": "part",
+      "module": "IS",
+      "subsystem": null,
+      "parent": "IS-000",
+      "qty_per_parent": 4,
+      "detail_tier": "A",
+      "accuracy": "representative",
+      "sources": [
+        "FUG",
+        "KB",
+        "D-006"
+      ],
+      "material": "MAT_METAL_titanium_cast",
+      "paint_zone": null,
+      "socket": null,
+      "slot": "SLOT_GRIDFIN",
+      "explode": {
+        "group": "IS",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/IS/IS-020_grid_fin_titanium.FCStd",
+        "step": "04_cad_export/IS/IS-020.step",
+        "cad_mesh": "04_cad_export/IS/IS-020.obj",
+        "blend": "05_blender/modules/IS.blend",
+        "review_dir": "07_review/IS-020/",
+        "web": "06_web_export/optimized/IS.glb"
+      },
+      "tri_budget": 40000,
+      "tri_actual": 1024,
+      "phase": "P4",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": "ตัวเลือก (variant) ใน SLOT_GRIDFIN"
+    },
+    {
+      "id": "IS-021",
+      "name_en": "Grid fin - aluminium (earlier)",
+      "name_th": "กริดฟิน อะลูมิเนียม (รุ่นก่อน)",
+      "type": "part",
+      "module": "IS",
+      "subsystem": null,
+      "parent": "IS-000",
+      "qty_per_parent": 4,
+      "detail_tier": "A",
+      "accuracy": "representative",
+      "sources": [
+        "D-006"
+      ],
+      "material": "MAT_METAL_alu_painted",
+      "paint_zone": null,
+      "socket": null,
+      "slot": "SLOT_GRIDFIN",
+      "explode": {
+        "group": "IS",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/IS/IS-021_grid_fin_aluminium.FCStd",
+        "step": "04_cad_export/IS/IS-021.step",
+        "cad_mesh": "04_cad_export/IS/IS-021.obj",
+        "blend": "05_blender/modules/IS.blend",
+        "review_dir": "07_review/IS-021/",
+        "web": "06_web_export/optimized/IS_GRIDFIN_AL.glb"
+      },
+      "tri_budget": 40000,
+      "tri_actual": 1984,
+      "phase": "P4",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": "ตัวเลือก (variant) ใน SLOT_GRIDFIN"
+    },
+    {
+      "id": "IS-030",
+      "name_en": "Grid fin hinge + actuator housing",
+      "name_th": "บานพับ + ชุดขับกริดฟิน",
+      "type": "part",
+      "module": "IS",
+      "subsystem": null,
+      "parent": "IS-000",
+      "qty_per_parent": 4,
+      "detail_tier": "A",
+      "accuracy": "representative",
+      "sources": [
+        "D-006"
+      ],
+      "material": "MAT_METAL_steel_structural",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "IS",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/IS/IS-030_grid_fin_hinge_actuator_housing.FCStd",
+        "step": "04_cad_export/IS/IS-030.step",
+        "cad_mesh": "04_cad_export/IS/IS-030.obj",
+        "blend": "05_blender/modules/IS.blend",
+        "review_dir": "07_review/IS-030/",
+        "web": "06_web_export/optimized/IS.glb"
+      },
+      "tri_budget": 40000,
+      "tri_actual": 372,
+      "phase": "P4",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": "เฟืองภายในเป็นแบบ representative (ระบุใน manifest)"
+    },
+    {
+      "id": "IS-040",
+      "name_en": "Cold-gas (N2) thruster pod",
+      "name_th": "ชุดหัวพ่นแก๊สไนโตรเจนเย็น",
+      "type": "part",
+      "module": "IS",
+      "subsystem": null,
+      "parent": "IS-000",
+      "qty_per_parent": 2,
+      "detail_tier": "B",
+      "accuracy": "representative",
+      "sources": [
+        "KB",
+        "D-006"
+      ],
+      "material": "MAT_METAL_alu_anodized",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "IS",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/IS/IS-040_cold_gas_thruster_pod.FCStd",
+        "step": "04_cad_export/IS/IS-040.step",
+        "cad_mesh": "04_cad_export/IS/IS-040.obj",
+        "blend": "05_blender/modules/IS.blend",
+        "review_dir": "07_review/IS-040/",
+        "web": "06_web_export/optimized/IS.glb"
+      },
+      "tri_budget": 12000,
+      "tri_actual": 1042,
+      "phase": "P4",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": "จำนวนต้องยืนยันจากภาพอ้างอิง"
+    },
+    {
+      "id": "IS-050",
+      "name_en": "Stage separation pneumatic pusher",
+      "name_th": "กระบอกลมดันแยกสเตจ",
+      "type": "part",
+      "module": "IS",
+      "subsystem": null,
+      "parent": "IS-000",
+      "qty_per_parent": 5,
+      "detail_tier": "B",
+      "accuracy": "documented",
+      "sources": [
+        "FUG"
+      ],
+      "material": "MAT_METAL_steel_chrome",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "IS",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/IS/IS-050_stage_separation_pneumatic_pusher.FCStd",
+        "step": "04_cad_export/IS/IS-050.step",
+        "cad_mesh": "04_cad_export/IS/IS-050.obj",
+        "blend": "05_blender/modules/IS.blend",
+        "review_dir": "07_review/IS-050/",
+        "web": "06_web_export/optimized/IS.glb"
+      },
+      "tri_budget": 12000,
+      "tri_actual": 1096,
+      "phase": "P4",
+      "status": "web_ready",
+      "rev": 2,
+      "notes": "rev 2: 5 pushers evenly spaced (72 deg) on R=1.1 m around the MVac opening; see D-007"
+    },
+    {
+      "id": "IS-060",
+      "name_en": "Separation collet / latch",
+      "name_th": "สลักยึดสเตจ",
+      "type": "part",
+      "module": "IS",
+      "subsystem": null,
+      "parent": "IS-000",
+      "qty_per_parent": 3,
+      "detail_tier": "B",
+      "accuracy": "documented",
+      "sources": [
+        "FUG"
+      ],
+      "material": "MAT_METAL_steel_structural",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "IS",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/IS/IS-060_separation_collet_latch.FCStd",
+        "step": "04_cad_export/IS/IS-060.step",
+        "cad_mesh": "04_cad_export/IS/IS-060.obj",
+        "blend": "05_blender/modules/IS.blend",
+        "review_dir": "07_review/IS-060/",
+        "web": "06_web_export/optimized/IS.glb"
+      },
+      "tri_budget": 12000,
+      "tri_actual": 318,
+      "phase": "P4",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": "3 จุด"
+    },
+    {
+      "id": "S2-000",
+      "name_en": "Second stage",
+      "name_th": "สเตจ 2",
+      "type": "assembly",
+      "module": "S2",
+      "subsystem": null,
+      "parent": "VEH-000",
+      "qty_per_parent": 1,
+      "detail_tier": "B",
+      "accuracy": "documented",
+      "sources": [
+        "FUG"
+      ],
+      "material": "-",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "S2",
+        "order": 5,
+        "mode": "translate",
+        "direction": "+Z",
+        "distance_m": 8.0
+      },
+      "files": {
+        "freecad": "03_freecad/S2/S2-000_second_stage.FCStd",
+        "step": "04_cad_export/S2/S2-000.step",
+        "cad_mesh": "04_cad_export/S2/S2-000.obj",
+        "blend": "05_blender/modules/S2.blend",
+        "review_dir": "07_review/S2-000/",
+        "web": "06_web_export/optimized/S2.glb"
+      },
+      "tri_budget": 12000,
+      "tri_actual": 42938,
+      "phase": "P5",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "S2-010",
+      "name_en": "LOX tank barrel",
+      "name_th": "ผนังถัง LOX สเตจ 2",
+      "type": "part",
+      "module": "S2",
+      "subsystem": null,
+      "parent": "S2-000",
+      "qty_per_parent": 1,
+      "detail_tier": "C",
+      "accuracy": "documented",
+      "sources": [
+        "FUG",
+        "D-007"
+      ],
+      "material": "MAT_PAINT_white_body",
+      "paint_zone": "PAINT_body",
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "S2",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/S2/S2-010_lox_tank_barrel.FCStd",
+        "step": "04_cad_export/S2/S2-010.step",
+        "cad_mesh": "04_cad_export/S2/S2-010.obj",
+        "blend": "05_blender/modules/S2.blend",
+        "review_dir": "07_review/S2-010/",
+        "web": "06_web_export/optimized/S2.glb"
+      },
+      "tri_budget": 4000,
+      "tri_actual": 5844,
+      "phase": "P1",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "S2-020",
+      "name_en": "RP-1 tank barrel",
+      "name_th": "ผนังถัง RP-1 สเตจ 2",
+      "type": "part",
+      "module": "S2",
+      "subsystem": null,
+      "parent": "S2-000",
+      "qty_per_parent": 1,
+      "detail_tier": "C",
+      "accuracy": "documented",
+      "sources": [
+        "FUG",
+        "D-007"
+      ],
+      "material": "MAT_PAINT_white_body",
+      "paint_zone": "PAINT_body",
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "S2",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/S2/S2-020_rp_1_tank_barrel.FCStd",
+        "step": "04_cad_export/S2/S2-020.step",
+        "cad_mesh": "04_cad_export/S2/S2-020.obj",
+        "blend": "05_blender/modules/S2.blend",
+        "review_dir": "07_review/S2-020/",
+        "web": "06_web_export/optimized/S2.glb"
+      },
+      "tri_budget": 4000,
+      "tri_actual": 5390,
+      "phase": "P1",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "S2-030",
+      "name_en": "Common dome",
+      "name_th": "โดมกั้นร่วม สเตจ 2",
+      "type": "part",
+      "module": "S2",
+      "subsystem": null,
+      "parent": "S2-000",
+      "qty_per_parent": 1,
+      "detail_tier": "C",
+      "accuracy": "documented",
+      "sources": [
+        "FUG",
+        "D-007"
+      ],
+      "material": "MAT_METAL_alu_li",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "S2",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/S2/S2-030_common_dome.FCStd",
+        "step": "04_cad_export/S2/S2-030.step",
+        "cad_mesh": "04_cad_export/S2/S2-030.obj",
+        "blend": "05_blender/modules/S2.blend",
+        "review_dir": "07_review/S2-030/",
+        "web": "06_web_export/optimized/S2.glb"
+      },
+      "tri_budget": 4000,
+      "tri_actual": 4514,
+      "phase": "P1",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "S2-040",
+      "name_en": "Aft thrust structure / engine mount",
+      "name_th": "โครงรับแรงขับสเตจ 2",
+      "type": "part",
+      "module": "S2",
+      "subsystem": null,
+      "parent": "S2-000",
+      "qty_per_parent": 1,
+      "detail_tier": "B",
+      "accuracy": "representative",
+      "sources": [
+        "D-007"
+      ],
+      "material": "MAT_PAINT_white_body",
+      "paint_zone": "PAINT_body",
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "S2",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/S2/S2-040_aft_thrust_structure_engine_mount.FCStd",
+        "step": "04_cad_export/S2/S2-040.step",
+        "cad_mesh": "04_cad_export/S2/S2-040.obj",
+        "blend": "05_blender/modules/S2.blend",
+        "review_dir": "07_review/S2-040/",
+        "web": "06_web_export/optimized/S2.glb"
+      },
+      "tri_budget": 12000,
+      "tri_actual": 6166,
+      "phase": "P5",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "S2-050",
+      "name_en": "Forward skirt / PAF interface ring",
+      "name_th": "วงแหวนรับ PAF",
+      "type": "part",
+      "module": "S2",
+      "subsystem": null,
+      "parent": "S2-000",
+      "qty_per_parent": 1,
+      "detail_tier": "B",
+      "accuracy": "representative",
+      "sources": [
+        "FUG",
+        "D-007"
+      ],
+      "material": "MAT_PAINT_white_body",
+      "paint_zone": "PAINT_body",
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "S2",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/S2/S2-050_forward_skirt_paf_interface_ring.FCStd",
+        "step": "04_cad_export/S2/S2-050.step",
+        "cad_mesh": "04_cad_export/S2/S2-050.obj",
+        "blend": "05_blender/modules/S2.blend",
+        "review_dir": "07_review/S2-050/",
+        "web": "06_web_export/optimized/S2.glb"
+      },
+      "tri_budget": 12000,
+      "tri_actual": 7048,
+      "phase": "P5",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "S2-060",
+      "name_en": "N2 cold-gas RCS pod",
+      "name_th": "ชุด RCS แก๊สเย็นสเตจ 2",
+      "type": "part",
+      "module": "S2",
+      "subsystem": null,
+      "parent": "S2-000",
+      "qty_per_parent": 2,
+      "detail_tier": "B",
+      "accuracy": "representative",
+      "sources": [
+        "KB",
+        "D-007"
+      ],
+      "material": "MAT_METAL_alu_anodized",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "S2",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/S2/S2-060_n2_cold_gas_rcs_pod.FCStd",
+        "step": "04_cad_export/S2/S2-060.step",
+        "cad_mesh": "04_cad_export/S2/S2-060.obj",
+        "blend": "05_blender/modules/S2.blend",
+        "review_dir": "07_review/S2-060/",
+        "web": "06_web_export/optimized/S2.glb"
+      },
+      "tri_budget": 12000,
+      "tri_actual": 1096,
+      "phase": "P5",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": "จำนวนต้องยืนยัน"
+    },
+    {
+      "id": "S2-070",
+      "name_en": "COPV pressurant bottles",
+      "name_th": "ถังแรงดันคอมโพสิต (COPV)",
+      "type": "part",
+      "module": "S2",
+      "subsystem": null,
+      "parent": "S2-000",
+      "qty_per_parent": 3,
+      "detail_tier": "B",
+      "accuracy": "representative",
+      "sources": [
+        "D-007"
+      ],
+      "material": "MAT_COMP_carbon_black",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "S2",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/S2/S2-070_copv_pressurant_bottles.FCStd",
+        "step": "04_cad_export/S2/S2-070.step",
+        "cad_mesh": "04_cad_export/S2/S2-070.obj",
+        "blend": "05_blender/modules/S2.blend",
+        "review_dir": "07_review/S2-070/",
+        "web": "06_web_export/optimized/S2.glb"
+      },
+      "tri_budget": 12000,
+      "tri_actual": 3812,
+      "phase": "P5",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": "จำนวนต้องยืนยัน"
+    },
+    {
+      "id": "S2-080",
+      "name_en": "Avionics / raceway",
+      "name_th": "กล่องอากาศยาน + ราง",
+      "type": "part",
+      "module": "S2",
+      "subsystem": null,
+      "parent": "S2-000",
+      "qty_per_parent": 1,
+      "detail_tier": "B",
+      "accuracy": "representative",
+      "sources": [
+        "D-007"
+      ],
+      "material": "MAT_PAINT_white_body",
+      "paint_zone": "PAINT_body",
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "S2",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/S2/S2-080_avionics_raceway.FCStd",
+        "step": "04_cad_export/S2/S2-080.step",
+        "cad_mesh": "04_cad_export/S2/S2-080.obj",
+        "blend": "05_blender/modules/S2.blend",
+        "review_dir": "07_review/S2-080/",
+        "web": "06_web_export/optimized/S2.glb"
+      },
+      "tri_budget": 12000,
+      "tri_actual": 348,
+      "phase": "P5",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "PL-000",
+      "name_en": "Payload module",
+      "name_th": "ส่วนบรรทุก",
+      "type": "assembly",
+      "module": "PL",
+      "subsystem": null,
+      "parent": "VEH-000",
+      "qty_per_parent": 1,
+      "detail_tier": "B",
+      "accuracy": "documented",
+      "sources": [
+        "FUG"
+      ],
+      "material": "-",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "PL",
+        "order": 6,
+        "mode": "translate",
+        "direction": "+Z",
+        "distance_m": 12.0
+      },
+      "files": {
+        "freecad": "03_freecad/PL/PL-000_payload_module.FCStd",
+        "step": "04_cad_export/PL/PL-000.step",
+        "cad_mesh": "04_cad_export/PL/PL-000.obj",
+        "blend": "05_blender/modules/PL.blend",
+        "review_dir": "07_review/PL-000/",
+        "web": "06_web_export/optimized/PL.glb"
+      },
+      "tri_budget": 12000,
+      "tri_actual": 33776,
+      "phase": "P6",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "PL-010",
+      "name_en": "Payload attach fitting Ø1666 mm + clampband",
+      "name_th": "ตัวยึด payload (PAF) + clampband",
+      "type": "part",
+      "module": "PL",
+      "subsystem": null,
+      "parent": "PL-000",
+      "qty_per_parent": 1,
+      "detail_tier": "B",
+      "accuracy": "documented",
+      "sources": [
+        "FUG",
+        "KB",
+        "D-008"
+      ],
+      "material": "MAT_METAL_alu_anodized",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "PL",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/PL/PL-010_payload_attach_fitting_1666_mm_clampband.FCStd",
+        "step": "04_cad_export/PL/PL-010.step",
+        "cad_mesh": "04_cad_export/PL/PL-010.obj",
+        "blend": "05_blender/modules/PL.blend",
+        "review_dir": "07_review/PL-010/",
+        "web": "06_web_export/optimized/PL.glb"
+      },
+      "tri_budget": 12000,
+      "tri_actual": 4452,
+      "phase": "P6",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": "Ø interface มาตรฐาน 1,666 mm"
+    },
+    {
+      "id": "PL-020",
+      "name_en": "Fairing half - standard (Ø5.2 x 13.2 m)",
+      "name_th": "แฟริ่ง ครึ่งซีก (มาตรฐาน)",
+      "type": "part",
+      "module": "PL",
+      "subsystem": null,
+      "parent": "PL-000",
+      "qty_per_parent": 2,
+      "detail_tier": "B",
+      "accuracy": "documented",
+      "sources": [
+        "FUG",
+        "D-008"
+      ],
+      "material": "MAT_PAINT_white_fairing",
+      "paint_zone": "PAINT_fairing",
+      "socket": null,
+      "slot": "SLOT_FAIRING",
+      "explode": {
+        "group": "PL",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/PL/PL-020_fairing_half_standard.FCStd",
+        "step": "04_cad_export/PL/PL-020.step",
+        "cad_mesh": "04_cad_export/PL/PL-020.obj",
+        "blend": "05_blender/modules/PL.blend",
+        "review_dir": "07_review/PL-020/",
+        "web": "06_web_export/optimized/PL.glb"
+      },
+      "tri_budget": 12000,
+      "tri_actual": 9062,
+      "phase": "P6",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": "ตัวเลือก STD ใน SLOT_FAIRING; ซีก y>=0 (ซีกที่สองคือชิ้นเดียวกันหมุน 180 deg); ogive ปลายมน; see D-008"
+    },
+    {
+      "id": "PL-021",
+      "name_en": "Fairing half - extended (Ø5.2 x 18.7 m)",
+      "name_th": "แฟริ่ง ครึ่งซีก (แบบยาว)",
+      "type": "part",
+      "module": "PL",
+      "subsystem": null,
+      "parent": "PL-000",
+      "qty_per_parent": 2,
+      "detail_tier": "B",
+      "accuracy": "documented",
+      "sources": [
+        "FUG",
+        "D-008"
+      ],
+      "material": "MAT_PAINT_white_fairing",
+      "paint_zone": "PAINT_fairing",
+      "socket": null,
+      "slot": "SLOT_FAIRING",
+      "explode": {
+        "group": "PL",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/PL/PL-021_fairing_half_extended.FCStd",
+        "step": "04_cad_export/PL/PL-021.step",
+        "cad_mesh": "04_cad_export/PL/PL-021.obj",
+        "blend": "05_blender/modules/PL.blend",
+        "review_dir": "07_review/PL-021/",
+        "web": "06_web_export/optimized/PL_FAIRING_EXT.glb"
+      },
+      "tri_budget": 12000,
+      "tri_actual": 10014,
+      "phase": "P6",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": "ตัวเลือก EXT ใน SLOT_FAIRING (PL_FAIRING_EXT.glb); ลำตัวทรงกระบอกยาวขึ้น 5.5 m; see D-008"
+    },
+    {
+      "id": "PL-030",
+      "name_en": "Fairing base ring / boat-tail",
+      "name_th": "วงแหวนฐานแฟริ่ง / ส่วนบานออก",
+      "type": "part",
+      "module": "PL",
+      "subsystem": null,
+      "parent": "PL-000",
+      "qty_per_parent": 1,
+      "detail_tier": "B",
+      "accuracy": "representative",
+      "sources": [
+        "KB",
+        "D-008"
+      ],
+      "material": "MAT_PAINT_white_fairing",
+      "paint_zone": "PAINT_fairing",
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "PL",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/PL/PL-030_fairing_base_ring_boat_tail.FCStd",
+        "step": "04_cad_export/PL/PL-030.step",
+        "cad_mesh": "04_cad_export/PL/PL-030.obj",
+        "blend": "05_blender/modules/PL.blend",
+        "review_dir": "07_review/PL-030/",
+        "web": "06_web_export/optimized/PL.glb"
+      },
+      "tri_budget": 12000,
+      "tri_actual": 2842,
+      "phase": "P6",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": "แฟริ่ง 5.2 m > ลำตัว 3.66 m"
+    },
+    {
+      "id": "PL-040",
+      "name_en": "Fairing separation pneumatic pusher",
+      "name_th": "กระบอกลมแยกแฟริ่ง",
+      "type": "part",
+      "module": "PL",
+      "subsystem": null,
+      "parent": "PL-000",
+      "qty_per_parent": 4,
+      "detail_tier": "B",
+      "accuracy": "documented",
+      "sources": [
+        "FUG",
+        "D-008"
+      ],
+      "material": "MAT_METAL_steel_chrome",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "PL",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/PL/PL-040_fairing_separation_pneumatic_pusher.FCStd",
+        "step": "04_cad_export/PL/PL-040.step",
+        "cad_mesh": "04_cad_export/PL/PL-040.obj",
+        "blend": "05_blender/modules/PL.blend",
+        "review_dir": "07_review/PL-040/",
+        "web": "06_web_export/optimized/PL.glb"
+      },
+      "tri_budget": 12000,
+      "tri_actual": 620,
+      "phase": "P6",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "PL-050",
+      "name_en": "Payload dummy satellite A (own design)",
+      "name_th": "ดาวเทียมจำลอง A (ออกแบบเอง)",
+      "type": "part",
+      "module": "PL",
+      "subsystem": null,
+      "parent": "PL-000",
+      "qty_per_parent": 1,
+      "detail_tier": "B",
+      "accuracy": "representative",
+      "sources": [
+        "D-008"
+      ],
+      "material": "MAT_FOIL_mli_gold",
+      "paint_zone": "PAINT_payload",
+      "socket": null,
+      "slot": "SLOT_PAYLOAD",
+      "explode": {
+        "group": "PL",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/PL/PL-050_payload_dummy_satellite_a.FCStd",
+        "step": "04_cad_export/PL/PL-050.step",
+        "cad_mesh": "04_cad_export/PL/PL-050.obj",
+        "blend": "05_blender/modules/PL.blend",
+        "review_dir": "07_review/PL-050/",
+        "web": "06_web_export/optimized/PL.glb"
+      },
+      "tri_budget": 12000,
+      "tri_actual": 7226,
+      "phase": "P6",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": "ไม่อิงดาวเทียมจริงรายใด"
+    },
+    {
+      "id": "PL-051",
+      "name_en": "Payload dummy satellite B (own design)",
+      "name_th": "ดาวเทียมจำลอง B (ออกแบบเอง)",
+      "type": "part",
+      "module": "PL",
+      "subsystem": null,
+      "parent": "PL-000",
+      "qty_per_parent": 1,
+      "detail_tier": "B",
+      "accuracy": "representative",
+      "sources": [
+        "D-008"
+      ],
+      "material": "MAT_FOIL_mli_silver",
+      "paint_zone": "PAINT_payload",
+      "socket": null,
+      "slot": "SLOT_PAYLOAD",
+      "explode": {
+        "group": "PL",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/PL/PL-051_payload_dummy_satellite_b.FCStd",
+        "step": "04_cad_export/PL/PL-051.step",
+        "cad_mesh": "04_cad_export/PL/PL-051.obj",
+        "blend": "05_blender/modules/PL.blend",
+        "review_dir": "07_review/PL-051/",
+        "web": "06_web_export/optimized/PL_PAYLOAD_B.glb"
+      },
+      "tri_budget": 12000,
+      "tri_actual": 4084,
+      "phase": "P6",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": "ตัวเลือกใน SLOT_PAYLOAD (PL_PAYLOAD_B.glb); ไม่อิงดาวเทียมจริง; see D-008"
+    },
+    {
+      "id": "LIB-FST-010",
+      "name_en": "Hex bolt ISO 4017 (M6-M16)",
+      "name_th": "โบลต์หัวหกเหลี่ยม ISO 4017",
+      "type": "hardware",
+      "module": "LIB",
+      "subsystem": "FST",
+      "parent": null,
+      "qty_per_parent": 0,
+      "detail_tier": "H",
+      "accuracy": "standard-based",
+      "sources": [
+        "STD"
+      ],
+      "material": "MAT_METAL_steel_fastener",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "LIB-FST",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/_library/fasteners/LIB-FST-010_hex_bolt_iso_4017.FCStd",
+        "step": "04_cad_export/LIB/LIB-FST-010.step",
+        "cad_mesh": "04_cad_export/LIB/LIB-FST-010.obj",
+        "blend": "05_blender/modules/LIB.blend",
+        "review_dir": "07_review/LIB-FST-010/"
+      },
+      "tri_budget": 1100,
+      "tri_actual": 564,
+      "phase": "P0",
+      "status": "blender_checked",
+      "rev": 1,
+      "notes": "สร้างด้วย Fasteners Workbench ; ก้านเรียบ (ไม่ทำเกลียวจริง) เพื่อลดโพลิกอน"
+    },
+    {
+      "id": "LIB-FST-020",
+      "name_en": "Socket head cap screw ISO 4762",
+      "name_th": "สกรูหัวจม ISO 4762",
+      "type": "hardware",
+      "module": "LIB",
+      "subsystem": "FST",
+      "parent": null,
+      "qty_per_parent": 0,
+      "detail_tier": "H",
+      "accuracy": "standard-based",
+      "sources": [
+        "STD"
+      ],
+      "material": "MAT_METAL_steel_fastener",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "LIB-FST",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/_library/fasteners/LIB-FST-020_socket_head_cap_screw_iso_4762.FCStd",
+        "step": "04_cad_export/LIB/LIB-FST-020.step",
+        "cad_mesh": "04_cad_export/LIB/LIB-FST-020.obj",
+        "blend": "05_blender/modules/LIB.blend",
+        "review_dir": "07_review/LIB-FST-020/"
+      },
+      "tri_budget": 1100,
+      "tri_actual": 1014,
+      "phase": "P0",
+      "status": "blender_checked",
+      "rev": 1,
+      "notes": "ก้านเรียบ (ไม่ทำเกลียวจริง) เพื่อลดโพลิกอน"
+    },
+    {
+      "id": "LIB-FST-030",
+      "name_en": "Hex nut ISO 4032",
+      "name_th": "น็อตตัวเมีย ISO 4032",
+      "type": "hardware",
+      "module": "LIB",
+      "subsystem": "FST",
+      "parent": null,
+      "qty_per_parent": 0,
+      "detail_tier": "H",
+      "accuracy": "standard-based",
+      "sources": [
+        "STD"
+      ],
+      "material": "MAT_METAL_steel_fastener",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "LIB-FST",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/_library/fasteners/LIB-FST-030_hex_nut_iso_4032.FCStd",
+        "step": "04_cad_export/LIB/LIB-FST-030.step",
+        "cad_mesh": "04_cad_export/LIB/LIB-FST-030.obj",
+        "blend": "05_blender/modules/LIB.blend",
+        "review_dir": "07_review/LIB-FST-030/"
+      },
+      "tri_budget": 1100,
+      "tri_actual": 452,
+      "phase": "P0",
+      "status": "blender_checked",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "LIB-FST-040",
+      "name_en": "Nyloc nut ISO 10511",
+      "name_th": "น็อตล็อกไนลอน ISO 10511",
+      "type": "hardware",
+      "module": "LIB",
+      "subsystem": "FST",
+      "parent": null,
+      "qty_per_parent": 0,
+      "detail_tier": "H",
+      "accuracy": "standard-based",
+      "sources": [
+        "STD"
+      ],
+      "material": "MAT_METAL_steel_fastener",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "LIB-FST",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/_library/fasteners/LIB-FST-040_nyloc_nut_iso_10511.FCStd",
+        "step": "04_cad_export/LIB/LIB-FST-040.step",
+        "cad_mesh": "04_cad_export/LIB/LIB-FST-040.obj",
+        "blend": "05_blender/modules/LIB.blend",
+        "review_dir": "07_review/LIB-FST-040/"
+      },
+      "tri_budget": 1100,
+      "tri_actual": 834,
+      "phase": "P0",
+      "status": "blender_checked",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "LIB-FST-050",
+      "name_en": "Plain washer ISO 7089",
+      "name_th": "แหวนรอง ISO 7089",
+      "type": "hardware",
+      "module": "LIB",
+      "subsystem": "FST",
+      "parent": null,
+      "qty_per_parent": 0,
+      "detail_tier": "H",
+      "accuracy": "standard-based",
+      "sources": [
+        "STD"
+      ],
+      "material": "MAT_METAL_steel_fastener",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "LIB-FST",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/_library/fasteners/LIB-FST-050_plain_washer_iso_7089.FCStd",
+        "step": "04_cad_export/LIB/LIB-FST-050.step",
+        "cad_mesh": "04_cad_export/LIB/LIB-FST-050.obj",
+        "blend": "05_blender/modules/LIB.blend",
+        "review_dir": "07_review/LIB-FST-050/"
+      },
+      "tri_budget": 1100,
+      "tri_actual": 196,
+      "phase": "P0",
+      "status": "blender_checked",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "LIB-FST-060",
+      "name_en": "Clevis pin ISO 2341 + split pin ISO 1234",
+      "name_th": "สลักตัว U + ปิ่นปักผ่า",
+      "type": "hardware",
+      "module": "LIB",
+      "subsystem": "FST",
+      "parent": null,
+      "qty_per_parent": 0,
+      "detail_tier": "H",
+      "accuracy": "standard-based",
+      "sources": [
+        "STD"
+      ],
+      "material": "MAT_METAL_steel_fastener",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "LIB-FST",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/_library/fasteners/LIB-FST-060_clevis_pin_iso_2341_split_pin_iso_1234.FCStd",
+        "step": "04_cad_export/LIB/LIB-FST-060.step",
+        "cad_mesh": "04_cad_export/LIB/LIB-FST-060.obj",
+        "blend": "05_blender/modules/LIB.blend",
+        "review_dir": "07_review/LIB-FST-060/"
+      },
+      "tri_budget": 1100,
+      "tri_actual": 570,
+      "phase": "P0",
+      "status": "blender_checked",
+      "rev": 1,
+      "notes": "clevis ตรวจกับตาราง ISO 2341; split pin ใช้ตาราง ISO 1234 ของ FastenersWB (ไม่มีการเทียบขนาดภายนอก)"
+    },
+    {
+      "id": "LIB-FST-070",
+      "name_en": "Rod end / spherical plain bearing",
+      "name_th": "ลูกหมากปลายก้าน",
+      "type": "hardware",
+      "module": "LIB",
+      "subsystem": "FST",
+      "parent": null,
+      "qty_per_parent": 0,
+      "detail_tier": "H",
+      "accuracy": "representative",
+      "sources": [],
+      "material": "MAT_METAL_steel_chrome",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "LIB-FST",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/_library/fasteners/LIB-FST-070_rod_end_spherical_plain_bearing.FCStd",
+        "step": "04_cad_export/LIB/LIB-FST-070.step",
+        "cad_mesh": "04_cad_export/LIB/LIB-FST-070.obj",
+        "blend": "05_blender/modules/LIB.blend",
+        "review_dir": "07_review/LIB-FST-070/"
+      },
+      "tri_budget": 1100,
+      "tri_actual": 386,
+      "phase": "P0",
+      "status": "blender_checked",
+      "rev": 1,
+      "notes": "ขนาดเป็นค่าประมาณของเรา ไม่ใช่ตารางมาตรฐาน (สร้างเอง ไม่ใช่ ISO 12240-4)"
+    },
+    {
+      "id": "LIB-GEA-010",
+      "name_en": "Involute spur gear (parametric)",
+      "name_th": "เฟืองตรง involute (ปรับค่าได้)",
+      "type": "hardware",
+      "module": "LIB",
+      "subsystem": "GEA",
+      "parent": null,
+      "qty_per_parent": 0,
+      "detail_tier": "H",
+      "accuracy": "standard-based",
+      "sources": [
+        "STD"
+      ],
+      "material": "MAT_METAL_steel_gear",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "LIB-GEA",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/_library/gears/LIB-GEA-010_involute_spur_gear.FCStd",
+        "step": "04_cad_export/LIB/LIB-GEA-010.step",
+        "cad_mesh": "04_cad_export/LIB/LIB-GEA-010.obj",
+        "blend": "05_blender/modules/LIB.blend",
+        "review_dir": "07_review/LIB-GEA-010/"
+      },
+      "tri_budget": 7000,
+      "tri_actual": 6836,
+      "phase": "P0",
+      "status": "blender_checked",
+      "rev": 1,
+      "notes": "ใช้เฉพาะในกลไก representative เท่านั้น (Gears Workbench)"
+    },
+    {
+      "id": "FH-000",
+      "name_en": "Falcon Heavy booster kit (nose cone + attach)",
+      "name_th": "ชุดดัดแปลง Falcon Heavy",
+      "type": "assembly",
+      "module": "FH",
+      "subsystem": null,
+      "parent": null,
+      "qty_per_parent": 1,
+      "detail_tier": "B",
+      "accuracy": "representative",
+      "sources": [
+        "D-010"
+      ],
+      "material": "-",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "FH",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": "03_freecad/FH/FH-000_fh_kit.FCStd",
+        "step": null,
+        "cad_mesh": null,
+        "blend": "05_blender/modules/FH.blend",
+        "review_dir": "07_review/FH-000/",
+        "web": "06_web_export/optimized/VEH_FH_full.glb"
+      },
+      "tri_budget": null,
+      "tri_actual": 31588,
+      "phase": "F3",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "FH-010",
+      "name_en": "Side-booster nose cone",
+      "name_th": "จมูกบูสเตอร์ข้าง",
+      "type": "part",
+      "module": "FH",
+      "subsystem": null,
+      "parent": "FH-000",
+      "qty_per_parent": 1,
+      "detail_tier": "B",
+      "accuracy": "representative",
+      "sources": [
+        "D-010"
+      ],
+      "material": "MAT_PAINT_white_body",
+      "paint_zone": "PAINT_body",
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "FH-NOSE",
+        "order": 2,
+        "mode": "translate",
+        "direction": "+Z",
+        "distance_m": 3.0
+      },
+      "files": {
+        "freecad": "03_freecad/FH/FH-010_side_booster_nose_cone.FCStd",
+        "step": "04_cad_export/FH/FH-010.step",
+        "cad_mesh": "04_cad_export/FH/FH-010.obj",
+        "blend": "05_blender/modules/FH.blend",
+        "review_dir": "07_review/FH-010/",
+        "web": "06_web_export/optimized/VEH_FH_full.glb"
+      },
+      "tri_budget": 12000,
+      "tri_actual": 7242,
+      "phase": "F3",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": "ogive L 4.5 m, ต่อบน IS (z 45.7); ค่าประมาณ"
+    },
+    {
+      "id": "FH-020",
+      "name_en": "Forward attach (center core to side booster)",
+      "name_th": "ตัวยึดด้านบน core-booster",
+      "type": "part",
+      "module": "FH",
+      "subsystem": null,
+      "parent": "FH-000",
+      "qty_per_parent": 2,
+      "detail_tier": "B",
+      "accuracy": "representative",
+      "sources": [
+        "D-010"
+      ],
+      "material": "MAT_METAL_steel_structural",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "FH-ATTACH",
+        "order": 1,
+        "mode": "translate",
+        "direction": "+X (booster-local)",
+        "distance_m": 1.0
+      },
+      "files": {
+        "freecad": "03_freecad/FH/FH-020_forward_attach.FCStd",
+        "step": "04_cad_export/FH/FH-020.step",
+        "cad_mesh": "04_cad_export/FH/FH-020.obj",
+        "blend": "05_blender/modules/FH.blend",
+        "review_dir": "07_review/FH-020/",
+        "web": "06_web_export/optimized/VEH_FH_full.glb"
+      },
+      "tri_budget": 12000,
+      "tri_actual": 212,
+      "phase": "F3",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": "z 38.9-40.3 m (ย้ายลงจาก 39.3-40.7 เพื่อไม่ชน TNK-080); ค่าประมาณ"
+    },
+    {
+      "id": "FH-030",
+      "name_en": "Aft attach (thrust beam)",
+      "name_th": "ตัวยึดด้านล่าง core-booster",
+      "type": "part",
+      "module": "FH",
+      "subsystem": null,
+      "parent": "FH-000",
+      "qty_per_parent": 2,
+      "detail_tier": "B",
+      "accuracy": "representative",
+      "sources": [
+        "D-010"
+      ],
+      "material": "MAT_METAL_steel_structural",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "FH-ATTACH",
+        "order": 1,
+        "mode": "translate",
+        "direction": "+X (booster-local)",
+        "distance_m": 1.0
+      },
+      "files": {
+        "freecad": "03_freecad/FH/FH-030_aft_attach.FCStd",
+        "step": "04_cad_export/FH/FH-030.step",
+        "cad_mesh": "04_cad_export/FH/FH-030.obj",
+        "blend": "05_blender/modules/FH.blend",
+        "review_dir": "07_review/FH-030/",
+        "web": "06_web_export/optimized/VEH_FH_full.glb"
+      },
+      "tri_budget": 12000,
+      "tri_actual": 216,
+      "phase": "F3",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": "z ~0.9 m; ค่าประมาณ"
+    },
+    {
+      "id": "VEH-FH-000",
+      "name_en": "Falcon Heavy (full vehicle)",
+      "name_th": "Falcon Heavy ทั้งลำ",
+      "type": "assembly",
+      "module": "VEH",
+      "subsystem": null,
+      "parent": null,
+      "qty_per_parent": 1,
+      "detail_tier": "-",
+      "accuracy": "documented",
+      "sources": [
+        "FUG",
+        "KB"
+      ],
+      "material": "-",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "VEH",
+        "order": null,
+        "mode": null,
+        "direction": null,
+        "distance_m": null
+      },
+      "files": {
+        "freecad": null,
+        "step": null,
+        "cad_mesh": null,
+        "blend": "05_blender/master/MASTER_FH.blend",
+        "review_dir": "07_review/VEH-FH-000/",
+        "web": "06_web_export/optimized/VEH_FH_full.glb"
+      },
+      "tri_budget": null,
+      "tri_actual": null,
+      "phase": "F3",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": "center core (F9 stack, ไม่มีขา, yaw 90) + side booster x2 (S1+IS+FH kit, ขาพับ, __b1/__b2); สูง 69.9 m กว้าง ~14.5 m (ขาพับ); D-010"
+    },
+    {
+      "id": "ENG-F1-000",
+      "name_en": "F-1 engine",
+      "name_th": "เครื่องยนต์ F-1",
+      "type": "assembly",
+      "module": "ENG-F1",
+      "subsystem": null,
+      "parent": "SV-IC-000",
+      "qty_per_parent": 5,
+      "detail_tier": "A",
+      "accuracy": "documented",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "-",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "ENG-F1",
+        "order": 1,
+        "mode": "translate",
+        "direction": "-Z",
+        "distance_m": 3.0
+      },
+      "files": {
+        "freecad": "03_freecad/ENG-F1/ENG-F1-000_f_1_engine.FCStd",
+        "step": null,
+        "cad_mesh": null,
+        "blend": "05_blender/modules/ENG-F1.blend",
+        "review_dir": "07_review/ENG-F1-000/",
+        "web": "06_web_export/optimized/ENG_F1.glb"
+      },
+      "tri_budget": 40000,
+      "tri_actual": 38910,
+      "phase": "S1",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": "สูง 5.64 m ⌀ 3.72 m ε16; 5 ตัว/สเตจ (D-011) | S1: 45390 tris/เครื่อง (instance ในลำ); representative internals ดู D-012 | S1: 38910 tris/เครื่อง (instance ในลำ); representative internals ดู D-012"
+    },
+    {
+      "id": "ENG-F1-010",
+      "name_en": "Thrust chamber + tube-wall nozzle (to eps 10)",
+      "name_th": "ห้องเผาไหม้ + nozzle ท่อ",
+      "type": "part",
+      "module": "ENG-F1",
+      "subsystem": null,
+      "parent": "ENG-F1-000",
+      "qty_per_parent": 1,
+      "detail_tier": "A",
+      "accuracy": "documented",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "MAT_METAL_copper_alloy",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "ENG-F1",
+        "order": 4,
+        "mode": "translate",
+        "direction": "-Z",
+        "distance_m": 0.8
+      },
+      "files": {
+        "freecad": "03_freecad/ENG-F1/ENG-F1-010_thrust_chamber_tube_wall_nozzle_to_eps_10.FCStd",
+        "step": "04_cad_export/ENG-F1/ENG-F1-010.step",
+        "cad_mesh": "04_cad_export/ENG-F1/ENG-F1-010.obj",
+        "blend": "05_blender/modules/ENG-F1.blend",
+        "review_dir": "07_review/ENG-F1-010/",
+        "web": "06_web_export/optimized/ENG_F1.glb"
+      },
+      "tri_budget": 40000,
+      "tri_actual": 12830,
+      "phase": "S1",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "ENG-F1-020",
+      "name_en": "Nozzle extension (eps 10 to 16)",
+      "name_th": "nozzle extension",
+      "type": "part",
+      "module": "ENG-F1",
+      "subsystem": null,
+      "parent": "ENG-F1-000",
+      "qty_per_parent": 1,
+      "detail_tier": "A",
+      "accuracy": "documented",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "MAT_METAL_inconel_heat",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "ENG-F1",
+        "order": 3,
+        "mode": "translate",
+        "direction": "-Z",
+        "distance_m": 2.0
+      },
+      "files": {
+        "freecad": "03_freecad/ENG-F1/ENG-F1-020_nozzle_extension_eps_10_to_16.FCStd",
+        "step": "04_cad_export/ENG-F1/ENG-F1-020.step",
+        "cad_mesh": "04_cad_export/ENG-F1/ENG-F1-020.obj",
+        "blend": "05_blender/modules/ENG-F1.blend",
+        "review_dir": "07_review/ENG-F1-020/",
+        "web": "06_web_export/optimized/ENG_F1.glb"
+      },
+      "tri_budget": 40000,
+      "tri_actual": 7200,
+      "phase": "S1",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": "ตัวจริงแบบ radiation-cooled"
+    },
+    {
+      "id": "ENG-F1-030",
+      "name_en": "Injector + LOX dome",
+      "name_th": "injector + โดม LOX",
+      "type": "part",
+      "module": "ENG-F1",
+      "subsystem": null,
+      "parent": "ENG-F1-000",
+      "qty_per_parent": 1,
+      "detail_tier": "A",
+      "accuracy": "representative",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "MAT_METAL_alu_painted",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "ENG-F1",
+        "order": 5,
+        "mode": "translate",
+        "direction": "+Z",
+        "distance_m": 0.3
+      },
+      "files": {
+        "freecad": "03_freecad/ENG-F1/ENG-F1-030_injector_lox_dome.FCStd",
+        "step": "04_cad_export/ENG-F1/ENG-F1-030.step",
+        "cad_mesh": "04_cad_export/ENG-F1/ENG-F1-030.obj",
+        "blend": "05_blender/modules/ENG-F1.blend",
+        "review_dir": "07_review/ENG-F1-030/",
+        "web": "06_web_export/optimized/ENG_F1.glb"
+      },
+      "tri_budget": 40000,
+      "tri_actual": 6778,
+      "phase": "S1",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "ENG-F1-040",
+      "name_en": "Turbopump assembly",
+      "name_th": "turbopump",
+      "type": "part",
+      "module": "ENG-F1",
+      "subsystem": null,
+      "parent": "ENG-F1-000",
+      "qty_per_parent": 1,
+      "detail_tier": "A",
+      "accuracy": "representative",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "MAT_METAL_steel_structural",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "ENG-F1",
+        "order": 3,
+        "mode": "translate",
+        "direction": "+X",
+        "distance_m": 1.2
+      },
+      "files": {
+        "freecad": "03_freecad/ENG-F1/ENG-F1-040_turbopump_assembly.FCStd",
+        "step": "04_cad_export/ENG-F1/ENG-F1-040.step",
+        "cad_mesh": "04_cad_export/ENG-F1/ENG-F1-040.obj",
+        "blend": "05_blender/modules/ENG-F1.blend",
+        "review_dir": "07_review/ENG-F1-040/",
+        "web": "06_web_export/optimized/ENG_F1.glb"
+      },
+      "tri_budget": 40000,
+      "tri_actual": 898,
+      "phase": "S1",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "ENG-F1-050",
+      "name_en": "Gas generator + turbine exhaust duct",
+      "name_th": "gas generator + ท่อไอเสีย",
+      "type": "part",
+      "module": "ENG-F1",
+      "subsystem": null,
+      "parent": "ENG-F1-000",
+      "qty_per_parent": 1,
+      "detail_tier": "A",
+      "accuracy": "representative",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "MAT_METAL_steel_structural",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "ENG-F1",
+        "order": 4,
+        "mode": "translate",
+        "direction": "-Y",
+        "distance_m": 0.9
+      },
+      "files": {
+        "freecad": "03_freecad/ENG-F1/ENG-F1-050_gas_generator_turbine_exhaust_duct.FCStd",
+        "step": "04_cad_export/ENG-F1/ENG-F1-050.step",
+        "cad_mesh": "04_cad_export/ENG-F1/ENG-F1-050.obj",
+        "blend": "05_blender/modules/ENG-F1.blend",
+        "review_dir": "07_review/ENG-F1-050/",
+        "web": "06_web_export/optimized/ENG_F1.glb"
+      },
+      "tri_budget": 40000,
+      "tri_actual": 898,
+      "phase": "S1",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "ENG-F1-060",
+      "name_en": "Turbine exhaust manifold (around nozzle)",
+      "name_th": "manifold ไอเสียรอบ nozzle",
+      "type": "part",
+      "module": "ENG-F1",
+      "subsystem": null,
+      "parent": "ENG-F1-000",
+      "qty_per_parent": 1,
+      "detail_tier": "A",
+      "accuracy": "documented",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "MAT_METAL_exhaust_black",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "ENG-F1",
+        "order": 2,
+        "mode": "translate",
+        "direction": "-Z",
+        "distance_m": 1.0
+      },
+      "files": {
+        "freecad": "03_freecad/ENG-F1/ENG-F1-060_turbine_exhaust_manifold_around_nozzle.FCStd",
+        "step": "04_cad_export/ENG-F1/ENG-F1-060.step",
+        "cad_mesh": "04_cad_export/ENG-F1/ENG-F1-060.obj",
+        "blend": "05_blender/modules/ENG-F1.blend",
+        "review_dir": "07_review/ENG-F1-060/",
+        "web": "06_web_export/optimized/ENG_F1.glb"
+      },
+      "tri_budget": 40000,
+      "tri_actual": 7448,
+      "phase": "S1",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": "ท่อไอเสียรอบ nozzle extension"
+    },
+    {
+      "id": "ENG-F1-070",
+      "name_en": "Main valves + feed lines",
+      "name_th": "วาล์วหลัก + ท่อป้อน",
+      "type": "part",
+      "module": "ENG-F1",
+      "subsystem": null,
+      "parent": "ENG-F1-000",
+      "qty_per_parent": 1,
+      "detail_tier": "A",
+      "accuracy": "representative",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "MAT_METAL_steel_stainless",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "ENG-F1",
+        "order": 6,
+        "mode": "translate",
+        "direction": "+Z",
+        "distance_m": 0.6
+      },
+      "files": {
+        "freecad": "03_freecad/ENG-F1/ENG-F1-070_main_valves_feed_lines.FCStd",
+        "step": "04_cad_export/ENG-F1/ENG-F1-070.step",
+        "cad_mesh": "04_cad_export/ENG-F1/ENG-F1-070.obj",
+        "blend": "05_blender/modules/ENG-F1.blend",
+        "review_dir": "07_review/ENG-F1-070/",
+        "web": "06_web_export/optimized/ENG_F1.glb"
+      },
+      "tri_budget": 40000,
+      "tri_actual": 1020,
+      "phase": "S1",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "ENG-F1-080",
+      "name_en": "Gimbal block + actuators",
+      "name_th": "gimbal + actuator",
+      "type": "part",
+      "module": "ENG-F1",
+      "subsystem": null,
+      "parent": "ENG-F1-000",
+      "qty_per_parent": 1,
+      "detail_tier": "A",
+      "accuracy": "representative",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "MAT_METAL_steel_structural",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "ENG-F1",
+        "order": 7,
+        "mode": "translate",
+        "direction": "+Z",
+        "distance_m": 1.4
+      },
+      "files": {
+        "freecad": "03_freecad/ENG-F1/ENG-F1-080_gimbal_block_actuators.FCStd",
+        "step": "04_cad_export/ENG-F1/ENG-F1-080.step",
+        "cad_mesh": "04_cad_export/ENG-F1/ENG-F1-080.obj",
+        "blend": "05_blender/modules/ENG-F1.blend",
+        "review_dir": "07_review/ENG-F1-080/",
+        "web": "06_web_export/optimized/ENG_F1.glb"
+      },
+      "tri_budget": 40000,
+      "tri_actual": 1502,
+      "phase": "S1",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "ENG-F1-090",
+      "name_en": "Heat exchanger + igniter lines",
+      "name_th": "heat exchanger + igniter",
+      "type": "part",
+      "module": "ENG-F1",
+      "subsystem": null,
+      "parent": "ENG-F1-000",
+      "qty_per_parent": 1,
+      "detail_tier": "A",
+      "accuracy": "representative",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "MAT_METAL_steel_stainless",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "ENG-F1",
+        "order": 2,
+        "mode": "translate",
+        "direction": "-Y",
+        "distance_m": 0.5
+      },
+      "files": {
+        "freecad": "03_freecad/ENG-F1/ENG-F1-090_heat_exchanger_igniter_lines.FCStd",
+        "step": "04_cad_export/ENG-F1/ENG-F1-090.step",
+        "cad_mesh": "04_cad_export/ENG-F1/ENG-F1-090.obj",
+        "blend": "05_blender/modules/ENG-F1.blend",
+        "review_dir": "07_review/ENG-F1-090/",
+        "web": "06_web_export/optimized/ENG_F1.glb"
+      },
+      "tri_budget": 40000,
+      "tri_actual": 336,
+      "phase": "S1",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "ENG-J2-000",
+      "name_en": "J-2 engine",
+      "name_th": "เครื่องยนต์ J-2",
+      "type": "assembly",
+      "module": "ENG-J2",
+      "subsystem": null,
+      "parent": "SV-II-000",
+      "qty_per_parent": 6,
+      "detail_tier": "A",
+      "accuracy": "documented",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "-",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "ENG-J2",
+        "order": 1,
+        "mode": "translate",
+        "direction": "-Z",
+        "distance_m": 3.0
+      },
+      "files": {
+        "freecad": "03_freecad/ENG-J2/ENG-J2-000_j_2_engine.FCStd",
+        "step": null,
+        "cad_mesh": null,
+        "blend": "05_blender/modules/ENG-J2.blend",
+        "review_dir": "07_review/ENG-J2-000/",
+        "web": "06_web_export/optimized/ENG_J2.glb"
+      },
+      "tri_budget": 40000,
+      "tri_actual": 52254,
+      "phase": "S1",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": "ε 27.5; 5 ตัว S-II + 1 ตัว S-IVB (D-011) | S1: 52254 tris/เครื่อง (instance ในลำ); representative internals ดู D-012 | S1: 52254 tris/เครื่อง (instance ในลำ); representative internals ดู D-012"
+    },
+    {
+      "id": "ENG-J2-010",
+      "name_en": "Thrust chamber + nozzle (tube wall)",
+      "name_th": "ห้องเผาไหม้ + nozzle",
+      "type": "part",
+      "module": "ENG-J2",
+      "subsystem": null,
+      "parent": "ENG-J2-000",
+      "qty_per_parent": 1,
+      "detail_tier": "A",
+      "accuracy": "documented",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "MAT_METAL_copper_alloy",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "ENG-J2",
+        "order": 4,
+        "mode": "translate",
+        "direction": "-Z",
+        "distance_m": 0.5
+      },
+      "files": {
+        "freecad": "03_freecad/ENG-J2/ENG-J2-010_thrust_chamber_nozzle_tube_wall.FCStd",
+        "step": "04_cad_export/ENG-J2/ENG-J2-010.step",
+        "cad_mesh": "04_cad_export/ENG-J2/ENG-J2-010.obj",
+        "blend": "05_blender/modules/ENG-J2.blend",
+        "review_dir": "07_review/ENG-J2-010/",
+        "web": "06_web_export/optimized/ENG_J2.glb"
+      },
+      "tri_budget": 40000,
+      "tri_actual": 8918,
+      "phase": "S1",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "ENG-J2-020",
+      "name_en": "Nozzle extension (eps to 27.5)",
+      "name_th": "nozzle extension",
+      "type": "part",
+      "module": "ENG-J2",
+      "subsystem": null,
+      "parent": "ENG-J2-000",
+      "qty_per_parent": 1,
+      "detail_tier": "A",
+      "accuracy": "documented",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "MAT_METAL_inconel_heat",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "ENG-J2",
+        "order": 3,
+        "mode": "translate",
+        "direction": "-Z",
+        "distance_m": 1.4
+      },
+      "files": {
+        "freecad": "03_freecad/ENG-J2/ENG-J2-020_nozzle_extension_eps_to_27.5.FCStd",
+        "step": "04_cad_export/ENG-J2/ENG-J2-020.step",
+        "cad_mesh": "04_cad_export/ENG-J2/ENG-J2-020.obj",
+        "blend": "05_blender/modules/ENG-J2.blend",
+        "review_dir": "07_review/ENG-J2-020/",
+        "web": "06_web_export/optimized/ENG_J2.glb"
+      },
+      "tri_budget": 40000,
+      "tri_actual": 10178,
+      "phase": "S1",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "ENG-J2-030",
+      "name_en": "Injector + LOX dome",
+      "name_th": "injector + โดม LOX",
+      "type": "part",
+      "module": "ENG-J2",
+      "subsystem": null,
+      "parent": "ENG-J2-000",
+      "qty_per_parent": 1,
+      "detail_tier": "A",
+      "accuracy": "representative",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "MAT_METAL_alu_painted",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "ENG-J2",
+        "order": 5,
+        "mode": "translate",
+        "direction": "+Z",
+        "distance_m": 0.25
+      },
+      "files": {
+        "freecad": "03_freecad/ENG-J2/ENG-J2-030_injector_lox_dome.FCStd",
+        "step": "04_cad_export/ENG-J2/ENG-J2-030.step",
+        "cad_mesh": "04_cad_export/ENG-J2/ENG-J2-030.obj",
+        "blend": "05_blender/modules/ENG-J2.blend",
+        "review_dir": "07_review/ENG-J2-030/",
+        "web": "06_web_export/optimized/ENG_J2.glb"
+      },
+      "tri_budget": 40000,
+      "tri_actual": 11878,
+      "phase": "S1",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "ENG-J2-040",
+      "name_en": "Turbopumps (LOX + LH2)",
+      "name_th": "turbopump LOX/LH2",
+      "type": "part",
+      "module": "ENG-J2",
+      "subsystem": null,
+      "parent": "ENG-J2-000",
+      "qty_per_parent": 1,
+      "detail_tier": "A",
+      "accuracy": "representative",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "MAT_METAL_steel_structural",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "ENG-J2",
+        "order": 3,
+        "mode": "translate",
+        "direction": "+X",
+        "distance_m": 0.8
+      },
+      "files": {
+        "freecad": "03_freecad/ENG-J2/ENG-J2-040_turbopumps_lox_lh2.FCStd",
+        "step": "04_cad_export/ENG-J2/ENG-J2-040.step",
+        "cad_mesh": "04_cad_export/ENG-J2/ENG-J2-040.obj",
+        "blend": "05_blender/modules/ENG-J2.blend",
+        "review_dir": "07_review/ENG-J2-040/",
+        "web": "06_web_export/optimized/ENG_J2.glb"
+      },
+      "tri_budget": 40000,
+      "tri_actual": 1000,
+      "phase": "S1",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "ENG-J2-050",
+      "name_en": "Gas generator + exhaust duct",
+      "name_th": "gas generator + ท่อไอเสีย",
+      "type": "part",
+      "module": "ENG-J2",
+      "subsystem": null,
+      "parent": "ENG-J2-000",
+      "qty_per_parent": 1,
+      "detail_tier": "A",
+      "accuracy": "representative",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "MAT_METAL_steel_structural",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "ENG-J2",
+        "order": 2,
+        "mode": "translate",
+        "direction": "-Z",
+        "distance_m": 0.7
+      },
+      "files": {
+        "freecad": "03_freecad/ENG-J2/ENG-J2-050_gas_generator_exhaust_duct.FCStd",
+        "step": "04_cad_export/ENG-J2/ENG-J2-050.step",
+        "cad_mesh": "04_cad_export/ENG-J2/ENG-J2-050.obj",
+        "blend": "05_blender/modules/ENG-J2.blend",
+        "review_dir": "07_review/ENG-J2-050/",
+        "web": "06_web_export/optimized/ENG_J2.glb"
+      },
+      "tri_budget": 40000,
+      "tri_actual": 13172,
+      "phase": "S1",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "ENG-J2-060",
+      "name_en": "Gimbal block + actuators",
+      "name_th": "gimbal + actuator",
+      "type": "part",
+      "module": "ENG-J2",
+      "subsystem": null,
+      "parent": "ENG-J2-000",
+      "qty_per_parent": 1,
+      "detail_tier": "A",
+      "accuracy": "representative",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "MAT_METAL_steel_structural",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "ENG-J2",
+        "order": 7,
+        "mode": "translate",
+        "direction": "+Z",
+        "distance_m": 1.0
+      },
+      "files": {
+        "freecad": "03_freecad/ENG-J2/ENG-J2-060_gimbal_block_actuators.FCStd",
+        "step": "04_cad_export/ENG-J2/ENG-J2-060.step",
+        "cad_mesh": "04_cad_export/ENG-J2/ENG-J2-060.obj",
+        "blend": "05_blender/modules/ENG-J2.blend",
+        "review_dir": "07_review/ENG-J2-060/",
+        "web": "06_web_export/optimized/ENG_J2.glb"
+      },
+      "tri_budget": 40000,
+      "tri_actual": 3736,
+      "phase": "S1",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "ENG-J2-070",
+      "name_en": "Feed lines + valves + heat exchanger",
+      "name_th": "ท่อป้อน + วาล์ว",
+      "type": "part",
+      "module": "ENG-J2",
+      "subsystem": null,
+      "parent": "ENG-J2-000",
+      "qty_per_parent": 1,
+      "detail_tier": "A",
+      "accuracy": "representative",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "MAT_METAL_steel_stainless",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "ENG-J2",
+        "order": 6,
+        "mode": "translate",
+        "direction": "+Z",
+        "distance_m": 0.5
+      },
+      "files": {
+        "freecad": "03_freecad/ENG-J2/ENG-J2-070_feed_lines_valves_heat_exchanger.FCStd",
+        "step": "04_cad_export/ENG-J2/ENG-J2-070.step",
+        "cad_mesh": "04_cad_export/ENG-J2/ENG-J2-070.obj",
+        "blend": "05_blender/modules/ENG-J2.blend",
+        "review_dir": "07_review/ENG-J2-070/",
+        "web": "06_web_export/optimized/ENG_J2.glb"
+      },
+      "tri_budget": 40000,
+      "tri_actual": 3372,
+      "phase": "S1",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "SV-IC-000",
+      "name_en": "S-IC first stage",
+      "name_th": "สเตจ 1 S-IC",
+      "type": "assembly",
+      "module": "SV-IC",
+      "subsystem": null,
+      "parent": "SV-000",
+      "qty_per_parent": 1,
+      "detail_tier": "-",
+      "accuracy": "documented",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "-",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "SV-IC",
+        "order": 1,
+        "mode": "translate",
+        "direction": "-Z",
+        "distance_m": 6.0
+      },
+      "files": {
+        "freecad": "03_freecad/SV/IC/SV-IC-000_s_ic_first_stage.FCStd",
+        "step": null,
+        "cad_mesh": null,
+        "blend": "05_blender/modules/SV-IC.blend",
+        "review_dir": "07_review/SV-IC-000/",
+        "web": "06_web_export/optimized/SV_IC.glb"
+      },
+      "tri_budget": null,
+      "tri_actual": 16082,
+      "phase": "S2",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": "42.06 m ⌀10.06; origin = aft plane | S2: 5 x ENG-F1-000 (instance) อยู่ใน GLB; fins ที่ 45/135/225/315 aligned กับ fairings; D-013 | S2: 5 x ENG-F1-000 (instance) อยู่ใน GLB; fins ที่ 45/135/225/315 aligned กับ fairings; D-013"
+    },
+    {
+      "id": "SV-IC-010",
+      "name_en": "Aft heat shield + engine compartment",
+      "name_th": "แผงกันความร้อน + ห้องเครื่อง",
+      "type": "part",
+      "module": "SV-IC",
+      "subsystem": null,
+      "parent": "SV-IC-000",
+      "qty_per_parent": 1,
+      "detail_tier": "B",
+      "accuracy": "representative",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "MAT_PAINT_white_body",
+      "paint_zone": "PAINT_sv_body",
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "SV-IC",
+        "order": 3,
+        "mode": "translate",
+        "direction": "-Z",
+        "distance_m": 4.0
+      },
+      "files": {
+        "freecad": "03_freecad/SV/IC/SV-IC-010_aft_heat_shield_engine_compartment.FCStd",
+        "step": "04_cad_export/SV-IC/SV-IC-010.step",
+        "cad_mesh": "04_cad_export/SV-IC/SV-IC-010.obj",
+        "blend": "05_blender/modules/SV-IC.blend",
+        "review_dir": "07_review/SV-IC-010/",
+        "web": "06_web_export/optimized/SV_IC.glb"
+      },
+      "tri_budget": 12000,
+      "tri_actual": 2338,
+      "phase": "S2",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": "S2: skin = paint zone; heat-shield plate is inside (same mesh)"
+    },
+    {
+      "id": "SV-IC-020",
+      "name_en": "Thrust structure (4 posts + thrust ring)",
+      "name_th": "โครงรับแรงขับ",
+      "type": "part",
+      "module": "SV-IC",
+      "subsystem": null,
+      "parent": "SV-IC-000",
+      "qty_per_parent": 1,
+      "detail_tier": "B",
+      "accuracy": "representative",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "MAT_METAL_alu_painted",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "SV-IC",
+        "order": 4,
+        "mode": "translate",
+        "direction": "-Z",
+        "distance_m": 1.5
+      },
+      "files": {
+        "freecad": "03_freecad/SV/IC/SV-IC-020_thrust_structure_4_posts_thrust_ring.FCStd",
+        "step": "04_cad_export/SV-IC/SV-IC-020.step",
+        "cad_mesh": "04_cad_export/SV-IC/SV-IC-020.obj",
+        "blend": "05_blender/modules/SV-IC.blend",
+        "review_dir": "07_review/SV-IC-020/",
+        "web": "06_web_export/optimized/SV_IC.glb"
+      },
+      "tri_budget": 12000,
+      "tri_actual": 884,
+      "phase": "S2",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "SV-IC-030",
+      "name_en": "RP-1 tank + aft skin",
+      "name_th": "ถัง RP-1",
+      "type": "part",
+      "module": "SV-IC",
+      "subsystem": null,
+      "parent": "SV-IC-000",
+      "qty_per_parent": 1,
+      "detail_tier": "C",
+      "accuracy": "documented",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "MAT_PAINT_white_body",
+      "paint_zone": "PAINT_sv_body",
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "SV-IC",
+        "order": 5,
+        "mode": "translate",
+        "direction": "+Z",
+        "distance_m": 1.5
+      },
+      "files": {
+        "freecad": "03_freecad/SV/IC/SV-IC-030_rp_1_tank_aft_skin.FCStd",
+        "step": "04_cad_export/SV-IC/SV-IC-030.step",
+        "cad_mesh": "04_cad_export/SV-IC/SV-IC-030.obj",
+        "blend": "05_blender/modules/SV-IC.blend",
+        "review_dir": "07_review/SV-IC-030/",
+        "web": "06_web_export/optimized/SV_IC.glb"
+      },
+      "tri_budget": 4000,
+      "tri_actual": 3276,
+      "phase": "S2",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "SV-IC-040",
+      "name_en": "Intertank",
+      "name_th": "intertank",
+      "type": "part",
+      "module": "SV-IC",
+      "subsystem": null,
+      "parent": "SV-IC-000",
+      "qty_per_parent": 1,
+      "detail_tier": "C",
+      "accuracy": "documented",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "MAT_PAINT_white_body",
+      "paint_zone": "PAINT_sv_body",
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "SV-IC",
+        "order": 6,
+        "mode": "translate",
+        "direction": "+Z",
+        "distance_m": 3.5
+      },
+      "files": {
+        "freecad": "03_freecad/SV/IC/SV-IC-040_intertank.FCStd",
+        "step": "04_cad_export/SV-IC/SV-IC-040.step",
+        "cad_mesh": "04_cad_export/SV-IC/SV-IC-040.obj",
+        "blend": "05_blender/modules/SV-IC.blend",
+        "review_dir": "07_review/SV-IC-040/",
+        "web": "06_web_export/optimized/SV_IC.glb"
+      },
+      "tri_budget": 4000,
+      "tri_actual": 1716,
+      "phase": "S2",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "SV-IC-050",
+      "name_en": "LOX tank",
+      "name_th": "ถัง LOX",
+      "type": "part",
+      "module": "SV-IC",
+      "subsystem": null,
+      "parent": "SV-IC-000",
+      "qty_per_parent": 1,
+      "detail_tier": "C",
+      "accuracy": "documented",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "MAT_PAINT_white_body",
+      "paint_zone": "PAINT_sv_body",
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "SV-IC",
+        "order": 7,
+        "mode": "translate",
+        "direction": "+Z",
+        "distance_m": 5.5
+      },
+      "files": {
+        "freecad": "03_freecad/SV/IC/SV-IC-050_lox_tank.FCStd",
+        "step": "04_cad_export/SV-IC/SV-IC-050.step",
+        "cad_mesh": "04_cad_export/SV-IC/SV-IC-050.obj",
+        "blend": "05_blender/modules/SV-IC.blend",
+        "review_dir": "07_review/SV-IC-050/",
+        "web": "06_web_export/optimized/SV_IC.glb"
+      },
+      "tri_budget": 4000,
+      "tri_actual": 3276,
+      "phase": "S2",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "SV-IC-060",
+      "name_en": "Forward skirt (S-IC/S-II)",
+      "name_th": "forward skirt",
+      "type": "part",
+      "module": "SV-IC",
+      "subsystem": null,
+      "parent": "SV-IC-000",
+      "qty_per_parent": 1,
+      "detail_tier": "C",
+      "accuracy": "documented",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "MAT_PAINT_white_body",
+      "paint_zone": "PAINT_sv_body",
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "SV-IC",
+        "order": 8,
+        "mode": "translate",
+        "direction": "+Z",
+        "distance_m": 8.0
+      },
+      "files": {
+        "freecad": "03_freecad/SV/IC/SV-IC-060_forward_skirt_s_ic_s_ii.FCStd",
+        "step": "04_cad_export/SV-IC/SV-IC-060.step",
+        "cad_mesh": "04_cad_export/SV-IC/SV-IC-060.obj",
+        "blend": "05_blender/modules/SV-IC.blend",
+        "review_dir": "07_review/SV-IC-060/",
+        "web": "06_web_export/optimized/SV_IC.glb"
+      },
+      "tri_budget": 4000,
+      "tri_actual": 1288,
+      "phase": "S2",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "SV-IC-070",
+      "name_en": "Engine fairing (conical, with retro rockets)",
+      "name_th": "ฝาครอบเครื่องยนต์ + retro",
+      "type": "part",
+      "module": "SV-IC",
+      "subsystem": null,
+      "parent": "SV-IC-000",
+      "qty_per_parent": 4,
+      "detail_tier": "B",
+      "accuracy": "documented",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "MAT_PAINT_white_body",
+      "paint_zone": "PAINT_sv_body",
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "SV-IC",
+        "order": 2,
+        "mode": "translate",
+        "direction": "radial",
+        "distance_m": 3.0
+      },
+      "files": {
+        "freecad": "03_freecad/SV/IC/SV-IC-070_engine_fairing_conical_with_retro_rockets.FCStd",
+        "step": "04_cad_export/SV-IC/SV-IC-070.step",
+        "cad_mesh": "04_cad_export/SV-IC/SV-IC-070.obj",
+        "blend": "05_blender/modules/SV-IC.blend",
+        "review_dir": "07_review/SV-IC-070/",
+        "web": "06_web_export/optimized/SV_IC.glb"
+      },
+      "tri_budget": 12000,
+      "tri_actual": 1700,
+      "phase": "S2",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": "4 อัน/ชุด | instance __i01..__i04 ที่ az 45/135/225/315 (extras: instance) | instance __i01..__i04 ที่ az 45/135/225/315 (extras: instance)"
+    },
+    {
+      "id": "SV-IC-080",
+      "name_en": "Stabilising fin",
+      "name_th": "ครีบ",
+      "type": "part",
+      "module": "SV-IC",
+      "subsystem": null,
+      "parent": "SV-IC-000",
+      "qty_per_parent": 4,
+      "detail_tier": "B",
+      "accuracy": "documented",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "MAT_PAINT_white_body",
+      "paint_zone": "PAINT_sv_body",
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "SV-IC",
+        "order": 3,
+        "mode": "translate",
+        "direction": "radial",
+        "distance_m": 4.5
+      },
+      "files": {
+        "freecad": "03_freecad/SV/IC/SV-IC-080_stabilising_fin.FCStd",
+        "step": "04_cad_export/SV-IC/SV-IC-080.step",
+        "cad_mesh": "04_cad_export/SV-IC/SV-IC-080.obj",
+        "blend": "05_blender/modules/SV-IC.blend",
+        "review_dir": "07_review/SV-IC-080/",
+        "web": "06_web_export/optimized/SV_IC.glb"
+      },
+      "tri_budget": 12000,
+      "tri_actual": 76,
+      "phase": "S2",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": "span 19.0 m รวมครีบ | instance __i01..__i04 ที่ az 45/135/225/315 (extras: instance) | instance __i01..__i04 ที่ az 45/135/225/315 (extras: instance)"
+    },
+    {
+      "id": "SV-IC-090",
+      "name_en": "External LOX ducts + cable raceway",
+      "name_th": "ท่อ LOX ภายนอก + raceway",
+      "type": "part",
+      "module": "SV-IC",
+      "subsystem": null,
+      "parent": "SV-IC-000",
+      "qty_per_parent": 1,
+      "detail_tier": "B",
+      "accuracy": "representative",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "MAT_METAL_alu_painted",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "SV-IC",
+        "order": 2,
+        "mode": "translate",
+        "direction": "+Y",
+        "distance_m": 2.5
+      },
+      "files": {
+        "freecad": "03_freecad/SV/IC/SV-IC-090_external_lox_ducts_cable_raceway.FCStd",
+        "step": "04_cad_export/SV-IC/SV-IC-090.step",
+        "cad_mesh": "04_cad_export/SV-IC/SV-IC-090.obj",
+        "blend": "05_blender/modules/SV-IC.blend",
+        "review_dir": "07_review/SV-IC-090/",
+        "web": "06_web_export/optimized/SV_IC.glb"
+      },
+      "tri_budget": 12000,
+      "tri_actual": 1528,
+      "phase": "S2",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "SV-II-000",
+      "name_en": "S-II second stage",
+      "name_th": "สเตจ 2 S-II",
+      "type": "assembly",
+      "module": "SV-II",
+      "subsystem": null,
+      "parent": "SV-000",
+      "qty_per_parent": 1,
+      "detail_tier": "-",
+      "accuracy": "documented",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "-",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "SV-II",
+        "order": 1,
+        "mode": "translate",
+        "direction": "-Z",
+        "distance_m": 5.0
+      },
+      "files": {
+        "freecad": "03_freecad/SV/II/SV-II-000_s_ii_second_stage.FCStd",
+        "step": null,
+        "cad_mesh": null,
+        "blend": "05_blender/modules/SV-II.blend",
+        "review_dir": "07_review/SV-II-000/",
+        "web": "06_web_export/optimized/SV_II.glb"
+      },
+      "tri_budget": null,
+      "tri_actual": 10378,
+      "phase": "S3",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": "24.87 m ⌀10.06 | S3: J-2 instance อยู่ใน GLB; D-014; กรอบ = stage frame (origin ที่ระนาบท้ายสเตจ)"
+    },
+    {
+      "id": "SV-II-010",
+      "name_en": "S-IC/S-II interstage (aft skirt)",
+      "name_th": "interstage ล่าง S-II",
+      "type": "part",
+      "module": "SV-II",
+      "subsystem": null,
+      "parent": "SV-II-000",
+      "qty_per_parent": 1,
+      "detail_tier": "C",
+      "accuracy": "documented",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "MAT_PAINT_white_body",
+      "paint_zone": "PAINT_sv_body",
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "SV-II",
+        "order": 3,
+        "mode": "translate",
+        "direction": "-Z",
+        "distance_m": 2.5
+      },
+      "files": {
+        "freecad": "03_freecad/SV/II/SV-II-010_s_ic_s_ii_interstage_aft_skirt.FCStd",
+        "step": "04_cad_export/SV-II/SV-II-010.step",
+        "cad_mesh": "04_cad_export/SV-II/SV-II-010.obj",
+        "blend": "05_blender/modules/SV-II.blend",
+        "review_dir": "07_review/SV-II-010/",
+        "web": "06_web_export/optimized/SV_II.glb"
+      },
+      "tri_budget": 4000,
+      "tri_actual": 1520,
+      "phase": "S3",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "SV-II-020",
+      "name_en": "Thrust structure + engine compartment",
+      "name_th": "โครงรับแรงขับ S-II",
+      "type": "part",
+      "module": "SV-II",
+      "subsystem": null,
+      "parent": "SV-II-000",
+      "qty_per_parent": 1,
+      "detail_tier": "B",
+      "accuracy": "representative",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "MAT_METAL_alu_painted",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "SV-II",
+        "order": 4,
+        "mode": "translate",
+        "direction": "-Z",
+        "distance_m": 1.0
+      },
+      "files": {
+        "freecad": "03_freecad/SV/II/SV-II-020_thrust_structure_engine_compartment.FCStd",
+        "step": "04_cad_export/SV-II/SV-II-020.step",
+        "cad_mesh": "04_cad_export/SV-II/SV-II-020.obj",
+        "blend": "05_blender/modules/SV-II.blend",
+        "review_dir": "07_review/SV-II-020/",
+        "web": "06_web_export/optimized/SV_II.glb"
+      },
+      "tri_budget": 12000,
+      "tri_actual": 768,
+      "phase": "S3",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "SV-II-030",
+      "name_en": "LOX tank + common bulkhead",
+      "name_th": "ถัง LOX + common bulkhead",
+      "type": "part",
+      "module": "SV-II",
+      "subsystem": null,
+      "parent": "SV-II-000",
+      "qty_per_parent": 1,
+      "detail_tier": "C",
+      "accuracy": "documented",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "MAT_PAINT_white_body",
+      "paint_zone": "PAINT_sv_body",
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "SV-II",
+        "order": 5,
+        "mode": "translate",
+        "direction": "+Z",
+        "distance_m": 1.5
+      },
+      "files": {
+        "freecad": "03_freecad/SV/II/SV-II-030_lox_tank_common_bulkhead.FCStd",
+        "step": "04_cad_export/SV-II/SV-II-030.step",
+        "cad_mesh": "04_cad_export/SV-II/SV-II-030.obj",
+        "blend": "05_blender/modules/SV-II.blend",
+        "review_dir": "07_review/SV-II-030/",
+        "web": "06_web_export/optimized/SV_II.glb"
+      },
+      "tri_budget": 4000,
+      "tri_actual": 3304,
+      "phase": "S3",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "SV-II-040",
+      "name_en": "LH2 tank",
+      "name_th": "ถัง LH2",
+      "type": "part",
+      "module": "SV-II",
+      "subsystem": null,
+      "parent": "SV-II-000",
+      "qty_per_parent": 1,
+      "detail_tier": "C",
+      "accuracy": "documented",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "MAT_PAINT_white_body",
+      "paint_zone": "PAINT_sv_body",
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "SV-II",
+        "order": 6,
+        "mode": "translate",
+        "direction": "+Z",
+        "distance_m": 3.5
+      },
+      "files": {
+        "freecad": "03_freecad/SV/II/SV-II-040_lh2_tank.FCStd",
+        "step": "04_cad_export/SV-II/SV-II-040.step",
+        "cad_mesh": "04_cad_export/SV-II/SV-II-040.obj",
+        "blend": "05_blender/modules/SV-II.blend",
+        "review_dir": "07_review/SV-II-040/",
+        "web": "06_web_export/optimized/SV_II.glb"
+      },
+      "tri_budget": 4000,
+      "tri_actual": 2050,
+      "phase": "S3",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "SV-II-050",
+      "name_en": "Forward skirt (S-II/S-IVB)",
+      "name_th": "forward skirt S-II",
+      "type": "part",
+      "module": "SV-II",
+      "subsystem": null,
+      "parent": "SV-II-000",
+      "qty_per_parent": 1,
+      "detail_tier": "C",
+      "accuracy": "documented",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "MAT_PAINT_white_body",
+      "paint_zone": "PAINT_sv_body",
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "SV-II",
+        "order": 7,
+        "mode": "translate",
+        "direction": "+Z",
+        "distance_m": 6.0
+      },
+      "files": {
+        "freecad": "03_freecad/SV/II/SV-II-050_forward_skirt_s_ii_s_ivb.FCStd",
+        "step": "04_cad_export/SV-II/SV-II-050.step",
+        "cad_mesh": "04_cad_export/SV-II/SV-II-050.obj",
+        "blend": "05_blender/modules/SV-II.blend",
+        "review_dir": "07_review/SV-II-050/",
+        "web": "06_web_export/optimized/SV_II.glb"
+      },
+      "tri_budget": 4000,
+      "tri_actual": 1232,
+      "phase": "S3",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "SV-II-060",
+      "name_en": "S-II/S-IVB interstage (conical)",
+      "name_th": "interstage S-II/S-IVB",
+      "type": "part",
+      "module": "SV-II",
+      "subsystem": null,
+      "parent": "SV-II-000",
+      "qty_per_parent": 1,
+      "detail_tier": "C",
+      "accuracy": "documented",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "MAT_PAINT_white_body",
+      "paint_zone": "PAINT_sv_body",
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "SV-II",
+        "order": 8,
+        "mode": "translate",
+        "direction": "+Z",
+        "distance_m": 8.0
+      },
+      "files": {
+        "freecad": "03_freecad/SV/II/SV-II-060_s_ii_s_ivb_interstage_conical.FCStd",
+        "step": "04_cad_export/SV-II/SV-II-060.step",
+        "cad_mesh": "04_cad_export/SV-II/SV-II-060.obj",
+        "blend": "05_blender/modules/SV-II.blend",
+        "review_dir": "07_review/SV-II-060/",
+        "web": "06_web_export/optimized/SV_II.glb"
+      },
+      "tri_budget": 4000,
+      "tri_actual": 1136,
+      "phase": "S3",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "SV-II-070",
+      "name_en": "Ullage motors",
+      "name_th": "จรวด ullage",
+      "type": "part",
+      "module": "SV-II",
+      "subsystem": null,
+      "parent": "SV-II-000",
+      "qty_per_parent": 8,
+      "detail_tier": "C",
+      "accuracy": "representative",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "MAT_METAL_steel_structural",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "SV-II",
+        "order": 2,
+        "mode": "translate",
+        "direction": "radial",
+        "distance_m": 3.0
+      },
+      "files": {
+        "freecad": "03_freecad/SV/II/SV-II-070_ullage_motors.FCStd",
+        "step": "04_cad_export/SV-II/SV-II-070.step",
+        "cad_mesh": "04_cad_export/SV-II/SV-II-070.obj",
+        "blend": "05_blender/modules/SV-II.blend",
+        "review_dir": "07_review/SV-II-070/",
+        "web": "06_web_export/optimized/SV_II.glb"
+      },
+      "tri_budget": 4000,
+      "tri_actual": 368,
+      "phase": "S3",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": " | instance __i01.. (extra: instance)"
+    },
+    {
+      "id": "SV-IVB-000",
+      "name_en": "S-IVB third stage",
+      "name_th": "สเตจ 3 S-IVB",
+      "type": "assembly",
+      "module": "SV-IVB",
+      "subsystem": null,
+      "parent": "SV-000",
+      "qty_per_parent": 1,
+      "detail_tier": "-",
+      "accuracy": "documented",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "-",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "SV-IVB",
+        "order": 1,
+        "mode": "translate",
+        "direction": "-Z",
+        "distance_m": 4.0
+      },
+      "files": {
+        "freecad": "03_freecad/SV/IVB/SV-IVB-000_s_ivb_third_stage.FCStd",
+        "step": null,
+        "cad_mesh": null,
+        "blend": "05_blender/modules/SV-IVB.blend",
+        "review_dir": "07_review/SV-IVB-000/",
+        "web": "06_web_export/optimized/SV_IVB.glb"
+      },
+      "tri_budget": null,
+      "tri_actual": 8040,
+      "phase": "S3",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": "17.86 m ⌀6.60 | S3: J-2 instance อยู่ใน GLB; D-014; กรอบ = stage frame (origin ที่ระนาบท้ายสเตจ)"
+    },
+    {
+      "id": "SV-IVB-010",
+      "name_en": "Aft skirt + thrust structure",
+      "name_th": "aft skirt S-IVB",
+      "type": "part",
+      "module": "SV-IVB",
+      "subsystem": null,
+      "parent": "SV-IVB-000",
+      "qty_per_parent": 1,
+      "detail_tier": "C",
+      "accuracy": "documented",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "MAT_PAINT_white_body",
+      "paint_zone": "PAINT_sv_body",
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "SV-IVB",
+        "order": 3,
+        "mode": "translate",
+        "direction": "-Z",
+        "distance_m": 2.5
+      },
+      "files": {
+        "freecad": "03_freecad/SV/IVB/SV-IVB-010_aft_skirt_thrust_structure.FCStd",
+        "step": "04_cad_export/SV-IVB/SV-IVB-010.step",
+        "cad_mesh": "04_cad_export/SV-IVB/SV-IVB-010.obj",
+        "blend": "05_blender/modules/SV-IVB.blend",
+        "review_dir": "07_review/SV-IVB-010/",
+        "web": "06_web_export/optimized/SV_IVB.glb"
+      },
+      "tri_budget": 4000,
+      "tri_actual": 1628,
+      "phase": "S3",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "SV-IVB-020",
+      "name_en": "LH2 tank",
+      "name_th": "ถัง LH2",
+      "type": "part",
+      "module": "SV-IVB",
+      "subsystem": null,
+      "parent": "SV-IVB-000",
+      "qty_per_parent": 1,
+      "detail_tier": "C",
+      "accuracy": "documented",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "MAT_PAINT_white_body",
+      "paint_zone": "PAINT_sv_body",
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "SV-IVB",
+        "order": 6,
+        "mode": "translate",
+        "direction": "+Z",
+        "distance_m": 3.5
+      },
+      "files": {
+        "freecad": "03_freecad/SV/IVB/SV-IVB-020_lh2_tank.FCStd",
+        "step": "04_cad_export/SV-IVB/SV-IVB-020.step",
+        "cad_mesh": "04_cad_export/SV-IVB/SV-IVB-020.obj",
+        "blend": "05_blender/modules/SV-IVB.blend",
+        "review_dir": "07_review/SV-IVB-020/",
+        "web": "06_web_export/optimized/SV_IVB.glb"
+      },
+      "tri_budget": 4000,
+      "tri_actual": 1998,
+      "phase": "S3",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "SV-IVB-030",
+      "name_en": "LOX tank + common bulkhead",
+      "name_th": "ถัง LOX",
+      "type": "part",
+      "module": "SV-IVB",
+      "subsystem": null,
+      "parent": "SV-IVB-000",
+      "qty_per_parent": 1,
+      "detail_tier": "C",
+      "accuracy": "documented",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "MAT_PAINT_white_body",
+      "paint_zone": "PAINT_sv_body",
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "SV-IVB",
+        "order": 5,
+        "mode": "translate",
+        "direction": "+Z",
+        "distance_m": 1.5
+      },
+      "files": {
+        "freecad": "03_freecad/SV/IVB/SV-IVB-030_lox_tank_common_bulkhead.FCStd",
+        "step": "04_cad_export/SV-IVB/SV-IVB-030.step",
+        "cad_mesh": "04_cad_export/SV-IVB/SV-IVB-030.obj",
+        "blend": "05_blender/modules/SV-IVB.blend",
+        "review_dir": "07_review/SV-IVB-030/",
+        "web": "06_web_export/optimized/SV_IVB.glb"
+      },
+      "tri_budget": 4000,
+      "tri_actual": 2746,
+      "phase": "S3",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "SV-IVB-040",
+      "name_en": "Forward skirt",
+      "name_th": "forward skirt S-IVB",
+      "type": "part",
+      "module": "SV-IVB",
+      "subsystem": null,
+      "parent": "SV-IVB-000",
+      "qty_per_parent": 1,
+      "detail_tier": "C",
+      "accuracy": "documented",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "MAT_PAINT_white_body",
+      "paint_zone": "PAINT_sv_body",
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "SV-IVB",
+        "order": 7,
+        "mode": "translate",
+        "direction": "+Z",
+        "distance_m": 6.0
+      },
+      "files": {
+        "freecad": "03_freecad/SV/IVB/SV-IVB-040_forward_skirt.FCStd",
+        "step": "04_cad_export/SV-IVB/SV-IVB-040.step",
+        "cad_mesh": "04_cad_export/SV-IVB/SV-IVB-040.obj",
+        "blend": "05_blender/modules/SV-IVB.blend",
+        "review_dir": "07_review/SV-IVB-040/",
+        "web": "06_web_export/optimized/SV_IVB.glb"
+      },
+      "tri_budget": 4000,
+      "tri_actual": 1164,
+      "phase": "S3",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "SV-IVB-050",
+      "name_en": "Aft interstage ring + APS module",
+      "name_th": "APS module x2",
+      "type": "part",
+      "module": "SV-IVB",
+      "subsystem": null,
+      "parent": "SV-IVB-000",
+      "qty_per_parent": 2,
+      "detail_tier": "B",
+      "accuracy": "representative",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "MAT_METAL_steel_structural",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "SV-IVB",
+        "order": 2,
+        "mode": "translate",
+        "direction": "radial",
+        "distance_m": 2.0
+      },
+      "files": {
+        "freecad": "03_freecad/SV/IVB/SV-IVB-050_aft_interstage_ring_aps_module.FCStd",
+        "step": "04_cad_export/SV-IVB/SV-IVB-050.step",
+        "cad_mesh": "04_cad_export/SV-IVB/SV-IVB-050.obj",
+        "blend": "05_blender/modules/SV-IVB.blend",
+        "review_dir": "07_review/SV-IVB-050/",
+        "web": "06_web_export/optimized/SV_IVB.glb"
+      },
+      "tri_budget": 12000,
+      "tri_actual": 504,
+      "phase": "S3",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": " | instance __i01.. (extra: instance)"
+    },
+    {
+      "id": "SV-IU-000",
+      "name_en": "Instrument Unit",
+      "name_th": "Instrument Unit",
+      "type": "assembly",
+      "module": "SV-IU",
+      "subsystem": null,
+      "parent": "SV-000",
+      "qty_per_parent": 1,
+      "detail_tier": "-",
+      "accuracy": "documented",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "-",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "SV-IU",
+        "order": 1,
+        "mode": "translate",
+        "direction": "+Z",
+        "distance_m": 0.0
+      },
+      "files": {
+        "freecad": "03_freecad/SV/IU/SV-IU-000_instrument_unit.FCStd",
+        "step": null,
+        "cad_mesh": null,
+        "blend": "05_blender/modules/SV-IU.blend",
+        "review_dir": "07_review/SV-IU-000/",
+        "web": "06_web_export/optimized/SV_IU.glb"
+      },
+      "tri_budget": null,
+      "tri_actual": 1848,
+      "phase": "S3",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": "0.914 m ⌀6.6 | S3: J-2 instance อยู่ใน GLB; D-014; กรอบ = stage frame (origin ที่ระนาบท้ายสเตจ)"
+    },
+    {
+      "id": "SV-IU-010",
+      "name_en": "IU ring (3 x 120 deg honeycomb)",
+      "name_th": "IU ring",
+      "type": "part",
+      "module": "SV-IU",
+      "subsystem": null,
+      "parent": "SV-IU-000",
+      "qty_per_parent": 1,
+      "detail_tier": "C",
+      "accuracy": "documented",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "MAT_PAINT_white_body",
+      "paint_zone": "PAINT_sv_body",
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "SV-IU",
+        "order": 2,
+        "mode": "translate",
+        "direction": "+Z",
+        "distance_m": 0.0
+      },
+      "files": {
+        "freecad": "03_freecad/SV/IU/SV-IU-010_iu_ring_3_x_120_deg_honeycomb.FCStd",
+        "step": "04_cad_export/SV-IU/SV-IU-010.step",
+        "cad_mesh": "04_cad_export/SV-IU/SV-IU-010.obj",
+        "blend": "05_blender/modules/SV-IU.blend",
+        "review_dir": "07_review/SV-IU-010/",
+        "web": "06_web_export/optimized/SV_IU.glb"
+      },
+      "tri_budget": 4000,
+      "tri_actual": 1500,
+      "phase": "S3",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "SV-IU-020",
+      "name_en": "IU antennas + viewport",
+      "name_th": "เสาอากาศ IU",
+      "type": "part",
+      "module": "SV-IU",
+      "subsystem": null,
+      "parent": "SV-IU-000",
+      "qty_per_parent": 1,
+      "detail_tier": "C",
+      "accuracy": "representative",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "MAT_FOIL_mli_silver",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "SV-IU",
+        "order": 3,
+        "mode": "translate",
+        "direction": "+Z",
+        "distance_m": 1.5
+      },
+      "files": {
+        "freecad": "03_freecad/SV/IU/SV-IU-020_iu_antennas_viewport.FCStd",
+        "step": "04_cad_export/SV-IU/SV-IU-020.step",
+        "cad_mesh": "04_cad_export/SV-IU/SV-IU-020.obj",
+        "blend": "05_blender/modules/SV-IU.blend",
+        "review_dir": "07_review/SV-IU-020/",
+        "web": "06_web_export/optimized/SV_IU.glb"
+      },
+      "tri_budget": 4000,
+      "tri_actual": 348,
+      "phase": "S3",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "SV-SLA-000",
+      "name_en": "Spacecraft-LM adapter (SLA)",
+      "name_th": "SLA",
+      "type": "assembly",
+      "module": "SV-SLA",
+      "subsystem": null,
+      "parent": "SV-000",
+      "qty_per_parent": 1,
+      "detail_tier": "-",
+      "accuracy": "documented",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "-",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "SV-SLA",
+        "order": 1,
+        "mode": "translate",
+        "direction": "-Z",
+        "distance_m": 0.0
+      },
+      "files": {
+        "freecad": "03_freecad/SV/SLA/SV-SLA-000_spacecraft_lm_adapter_sla.FCStd",
+        "step": null,
+        "cad_mesh": null,
+        "blend": "05_blender/modules/SV-SLA.blend",
+        "review_dir": "07_review/SV-SLA-000/",
+        "web": "06_web_export/optimized/SV_SLA.glb"
+      },
+      "tri_budget": null,
+      "tri_actual": 596,
+      "phase": "S4",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": " | S4: D-015; กรอบ = stage frame (origin ที่ระนาบท้ายสเตจ)"
+    },
+    {
+      "id": "SV-SLA-010",
+      "name_en": "SLA panel (4 panels, conical)",
+      "name_th": "แผง SLA",
+      "type": "part",
+      "module": "SV-SLA",
+      "subsystem": null,
+      "parent": "SV-SLA-000",
+      "qty_per_parent": 4,
+      "detail_tier": "B",
+      "accuracy": "documented",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "MAT_PAINT_white_body",
+      "paint_zone": "PAINT_sv_body",
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "SV-SLA",
+        "order": 2,
+        "mode": "translate",
+        "direction": "radial",
+        "distance_m": 3.0
+      },
+      "files": {
+        "freecad": "03_freecad/SV/SLA/SV-SLA-010_sla_panel_4_panels_conical.FCStd",
+        "step": "04_cad_export/SV-SLA/SV-SLA-010.step",
+        "cad_mesh": "04_cad_export/SV-SLA/SV-SLA-010.obj",
+        "blend": "05_blender/modules/SV-SLA.blend",
+        "review_dir": "07_review/SV-SLA-010/",
+        "web": "06_web_export/optimized/SV_SLA.glb"
+      },
+      "tri_budget": 12000,
+      "tri_actual": 352,
+      "phase": "S4",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": " | instance __i01.. (extra: instance)"
+    },
+    {
+      "id": "SV-SLA-020",
+      "name_en": "SLA/SM interface ring",
+      "name_th": "ring ต่อ SM",
+      "type": "part",
+      "module": "SV-SLA",
+      "subsystem": null,
+      "parent": "SV-SLA-000",
+      "qty_per_parent": 1,
+      "detail_tier": "C",
+      "accuracy": "representative",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "MAT_METAL_alu_painted",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "SV-SLA",
+        "order": 1,
+        "mode": "translate",
+        "direction": "-Z",
+        "distance_m": 0.0
+      },
+      "files": {
+        "freecad": "03_freecad/SV/SLA/SV-SLA-020_sla_sm_interface_ring.FCStd",
+        "step": "04_cad_export/SV-SLA/SV-SLA-020.step",
+        "cad_mesh": "04_cad_export/SV-SLA/SV-SLA-020.obj",
+        "blend": "05_blender/modules/SV-SLA.blend",
+        "review_dir": "07_review/SV-SLA-020/",
+        "web": "06_web_export/optimized/SV_SLA.glb"
+      },
+      "tri_budget": 4000,
+      "tri_actual": 244,
+      "phase": "S4",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "SV-CSM-000",
+      "name_en": "Apollo CSM",
+      "name_th": "ยาน CSM",
+      "type": "assembly",
+      "module": "SV-CSM",
+      "subsystem": null,
+      "parent": "SV-000",
+      "qty_per_parent": 1,
+      "detail_tier": "-",
+      "accuracy": "documented",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "-",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "SV-CSM",
+        "order": 1,
+        "mode": "translate",
+        "direction": "+Z",
+        "distance_m": 0.0
+      },
+      "files": {
+        "freecad": "03_freecad/SV/CSM/SV-CSM-000_apollo_csm.FCStd",
+        "step": null,
+        "cad_mesh": null,
+        "blend": "05_blender/modules/SV-CSM.blend",
+        "review_dir": "07_review/SV-CSM-000/",
+        "web": "06_web_export/optimized/SV_CSM.glb"
+      },
+      "tri_budget": null,
+      "tri_actual": 11078,
+      "phase": "S4",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": " | S4: D-015; กรอบ = stage frame (origin ที่ระนาบท้ายสเตจ)"
+    },
+    {
+      "id": "SV-CSM-010",
+      "name_en": "Service module",
+      "name_th": "Service Module",
+      "type": "part",
+      "module": "SV-CSM",
+      "subsystem": null,
+      "parent": "SV-CSM-000",
+      "qty_per_parent": 1,
+      "detail_tier": "B",
+      "accuracy": "documented",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "MAT_METAL_alu_painted",
+      "paint_zone": "PAINT_sv_csm",
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "SV-CSM",
+        "order": 2,
+        "mode": "translate",
+        "direction": "+Z",
+        "distance_m": 0.0
+      },
+      "files": {
+        "freecad": "03_freecad/SV/CSM/SV-CSM-010_service_module.FCStd",
+        "step": "04_cad_export/SV-CSM/SV-CSM-010.step",
+        "cad_mesh": "04_cad_export/SV-CSM/SV-CSM-010.obj",
+        "blend": "05_blender/modules/SV-CSM.blend",
+        "review_dir": "07_review/SV-CSM-010/",
+        "web": "06_web_export/optimized/SV_CSM.glb"
+      },
+      "tri_budget": 12000,
+      "tri_actual": 1944,
+      "phase": "S4",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "SV-CSM-020",
+      "name_en": "SPS engine bell",
+      "name_th": "SPS bell",
+      "type": "part",
+      "module": "SV-CSM",
+      "subsystem": null,
+      "parent": "SV-CSM-000",
+      "qty_per_parent": 1,
+      "detail_tier": "B",
+      "accuracy": "representative",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "MAT_METAL_inconel_heat",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "SV-CSM",
+        "order": 1,
+        "mode": "translate",
+        "direction": "-Z",
+        "distance_m": 2.0
+      },
+      "files": {
+        "freecad": "03_freecad/SV/CSM/SV-CSM-020_sps_engine_bell.FCStd",
+        "step": "04_cad_export/SV-CSM/SV-CSM-020.step",
+        "cad_mesh": "04_cad_export/SV-CSM/SV-CSM-020.obj",
+        "blend": "05_blender/modules/SV-CSM.blend",
+        "review_dir": "07_review/SV-CSM-020/",
+        "web": "06_web_export/optimized/SV_CSM.glb"
+      },
+      "tri_budget": 12000,
+      "tri_actual": 4386,
+      "phase": "S4",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "SV-CSM-030",
+      "name_en": "Command module",
+      "name_th": "Command Module",
+      "type": "part",
+      "module": "SV-CSM",
+      "subsystem": null,
+      "parent": "SV-CSM-000",
+      "qty_per_parent": 1,
+      "detail_tier": "B",
+      "accuracy": "documented",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "MAT_INSUL_heat_shield",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "SV-CSM",
+        "order": 4,
+        "mode": "translate",
+        "direction": "+Z",
+        "distance_m": 2.5
+      },
+      "files": {
+        "freecad": "03_freecad/SV/CSM/SV-CSM-030_command_module.FCStd",
+        "step": "04_cad_export/SV-CSM/SV-CSM-030.step",
+        "cad_mesh": "04_cad_export/SV-CSM/SV-CSM-030.obj",
+        "blend": "05_blender/modules/SV-CSM.blend",
+        "review_dir": "07_review/SV-CSM-030/",
+        "web": "06_web_export/optimized/SV_CSM.glb"
+      },
+      "tri_budget": 12000,
+      "tri_actual": 1752,
+      "phase": "S4",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "SV-CSM-040",
+      "name_en": "SM RCS quads + radiators",
+      "name_th": "RCS quad + หม้อน้ำ",
+      "type": "part",
+      "module": "SV-CSM",
+      "subsystem": null,
+      "parent": "SV-CSM-000",
+      "qty_per_parent": 1,
+      "detail_tier": "B",
+      "accuracy": "representative",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "MAT_FOIL_mli_silver",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "SV-CSM",
+        "order": 3,
+        "mode": "translate",
+        "direction": "+Z",
+        "distance_m": 0.0
+      },
+      "files": {
+        "freecad": "03_freecad/SV/CSM/SV-CSM-040_sm_rcs_quads_radiators.FCStd",
+        "step": "04_cad_export/SV-CSM/SV-CSM-040.step",
+        "cad_mesh": "04_cad_export/SV-CSM/SV-CSM-040.obj",
+        "blend": "05_blender/modules/SV-CSM.blend",
+        "review_dir": "07_review/SV-CSM-040/",
+        "web": "06_web_export/optimized/SV_CSM.glb"
+      },
+      "tri_budget": 12000,
+      "tri_actual": 2996,
+      "phase": "S4",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "SV-LES-000",
+      "name_en": "Launch escape system",
+      "name_th": "ระบบหอหนีภัย",
+      "type": "assembly",
+      "module": "SV-LES",
+      "subsystem": null,
+      "parent": "SV-000",
+      "qty_per_parent": 1,
+      "detail_tier": "-",
+      "accuracy": "documented",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "-",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "SV-LES",
+        "order": 1,
+        "mode": "translate",
+        "direction": "+Z",
+        "distance_m": 0.0
+      },
+      "files": {
+        "freecad": "03_freecad/SV/LES/SV-LES-000_launch_escape_system.FCStd",
+        "step": null,
+        "cad_mesh": null,
+        "blend": "05_blender/modules/SV-LES.blend",
+        "review_dir": "07_review/SV-LES-000/",
+        "web": "06_web_export/optimized/SV_LES.glb"
+      },
+      "tri_budget": null,
+      "tri_actual": 10094,
+      "phase": "S4",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": " | S4: D-015; กรอบ = stage frame (origin ที่ระนาบท้ายสเตจ)"
+    },
+    {
+      "id": "SV-LES-010",
+      "name_en": "Tower truss",
+      "name_th": "โครงหอ",
+      "type": "part",
+      "module": "SV-LES",
+      "subsystem": null,
+      "parent": "SV-LES-000",
+      "qty_per_parent": 1,
+      "detail_tier": "B",
+      "accuracy": "documented",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "MAT_METAL_steel_stainless",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "SV-LES",
+        "order": 2,
+        "mode": "translate",
+        "direction": "+Z",
+        "distance_m": 1.0
+      },
+      "files": {
+        "freecad": "03_freecad/SV/LES/SV-LES-010_tower_truss.FCStd",
+        "step": "04_cad_export/SV-LES/SV-LES-010.step",
+        "cad_mesh": "04_cad_export/SV-LES/SV-LES-010.obj",
+        "blend": "05_blender/modules/SV-LES.blend",
+        "review_dir": "07_review/SV-LES-010/",
+        "web": "06_web_export/optimized/SV_LES.glb"
+      },
+      "tri_budget": 12000,
+      "tri_actual": 3564,
+      "phase": "S4",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "SV-LES-020",
+      "name_en": "Escape + pitch motors",
+      "name_th": "มอเตอร์หนีภัย",
+      "type": "part",
+      "module": "SV-LES",
+      "subsystem": null,
+      "parent": "SV-LES-000",
+      "qty_per_parent": 1,
+      "detail_tier": "B",
+      "accuracy": "documented",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "MAT_PAINT_white_body",
+      "paint_zone": "PAINT_sv_body",
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "SV-LES",
+        "order": 3,
+        "mode": "translate",
+        "direction": "+Z",
+        "distance_m": 2.0
+      },
+      "files": {
+        "freecad": "03_freecad/SV/LES/SV-LES-020_escape_pitch_motors.FCStd",
+        "step": "04_cad_export/SV-LES/SV-LES-020.step",
+        "cad_mesh": "04_cad_export/SV-LES/SV-LES-020.obj",
+        "blend": "05_blender/modules/SV-LES.blend",
+        "review_dir": "07_review/SV-LES-020/",
+        "web": "06_web_export/optimized/SV_LES.glb"
+      },
+      "tri_budget": 12000,
+      "tri_actual": 1104,
+      "phase": "S4",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "SV-LES-030",
+      "name_en": "Boost protective cover",
+      "name_th": "BPC",
+      "type": "part",
+      "module": "SV-LES",
+      "subsystem": null,
+      "parent": "SV-LES-000",
+      "qty_per_parent": 1,
+      "detail_tier": "B",
+      "accuracy": "representative",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "MAT_INSUL_heat_shield",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "SV-LES",
+        "order": 1,
+        "mode": "translate",
+        "direction": "+Z",
+        "distance_m": 0.0
+      },
+      "files": {
+        "freecad": "03_freecad/SV/LES/SV-LES-030_boost_protective_cover.FCStd",
+        "step": "04_cad_export/SV-LES/SV-LES-030.step",
+        "cad_mesh": "04_cad_export/SV-LES/SV-LES-030.obj",
+        "blend": "05_blender/modules/SV-LES.blend",
+        "review_dir": "07_review/SV-LES-030/",
+        "web": "06_web_export/optimized/SV_LES.glb"
+      },
+      "tri_budget": 12000,
+      "tri_actual": 3052,
+      "phase": "S4",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "SV-LES-040",
+      "name_en": "Q-ball nose + canards",
+      "name_th": "Q-ball + canard",
+      "type": "part",
+      "module": "SV-LES",
+      "subsystem": null,
+      "parent": "SV-LES-000",
+      "qty_per_parent": 1,
+      "detail_tier": "C",
+      "accuracy": "representative",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "MAT_METAL_inconel_heat",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "SV-LES",
+        "order": 4,
+        "mode": "translate",
+        "direction": "+Z",
+        "distance_m": 3.0
+      },
+      "files": {
+        "freecad": "03_freecad/SV/LES/SV-LES-040_q_ball_nose_canards.FCStd",
+        "step": "04_cad_export/SV-LES/SV-LES-040.step",
+        "cad_mesh": "04_cad_export/SV-LES/SV-LES-040.obj",
+        "blend": "05_blender/modules/SV-LES.blend",
+        "review_dir": "07_review/SV-LES-040/",
+        "web": "06_web_export/optimized/SV_LES.glb"
+      },
+      "tri_budget": 4000,
+      "tri_actual": 2374,
+      "phase": "S4",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": ""
+    },
+    {
+      "id": "SV-000",
+      "name_en": "Saturn V (SA-506 reference)",
+      "name_th": "Saturn V ทั้งลำ",
+      "type": "assembly",
+      "module": "SV",
+      "subsystem": null,
+      "parent": null,
+      "qty_per_parent": 1,
+      "detail_tier": "-",
+      "accuracy": "documented",
+      "sources": [
+        "KB",
+        "D-011"
+      ],
+      "material": "-",
+      "paint_zone": null,
+      "socket": null,
+      "slot": null,
+      "explode": {
+        "group": "SV",
+        "order": 1,
+        "mode": "translate",
+        "direction": "+Z",
+        "distance_m": 0.0
+      },
+      "files": {
+        "freecad": "03_freecad/SV/SV-000_saturn_v_sa_506_reference.FCStd",
+        "step": null,
+        "cad_mesh": null,
+        "blend": "05_blender/modules/SV.blend",
+        "review_dir": "07_review/SV-000/",
+        "web": "06_web_export/optimized/SV_full.glb"
+      },
+      "tri_budget": null,
+      "tri_actual": 201534,
+      "phase": "S5",
+      "status": "web_ready",
+      "rev": 1,
+      "notes": "110.6 m, ⌀10.06 m (D-011) | S5: SV_full.glb (2.9 MB), 110.6 m, variants SV_AS506 (default) / SV_AS501; module explode IC0 II6 IVB12 IU17 SLA20 CSM24 LES30 m; D-016"
+    }
+  ]
+}

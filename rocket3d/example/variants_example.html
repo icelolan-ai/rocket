@@ -1,0 +1,30 @@
+<!doctype html><html><head><meta charset="utf-8"><title>variants test</title>
+<style>html,body{margin:0;height:100%;background:#c8cbd2;font:12px monospace}#i{position:fixed;left:8px;top:8px;background:#fffc;padding:6px;white-space:pre}</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script></head><body><div id="i">loading...</div>
+<script type="module">
+import * as THREE from 'three';
+import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
+import {MeshoptDecoder} from 'three/addons/libs/meshopt_decoder.module.js';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+const q=new URLSearchParams(location.search);const variant=q.get('v')||'CLEAN';const file=q.get('f')||'VEH_full.glb';const part=q.get('p')||'';const explode=+(q.get('x')||0);
+const r=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});r.setSize(innerWidth,innerHeight);document.body.appendChild(r.domElement);
+const s=new THREE.Scene();s.background=new THREE.Color(0xc8cbd2);
+s.add(new THREE.HemisphereLight(0xffffff,0x667788,1.6));const d=new THREE.DirectionalLight(0xffffff,2.5);d.position.set(5,8,6);s.add(d);
+const cam=new THREE.PerspectiveCamera(30,innerWidth/innerHeight,.05,500);const oc=new OrbitControls(cam,r.domElement);
+new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).load('../models/'+file,async g=>{
+ s.add(g.scene);const vs=g.userData.gltfExtensions?.KHR_materials_variants?.variants.map(v=>v.name)||[];
+ const parser=g.parser;let n=0;
+ const meshes=[];g.scene.traverse(o=>{if(o.isMesh)meshes.push(o)});
+ for(const o of meshes){ if(o.userData.gltfExtensions?.KHR_materials_variants){await parser.getDependency('material',0).catch(()=>0);} }
+ // apply variant through the official helper
+ const idx=vs.indexOf(variant);
+ for(const o of meshes){const ext=o.userData.gltfExtensions?.KHR_materials_variants;if(!ext)continue;
+  const map=ext.mappings.find(m=>m.variants.includes(idx));if(map){const mat=await parser.getDependency('material',map.material);o.material=mat;parser.assignFinalMaterial?.(o);n++}}
+ g.scene.traverse(o=>{if(explode&&o.userData&&o.userData.explode_dir){const dd=o.userData.explode_dir;o.position.add(new THREE.Vector3(...dd).multiplyScalar(o.userData.explode_dist*explode))}});
+ const b=new THREE.Box3().setFromObject(g.scene),c=b.getCenter(new THREE.Vector3()),sz=b.getSize(new THREE.Vector3());
+ const lo=new THREE.Vector3(c.x,b.min.y+(part==='base'?6:sz.y/2),c.z),R=part==='base'?14:Math.max(sz.x,sz.y,sz.z);
+ cam.position.copy(lo).add(new THREE.Vector3(.2,.1,1).multiplyScalar(R*1.9));oc.target.copy(lo);oc.update();
+ document.getElementById('i').textContent=`variants ${vs}\napplied ${variant} to ${n} meshes\nsize ${sz.x.toFixed(2)} x ${sz.y.toFixed(2)} x ${sz.z.toFixed(2)}`;window.__g=g;window.__dbg=meshes.filter(o=>o.userData.gltfExtensions?.KHR_materials_variants).slice(0,40).map(o=>o.name+'|'+(o.material.map?'map':'nomap')+'|'+(o.geometry.attributes.uv?'uv':'nouv')+'|'+o.material.name).join('\n');window.__done=true;
+},undefined,e=>document.getElementById('i').textContent='ERR '+e);
+(function a(){requestAnimationFrame(a);r.render(s,cam)})();
+</script></body></html>

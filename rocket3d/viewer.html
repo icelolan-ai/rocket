@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rocket — 3D Rocket Viewer</title>
+<meta name="description" content="ดู ถอดแยก เปลี่ยนสี และสลับชิ้นส่วนจรวด Falcon 9, Falcon Heavy และ Saturn V แบบ 3 มิติ">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600&family=Noto+Sans+Thai:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="viewer.css">
+<script type="importmap">
+{ "imports": {
+  "three": "./vendor/three/build/three.module.min.js",
+  "three/addons/": "./vendor/three/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<header class="bar">
+  <a class="logo" href="../index.html" aria-label="กลับหน้าหลัก Rocket">RO<br>CK</a>
+  <h1>3D Rocket Viewer</h1>
+  <div class="tabs" role="tablist" aria-label="โหมด">
+    <button id="tab-viewer" class="tab on" role="tab" aria-selected="true" aria-controls="stage">จรวดทั้งลำ</button>
+    <button id="tab-gallery" class="tab" role="tab" aria-selected="false" aria-controls="stage">Part Gallery</button>
+  </div>
+  <a class="back" href="../index.html">← หน้าหลัก</a>
+</header>
+
+<main class="app">
+  <!-- left: controls -->
+  <aside class="panel left" aria-label="ตัวควบคุม">
+    <section id="sec-vehicle">
+      <h2>จรวด</h2>
+      <div class="seg" id="vehicles" role="radiogroup" aria-label="เลือกจรวด"></div>
+      <label class="field">Variant
+        <select id="variant" aria-label="Variant"></select>
+      </label>
+    </section>
+
+    <section id="sec-gallery" hidden>
+      <h2>โมดูล <small>จากทุกลำ</small></h2>
+      <ul id="gallery-list" class="plist"></ul>
+    </section>
+
+    <section id="sec-explode">
+      <h2>ถอดแยกชิ้นส่วน</h2>
+      <label class="field">ระดับ (0–1)
+        <input id="explode" type="range" min="0" max="1" step="0.001" value="0" aria-label="ระดับการถอดแยก">
+        <output id="explode-out">0.00</output>
+      </label>
+      <div class="row">
+        <button class="btn primary" id="explode-anim" aria-pressed="false">ถอดแยก</button>
+        <button class="btn" id="explode-zero">ประกอบกลับ</button>
+      </div>
+      <label class="check"><input type="checkbox" id="stagger"> ทยอยถอดตามลำดับ (stagger)</label>
+      <label class="field">ขอบเขต
+        <select id="scope" aria-label="ขอบเขตการถอด"></select>
+      </label>
+    </section>
+
+    <section id="sec-parts">
+      <h2>รายการชิ้นส่วน <small id="parts-count"></small></h2>
+      <input id="parts-search" type="search" placeholder="ค้นหาชิ้นส่วน / part id" aria-label="ค้นหาชิ้นส่วน">
+      <ul id="parts-list" class="plist"></ul>
+    </section>
+
+  </aside>
+
+  <!-- center: canvas -->
+  <section class="stage" id="stage">
+    <canvas id="gl" tabindex="0" aria-label="โมเดลจรวด 3 มิติ ลากเพื่อหมุน ล้อเมาส์เพื่อซูม คลิกเพื่อเลือกชิ้นส่วน"></canvas>
+    <div id="tooltip" class="tooltip" hidden></div>
+    <div id="loading" class="loading" role="status"><i></i><span>กำลังโหลด…</span></div>
+    <div class="hud-top">
+      <button class="btn" id="reset-view">Reset view</button>
+      <button class="btn" id="show-all">แสดงทุกชิ้น</button>
+    </div>
+    <p id="notice" class="notice" role="status" aria-live="polite" hidden></p>
+    <p class="approx">ขนาดบางส่วนเป็นค่าประมาณ ดูระดับ accuracy ของแต่ละชิ้น</p>
+  </section>
+
+  <!-- right: selection -->
+  <aside class="panel right" aria-label="ชิ้นส่วนที่เลือก">
+    <section id="info">
+      <h2>ชิ้นส่วนที่เลือก</h2>
+      <div id="info-empty">
+        <p>คลิกที่ชิ้นส่วนในโมเดลหรือเลือกจากรายการ</p>
+        <dl class="legend" id="legend"></dl>
+      </div>
+      <div id="info-body" hidden>
+        <p class="name-th" id="i-th"></p>
+        <p class="name-en" id="i-en"></p>
+        <dl class="kv">
+          <dt>part id</dt><dd id="i-id"></dd>
+          <dt>accuracy</dt><dd id="i-acc"></dd>
+          <dt>material</dt><dd id="i-mat"></dd>
+          <dt>paint zone</dt><dd id="i-zone"></dd>
+          <dt>slot</dt><dd id="i-slot"></dd>
+          <dt>จำนวน</dt><dd id="i-qty"></dd>
+        </dl>
+        <div class="row">
+          <button class="btn" id="a-isolate">Isolate</button>
+          <button class="btn" id="a-hide">ซ่อน</button>
+          <button class="btn" id="a-clear">ยกเลิกเลือก</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="sec-paint">
+      <h2>เปลี่ยนสี</h2>
+      <p id="paint-msg" class="msg"></p>
+      <div id="paint-ui">
+        <div class="row">
+          <input type="color" id="color" value="#f2f2ef" aria-label="เลือกสี">
+          <div id="swatches" class="swatches" aria-label="สีสำเร็จรูป"></div>
+        </div>
+        <fieldset class="scope">
+          <legend>ขอบเขต</legend>
+          <label><input type="radio" name="pscope" value="mesh" checked> ชิ้นนี้</label>
+          <label><input type="radio" name="pscope" value="zone"> ทั้ง paint_zone</label>
+          <label><input type="radio" name="pscope" value="part"> ทุก instance ของ part</label>
+        </fieldset>
+        <label class="check" id="notex-wrap" hidden><input type="checkbox" id="notex"> ปิดลาย texture ของชิ้นนี้ (สี×ลาย)</label>
+        <div class="row">
+          <button class="btn" id="paint-reset-part">Reset ชิ้นนี้</button>
+          <button class="btn" id="paint-reset-all">Reset ทั้งหมด</button>
+        </div>
+        <div class="row">
+          <button class="btn" id="paint-export">Export JSON</button>
+          <button class="btn" id="paint-import">Import JSON</button>
+          <input type="file" id="paint-file" accept="application/json,.json" hidden>
+        </div>
+      </div>
+    </section>
+
+    <section id="sec-slot" hidden>
+      <h2>สลับชิ้นส่วน (slot)</h2>
+      <p id="slot-msg" class="msg"></p>
+      <div id="slot-ui">
+        <label class="field">ตัวเลือก
+          <select id="slot-select" aria-label="ตัวเลือกของ slot"></select>
+        </label>
+        <button class="btn primary" id="slot-apply">ใช้ตัวเลือกนี้</button>
+      </div>
+    </section>
+
+    <section id="sec-place" hidden>
+      <h2>Part Gallery</h2>
+      <p id="place-msg" class="msg"></p>
+      <button class="btn primary" id="place-btn" hidden>วางแทนในลำที่เปิดอยู่</button>
+    </section>
+  </aside>
+</main>
+<script type="module" src="viewer.js"></script>
+</body>
+</html>
