@@ -81,3 +81,21 @@ export function focusBox(camera, controls, box, tick, margin = 1.5) {
   const dir = camera.position.clone().sub(controls.target).normalize();
   animateCamera(camera, controls, c.clone().addScaledVector(dir, dist), c, 520, tick);
 }
+
+// touch: pinch zooms about the screen centre (no drifting) and never pans; mouse keeps zoom-to-cursor + right-drag pan
+export function pointerModes(controls, canvas) {
+  const set = e => { const mouse = e.pointerType === 'mouse'; controls.zoomToCursor = mouse; controls.enablePan = mouse; };
+  canvas.addEventListener('pointerdown', set, { capture: true });
+  controls.zoomToCursor = true;
+}
+
+// keep the orbit target inside `box` so the model can never be dragged/zoomed off screen;
+// the camera moves with the target, so the view only slides back instead of jumping
+export function keepTargetInside(controls, camera, box) {
+  if (!box || box.isEmpty()) return;
+  const t = controls.target;
+  if (box.containsPoint(t)) return;
+  const c = t.clone().clamp(box.min, box.max);
+  camera.position.add(c.clone().sub(t));
+  t.copy(c);
+}
