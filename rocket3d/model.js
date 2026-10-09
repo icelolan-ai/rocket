@@ -98,7 +98,7 @@ export class Model {
     this.hidden = new Set();
     this.isolated = null;
     // paint overrides: precedence mesh > part > zone
-    this.paint = { zones: {}, parts: {}, meshes: {}, noTex: {} };
+    this.paint = { zones: {}, parts: {}, meshes: {}, noTex: {}, fin: {} };
     this.matCache = new Map();
     this.reindex();
     // first real (non-instanced) part node at scene root = the module/vehicle root id
@@ -344,6 +344,24 @@ export class Model {
     this.refreshMaterials();
     return true;
   }
+  // surface finish for one part (all its instances); null restores the model's own material
+  setFinish(mesh, fin) {
+    if (!this.isPaintable(mesh)) return false;
+    this.paint.fin ??= {};
+    fin ? this.paint.fin[mesh._pid] = { r: fin.r, m: fin.m } : delete this.paint.fin[mesh._pid];
+    this.refreshMaterials();
+    return true;
+  }
+  finishOf(mesh) { return this.paint.fin?.[mesh._pid] ?? { r: mesh._baseMat.roughness ?? 0.6, m: mesh._baseMat.metalness ?? 0 }; }
+  // colour and/or finish for every paintable part at once
+  paintAll({ hex, fin } = {}) {
+    for (const mesh of this.meshes) {
+      if (!this.isPaintable(mesh)) continue;
+      if (hex) this.setColor(mesh, hex, 'part');
+      if (fin !== undefined) { this.paint.fin ??= {}; fin ? this.paint.fin[mesh._pid] = { r: fin.r, m: fin.m } : delete this.paint.fin[mesh._pid]; }
+    }
+    this.refreshMaterials();
+  }
   setNoTexture(mesh, on) {
     const k = mesh._pid;
     on ? this.paint.noTex[k] = true : delete this.paint.noTex[k];
@@ -351,14 +369,14 @@ export class Model {
   }
   resetPaint(pid = null) {
     if (pid) {
-      delete this.paint.parts[pid]; delete this.paint.noTex[pid];
+      delete this.paint.parts[pid]; delete this.paint.noTex[pid]; delete this.paint.fin?.[pid];
       for (const m of this.meshesOf(pid)) delete this.paint.meshes[m._key];
-    } else this.paint = { zones: {}, parts: {}, meshes: {}, noTex: {} };
+    } else this.paint = { zones: {}, parts: {}, meshes: {}, noTex: {}, fin: {} };
     this.refreshMaterials();
   }
   exportPaint() { return JSON.parse(JSON.stringify(this.paint)); }
   importPaint(p) {
-    this.paint = { zones: {}, parts: {}, meshes: {}, noTex: {}, ...p };
+    this.paint = { zones: {}, parts: {}, meshes: {}, noTex: {}, fin: {}, ...p };
     this.refreshMaterials();
   }
 
@@ -369,7 +387,8 @@ export class Model {
       if (!base) continue;
       const hex = this.isPaintable(m) ? this.colorOf(m) : null;
       const noTex = !!this.paint.noTex[m._pid] && !!base.map;
-      if (!hex && !noTex) {
+      const fin = this.isPaintable(m) ? this.paint.fin?.[m._pid] : null; // surface finish {r: roughness, m: metalness}
+      if (!hex && !noTex && !fin) {
         if (m.material !== base) this.#dropClone(m);
         m.material = base;
         continue;
@@ -384,6 +403,7 @@ export class Model {
       clone.color.copy(base.color);
       if (hex) clone.color.set(hex);
       clone.map = noTex ? null : base.map;
+      if ('roughness' in clone) { clone.roughness = fin ? fin.r : base.roughness; clone.metalness = fin ? fin.m : base.metalness; }
       clone.needsUpdate = true;
       m.material = clone;
     }

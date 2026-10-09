@@ -88,8 +88,26 @@
     <section class="paint off" id="paint">
       <h3><span data-i18n="cu.color">Color</span> <small id="paint-hint" data-i18n="cu.paint.none">Select a part first</small></h3>
       <div class="swatches" id="swatches" data-i18n-attr="aria-label:cu.swatches"></div>
-      <label class="picker"><span data-i18n="cu.custom">Custom color</span> <input type="color" id="color" value="#f2f2ef" data-i18n-attr="aria-label:cu.custom"></label>
+      <div class="mix">
+        <div class="mix-top">
+          <input type="color" id="color" value="#f2f2ef" data-i18n-attr="aria-label:cu.custom">
+          <label class="hex"><span>#</span><input type="text" id="hex" maxlength="6" spellcheck="false" autocomplete="off" inputmode="text" aria-label="HEX" value="f2f2ef"></label>
+        </div>
+        <label class="sl"><span data-i18n="cu.hue">Hue</span><input type="range" id="c-h" min="0" max="360" value="0"></label>
+        <label class="sl"><span data-i18n="cu.sat">Saturation</span><input type="range" id="c-s" min="0" max="100" value="0"></label>
+        <label class="sl"><span data-i18n="cu.lig">Lightness</span><input type="range" id="c-l" min="0" max="100" value="90"></label>
+      </div>
+      <div class="recent" id="recent" data-i18n-attr="aria-label:cu.recent"></div>
+    </section>
+    <section class="paint off" id="material">
+      <h3><span data-i18n="cu.material">Material</span></h3>
+      <div class="finish" id="finishes" role="group" data-i18n-attr="aria-label:cu.material"></div>
+      <label class="sl"><span data-i18n="cu.rough">Roughness</span><input type="range" id="m-r" min="0" max="100" value="60"></label>
+      <label class="sl"><span data-i18n="cu.metal">Metalness</span><input type="range" id="m-m" min="0" max="100" value="0"></label>
+    </section>
+    <section class="paint" id="paint-actions">
       <div class="row">
+        <button class="mini" id="apply-all" data-i18n="cu.applyAll">Apply to whole rocket</button>
         <button class="mini" id="reset-part" data-i18n="cu.resetPart">Reset part</button>
         <button class="mini" id="reset-all" data-i18n="cu.resetAll">Reset all</button>
       </div>
