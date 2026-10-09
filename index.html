@@ -17,6 +17,8 @@
 </script>
 </head>
 <body>
+<i class="progress" id="progress" aria-hidden="true"></i>
+<canvas id="stars" aria-hidden="true"></canvas>
 
 <header class="nav" id="nav">
   <a class="logo" href="#top" aria-label="Rocket — home"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 2c3 3 4.5 7 4.5 11l-2 3h-5l-2-3C7.5 9 9 5 12 2Zm-2 15h4l-1 5h-2l-1-5Z" fill="currentColor"/></svg><span>ROCKET</span></a>
@@ -35,7 +37,7 @@
 <section class="intro" id="top">
   <div class="intro-body">
     <p class="eyebrow">Launch vehicles in 3D</p>
-    <h1 class="word">ROCKET</h1>
+    <h1 class="word" id="word" aria-label="ROCKET"><span class="l" style="--i:0"><b>R</b></span><span class="l" style="--i:1"><b>O</b></span><span class="l" style="--i:2"><b>C</b></span><span class="l" style="--i:3"><b>K</b></span><span class="l" style="--i:4"><b>E</b></span><span class="l" style="--i:5"><b>T</b></span></h1>
     <p class="sub">Explore, disassemble and recolor launch vehicles</p>
     <a class="go" href="#lab">Let's explore <span aria-hidden="true">→</span></a>
   </div>
@@ -46,15 +48,16 @@
   </ul>
   <a class="scroll-cue" href="#lab" aria-label="เลื่อนลง"><span>Scroll</span><i></i></a>
   <div class="stats" aria-label="ตัวเลขสำคัญ">
-    <div><b id="st-parts">145</b><span>Parts in manifest</span></div>
-    <div><b>3</b><span>Launch vehicles</span></div>
-    <div><b>24</b><span>3D modules</span></div>
+    <div><b id="st-parts">0</b><span>Parts in manifest</span></div>
+    <div><b data-count="3">0</b><span>Launch vehicles</span></div>
+    <div><b data-count="24">0</b><span>3D modules</span></div>
     <div><b id="st-docs">–</b><span>Documented parts</span></div>
   </div>
 </section>
 
 <!-- ============ CUSTOMIZE (live 3D) ============ -->
-<section class="hero" id="lab" aria-label="ปรับแต่งจรวด 3D">
+<div class="lab-wrap" id="lab">
+<section class="hero" aria-label="ปรับแต่งจรวด 3D">
   <div class="floor" aria-hidden="true"></div>
 
   <div class="hero-stage" id="hero-stage">
@@ -112,7 +115,10 @@
       <div class="row"><button class="mini" id="isolate">Isolate</button><button class="mini" id="showall">แสดงทุกชิ้น</button></div>
     </div>
   </aside>
+
+  <p class="step" id="step" aria-live="polite"><b>01</b><span>Assembled</span><small>เลื่อนลงเพื่อถอดแยก</small></p>
 </section>
+</div>
 
 <!-- ============ ROCKETS ============ -->
 <section class="rockets reveal" id="rockets">
@@ -121,7 +127,7 @@
     <h2>ROCKETS</h2>
     <p class="lead">เลือกจรวดเพื่อเปิดดูแบบ 3 มิติ — ถอดแยกทีละชิ้น เปลี่ยนสี และดูระดับความแม่นยำของแต่ละชิ้นส่วน</p>
   </header>
-  <div class="cards">
+  <div class="cards stag">
     <article class="rk" data-key="f9">
       <button class="rk-img" data-key="f9" aria-label="ดู Falcon 9 ใน 3D"><img src="assets/img/f9.jpg" alt="Falcon 9" width="480" height="560" loading="lazy"></button>
       <span class="n">001</span>
@@ -154,7 +160,7 @@
     <p class="lead">ทุกลำสร้างจากโมเดล CAD แยกเป็นชิ้นส่วนจริง ไม่ใช่ภาพนิ่ง — หมุน ถอด สลับ และทาสีใหม่ได้ในเบราว์เซอร์</p>
     <a class="btn-solid" href="rocket3d/viewer.html">Open full viewer</a>
   </div>
-  <div class="feat-grid">
+  <div class="feat-grid stag">
     <article>
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v6M12 15v6M9 6l3-3 3 3M9 18l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
       <h3>Disassemble</h3>
@@ -177,7 +183,7 @@
 <section class="accuracy reveal" aria-labelledby="acc-h">
   <h2 id="acc-h">HOW ACCURATE?</h2>
   <p class="lead">ขนาดบางส่วนเป็นค่าประมาณ — ทุกชิ้นส่วนระบุระดับความแม่นยำไว้เสมอ</p>
-  <div class="acc-grid">
+  <div class="acc-grid stag">
     <div><span class="dot doc"></span><h3>documented</h3><p>รูปทรงและขนาดจากแหล่งอ้างอิงที่ระบุได้</p></div>
     <div><span class="dot std"></span><h3>standard-based</h3><p>สร้างตามมาตรฐานวิศวกรรม เช่น ISO</p></div>
     <div><span class="dot rep"></span><h3>representative</h3><p>ชิ้นส่วนมีอยู่จริง แต่รูปทรงเป็นค่าประมาณที่สมเหตุสมผล</p></div>
@@ -215,6 +221,7 @@
 </footer>
 
 <script src="assets/main.js"></script>
+<script type="module" src="assets/motion.js"></script>
 <script type="module" src="assets/hero3d.js"></script>
 </body>
 </html>
