@@ -1,18 +1,19 @@
-// Home-page hero: live 3D rocket (shares model/paint/explode code with rocket3d/viewer.html)
+// Customize section: live 3D rocket (left) + options panel (right).
+// Shares model/paint/explode code with rocket3d/viewer.html. The page scrolls normally;
+// disassembly is controlled only by the button / slider.
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { Manifest, loadModel, unloadGLB } from '../rocket3d/model.js';
-import { VEHICLES, SWATCHES, ACC_TH, loadSaved, saveState, makeShadow, placeShadow } from '../rocket3d/common.js';
+import { VEHICLES, SWATCHES, loadSaved, saveState, makeShadow, placeShadow } from '../rocket3d/common.js';
+import { t, partName, partNameAlt, zoneLabel, onLang } from '../rocket3d/i18n.js';
 
 const $ = id => document.getElementById(id);
 const stage = $('hero-stage'), canvas = $('gl3d');
-const whenNear = el => new Promise(res => { const io = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { io.disconnect(); res(); } }, { rootMargin: '500px' }); io.observe(el); });
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-const S = { manifest: null, veh: null, model: null, base: null, sel: null, token: 0, dirty: true, anim: null, visible: true, idleAt: 0,
-  p: 0, manual: false, manualCam: false, fBase: null, fEx: null, stepKey: '' };
-const labEl = document.querySelector('#lab .hero'), wrap = $('lab');
+const S = { manifest: null, veh: null, model: null, base: null, sel: null, token: 0, dirty: true, anim: null, visible: true, idleAt: 0 };
+const labEl = document.querySelector('#lab .hero');
 const DIR0 = new THREE.Vector3(0.5, 0.06, 1).normalize();
 let renderer, scene, camera, controls, boxHelper, shadow;
 
@@ -20,22 +21,27 @@ let renderer, scene, camera, controls, boxHelper, shadow;
 function setup() {
   renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-  renderer.toneMapping = THREE.NeutralToneMapping;
+  // softer, more filmic response: whites keep their shading instead of blowing out
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 0.9;
   scene = new THREE.Scene();
   scene.environment = new THREE.PMREMGenerator(renderer).fromScene(new RoomEnvironment(), 0.04).texture;
-  const key = new THREE.DirectionalLight(0xffffff, 1.5);
-  key.position.set(40, 70, 60);
-  const rim = new THREE.DirectionalLight(0x9fe8ff, 1.1); // cool rim light to match the teal backdrop
-  rim.position.set(-60, 30, -40);
-  scene.add(key, rim, new THREE.HemisphereLight(0xcfe9f2, 0x1a2a33, 0.4));
+  scene.environmentIntensity = 0.42;
+  const key = new THREE.DirectionalLight(0xfff1e0, 1.5); // warm key from the upper right
+  key.position.set(50, 70, 60);
+  const rim = new THREE.DirectionalLight(0x9fd8ee, 0.7); // cool rim to separate the rocket from the backdrop
+  rim.position.set(-60, 30, -50);
+  const fill = new THREE.DirectionalLight(0x8aa6b8, 0.18);
+  fill.position.set(-40, 10, 60);
+  scene.add(key, rim, fill, new THREE.HemisphereLight(0xaac4d2, 0x0d151a, 0.18));
   camera = new THREE.PerspectiveCamera(30, 1, 0.1, 1000);
   controls = new OrbitControls(camera, canvas);
   controls.enableDamping = true;
   controls.dampingFactor = 0.1;
   controls.enableZoom = false; // the wheel would hijack page scroll; enabled once the canvas has focus
-  controls.autoRotate = false; // enabled only while the lab is at rest (scroll progress ~0)
-  controls.autoRotateSpeed = 0.9;
-  controls.addEventListener('start', () => { controls.autoRotate = false; S.manualCam = true; });
+  controls.autoRotate = !reduceMotion;
+  controls.autoRotateSpeed = 0.8;
+  controls.addEventListener('start', () => { controls.autoRotate = false; });
   controls.addEventListener('end', () => { S.idleAt = performance.now(); });
   controls.addEventListener('change', invalidate);
   canvas.style.touchAction = 'pan-y'; // vertical swipes still scroll the page on phones
@@ -57,16 +63,16 @@ function resize() {
   renderer.setSize(r.width, r.height, false);
   camera.aspect = r.width / r.height;
   camera.updateProjectionMatrix();
-  if (S.base) { computeFrames(); driveFromScroll(); if (S.p < 0.02) frame(S.base, true); }
+  if (S.base) frame(S.model.t > 0.05 ? S.model.box(S.model.meshes) : S.base, true);
   invalidate();
 }
-function framing(box) {
+function frame(box, keepDir = false) {
+  if (box.isEmpty()) return;
   const c = box.getCenter(new THREE.Vector3()), sz = box.getSize(new THREE.Vector3());
   const tan = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
   const w = Math.max(sz.x, sz.z);
-  return { c, dist: (Math.max(sz.y / 2 / tan, w / 2 / (tan * camera.aspect)) + w / 2) * 1.08 };
-}
-function applyFraming({ c, dist }, dir) {
+  const dist = (Math.max(sz.y / 2 / tan, w / 2 / (tan * camera.aspect)) + w / 2) * 1.12;
+  const dir = keepDir ? camera.position.clone().sub(controls.target).normalize() : DIR0.clone();
   camera.position.copy(c).addScaledVector(dir, dist);
   camera.near = dist / 200; camera.far = dist * 40;
   camera.updateProjectionMatrix();
@@ -75,60 +81,22 @@ function applyFraming({ c, dist }, dir) {
   controls.update();
   invalidate();
 }
-function frame(box, keepDir = false) {
-  if (box.isEmpty()) return;
-  const dir = keepDir ? camera.position.clone().sub(controls.target).normalize() : DIR0.clone();
-  applyFraming(framing(box), dir);
-}
-// bounds of the assembled and fully exploded model, so scrolling can glide between them
-function computeFrames() {
-  const m = S.model; if (!m || !S.base) return;
-  const t = m.t;
-  m.setExplode(1); const ex = m.box(m.meshes); m.setExplode(t);
-  S.fBase = framing(S.base); S.fEx = framing(ex);
-}
 const ease = k => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
-const reduceScroll = reduceMotion; // reduced motion: no pinned scroll animation
 
-// scroll position inside the pinned lab (0..1) drives entrance, explode, camera orbit and captions
-function labProgress() {
-  const r = wrap.getBoundingClientRect(), span = r.height - innerHeight;
-  return span > 0 ? Math.min(Math.max(-r.top / span, 0), 1) : 0;
-}
-function driveFromScroll() {
-  const p = S.p = labProgress();
-  // entrance plays while the lab slides into view (before it pins)
-  const enter = Math.min(Math.max((innerHeight - wrap.getBoundingClientRect().top) / (innerHeight * 0.85), 0), 1);
-  labEl.style.setProperty('--enter', reduceScroll ? 1 : enter.toFixed(3));
-  if (p < 0.02) { S.manual = false; S.manualCam = false; }
-  const m = S.model;
-  if (!m || !S.fBase || reduceScroll) return;
-  setStep(p);
-  if (S.manual || S.anim) return;
-  const t = ease(Math.min(Math.max((p - 0.12) / 0.62, 0), 1));
-  if (Math.abs(t - m.t) > 0.0005) applyExplode(t);
-  if (!S.manualCam) {
-    const k = { c: S.fBase.c.clone().lerp(S.fEx.c, t), dist: S.fBase.dist + (S.fEx.dist - S.fBase.dist) * t };
-    const dir = DIR0.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), ease(Math.min(p / 0.8, 1)) * 1.15);
-    controls.autoRotate = false;
-    applyFraming(k, dir);
-  }
-}
-function setStep(p) {
-  const n = S.model.partIds().length;
-  const s = p < 0.12 ? ['01', 'Assembled', 'เลื่อนลงหรือปัดเพื่อถอดแยก'] : p < 0.76 ? ['02', 'Separating', `${n} parts`] : ['03', 'Exploded', 'แตะชิ้นส่วนเพื่อดูรายละเอียด'];
-  if (S.stepKey === s[0]) return;
-  S.stepKey = s[0];
-  const el = $('step');
-  el.innerHTML = `<b>${s[0]}</b><span>${s[1]}</span><small>${s[2]}</small>`;
-  el.classList.remove('swap'); void el.offsetWidth; el.classList.add('swap');
+// the lab fades/slides in as it enters the viewport (purely visual, does not affect scrolling)
+function enterFx() {
+  const r = $('lab').getBoundingClientRect();
+  const enter = Math.min(Math.max((innerHeight - r.top) / (innerHeight * 0.7), 0), 1);
+  labEl.style.setProperty('--enter', reduceMotion ? 1 : enter.toFixed(3));
 }
 let scrollQueued = false;
-addEventListener('scroll', () => { if (scrollQueued) return; scrollQueued = true; requestAnimationFrame(() => { scrollQueued = false; driveFromScroll(); }); }, { passive: true });
+addEventListener('scroll', () => { if (scrollQueued) return; scrollQueued = true; requestAnimationFrame(() => { scrollQueued = false; enterFx(); }); }, { passive: true });
+enterFx();
+
 function loop(now) {
   requestAnimationFrame(loop);
   if (!S.visible) return;
-  if (!reduceMotion && !controls.autoRotate && S.p < 0.03 && S.idleAt && now - S.idleAt > 6000 && !S.sel) { controls.autoRotate = true; S.idleAt = 0; }
+  if (!reduceMotion && !controls.autoRotate && S.idleAt && now - S.idleAt > 6000 && !S.sel && !S.anim) { controls.autoRotate = true; S.idleAt = 0; }
   stepAnim(now);
   if (controls.update()) S.dirty = true;
   if (S.dirty) { S.dirty = false; renderer.render(scene, camera); }
@@ -138,7 +106,7 @@ function loop(now) {
 async function loadVehicle(key) {
   const v = VEHICLES.find(x => x.key === key), token = ++S.token;
   $('loading3d').classList.remove('done');
-  $('loading3d').querySelector('span').textContent = `กำลังโหลด ${v.label}…`;
+  $('loading3d').querySelector('span').textContent = t('cu.loadingV', { name: v.label });
   try {
     const model = await loadModel(`rocket3d/models/${v.file}.glb`, S.manifest, key);
     if (token !== S.token) { model.dispose(); return; }
@@ -153,14 +121,12 @@ async function loadVehicle(key) {
     S.base = model.box(model.meshes);
     applyExplode(0);
     frame(S.base);
-    computeFrames();
     buildVehicleUI();
     updateSelectionUI();
     $('loading3d').classList.add('done');
-    driveFromScroll();
   } catch (e) {
     console.error(e);
-    $('loading3d').querySelector('span').innerHTML = 'โหลดโมเดลไม่สำเร็จ — <a href="rocket3d/viewer.html" style="text-decoration:underline">เปิด 3D Viewer</a>';
+    $('loading3d').querySelector('span').innerHTML = t('cu.loadErr');
   }
 }
 
@@ -168,16 +134,16 @@ async function loadVehicle(key) {
 function buildVehicleUI() {
   const m = S.model, h = S.base.getSize(new THREE.Vector3()).y;
   document.querySelectorAll('#veh button').forEach(b => b.setAttribute('aria-checked', b.dataset.key === S.veh.key));
+  $('panel-title').textContent = S.veh.label;
   $('sp-model').textContent = S.veh.label;
   $('sp-height').textContent = `${h.toFixed(1)} m`;
   $('sp-parts').textContent = m.partIds().length;
   const box = $('variants');
   box.innerHTML = '';
+  $('variant-sec').hidden = !m.variantNames.length;
   for (const n of m.variantNames) {
     const b = document.createElement('button');
-    b.textContent = n.replace(/^SV_/, '').replace(/_/g, ' ');
-    b.title = S.manifest.variantLabels[n] ?? '';
-    b.setAttribute('role', 'radio'); b.setAttribute('aria-checked', n === m.variant);
+    b.dataset.v = n; b.setAttribute('role', 'radio'); b.setAttribute('aria-checked', n === m.variant);
     b.onclick = async () => {
       await m.setVariant(n);
       box.querySelectorAll('button').forEach(x => x.setAttribute('aria-checked', x === b));
@@ -185,15 +151,23 @@ function buildVehicleUI() {
     };
     box.append(b);
   }
+  renderLabels();
   renderPartsList();
 }
+// text that depends on the language
+function renderLabels() {
+  document.querySelectorAll('#variants button').forEach(b => { b.textContent = t('var.' + b.dataset.v); b.title = t('varL.' + b.dataset.v); });
+  document.querySelectorAll('#swatches button').forEach(b => b.setAttribute('aria-label', t('cu.swatch', { c: b.dataset.c })));
+  const lo = $('loading3d').querySelector('span');
+  if (!$('loading3d').classList.contains('done') && S.veh) lo.textContent = t('cu.loadingV', { name: S.veh.label });
+}
 
-/* ---------------- explode ---------------- */
-function applyExplode(t) {
+/* ---------------- explode (button / slider only) ---------------- */
+function applyExplode(tt) {
   const m = S.model; if (!m) return;
-  m.setExplode(t);
-  $('explode').value = t;
-  $('explode-out').textContent = `${Math.round(t * 100)}%`;
+  m.setExplode(tt);
+  $('explode').value = tt;
+  $('explode-out').textContent = `${Math.round(tt * 100)}%`;
   placeShadow(shadow, m.box(m.meshes.filter(x => x.visible)));
   updateHighlight();
   invalidate();
@@ -207,26 +181,25 @@ function animateTo(to) {
 function stepAnim(now) {
   const a = S.anim; if (!a) return;
   const k = Math.min((now - a.t0) / a.dur, 1);
-  const e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
-  applyExplode(k >= 1 ? a.to : a.from + (a.to - a.from) * e); // ends on the exact value
+  applyExplode(k >= 1 ? a.to : a.from + (a.to - a.from) * ease(k)); // ends on the exact value
   if (k >= 1) { S.anim = null; frame(a.to === 1 ? S.model.box(S.model.meshes) : S.base, true); }
 }
-$('explode-btn').onclick = () => { if (S.model) { S.manual = true; animateTo(S.model.t < 0.5 ? 1 : 0); } };
+$('explode-btn').onclick = () => { if (S.model) animateTo(S.model.t < 0.5 ? 1 : 0); };
 $('explode').addEventListener('input', e => {
-  S.anim = null; controls.autoRotate = false; S.manual = true;
+  S.anim = null; controls.autoRotate = false;
   applyExplode(+e.target.value);
   $('explode-btn').setAttribute('aria-pressed', +e.target.value >= 0.5);
 });
 $('explode').addEventListener('change', () => frame(S.model.t > 0.05 ? S.model.box(S.model.meshes) : S.base, true));
 
-/* ---------------- parts drawer / selection ---------------- */
+/* ---------------- parts list / selection ---------------- */
 function renderPartsList() {
   const ids = S.model.partIds().sort(), q = $('parts-search').value.trim().toLowerCase(), ul = $('parts-list');
   $('parts-count').textContent = `(${ids.length})`;
   ul.innerHTML = '';
   for (const id of ids) {
-    const p = S.manifest.get(id), label = p?.name_th ?? id;
-    if (q && !`${id} ${label} ${p?.name_en ?? ''}`.toLowerCase().includes(q)) continue;
+    const p = S.manifest.get(id), label = partName(p, id);
+    if (q && !`${id} ${p?.name_th ?? ''} ${p?.name_en ?? ''}`.toLowerCase().includes(q)) continue;
     const li = document.createElement('li'), b = document.createElement('button');
     b.dataset.id = id; b.innerHTML = '<b></b><code></code>';
     b.firstChild.textContent = label; b.lastChild.textContent = id;
@@ -236,12 +209,6 @@ function renderPartsList() {
   }
 }
 $('parts-search').addEventListener('input', renderPartsList);
-function setDrawer(open) {
-  $('drawer').hidden = !open;
-  $('open-parts').setAttribute('aria-expanded', open);
-}
-$('open-parts').onclick = () => setDrawer($('drawer').hidden);
-$('close-drawer').onclick = () => setDrawer(false);
 
 function select(pid, mesh) {
   const m = S.model;
@@ -250,23 +217,23 @@ function select(pid, mesh) {
   if (pid) controls.autoRotate = false;
   updateSelectionUI();
 }
+const accHtml = acc => (acc ? `<span class="acc" data-l="${acc}">${t('accn.' + acc)}</span>` : `<span class="acc">${t('cu.unknown')}</span>`);
 function updateSelectionUI() {
   const sel = S.sel, p = sel && S.manifest.get(sel.pid), chip = $('chip');
   document.querySelectorAll('#parts-list button').forEach(b => b.classList.toggle('on', !!sel && b.dataset.id === sel.pid));
   chip.hidden = !sel;
-  $('info').hidden = !sel;
+  $('info').hidden = !sel; $('info-empty').hidden = !!sel;
   if (sel) {
-    const acc = p?.accuracy;
-    chip.innerHTML = `<span></span><code></code>${acc ? `<span class="acc" data-l="${acc}">${acc}</span>` : ''}`;
-    chip.firstChild.textContent = p?.name_th ?? sel.pid; chip.children[1].textContent = sel.pid;
-    $('d-th').textContent = p?.name_th ?? sel.pid;
-    $('d-en').textContent = p?.name_en ?? 'ไม่มีข้อมูลใน parts_manifest.json';
+    chip.innerHTML = `<span></span><code></code>${p?.accuracy ? accHtml(p.accuracy) : ''}`;
+    chip.firstChild.textContent = partName(p, sel.pid); chip.children[1].textContent = sel.pid;
+    $('d-th').textContent = partName(p, sel.pid);
+    $('d-en').textContent = p ? partNameAlt(p) : t('cu.noManifest');
     $('d-id').textContent = sel.pid;
-    $('d-acc').innerHTML = acc ? `<span class="acc" data-l="${acc}">${acc} · ${ACC_TH[acc] ?? ''}</span>` : '<span class="acc">ไม่ทราบ</span>';
+    $('d-acc').innerHTML = `${accHtml(p?.accuracy)} <small>${p?.accuracy ? t('acc.' + p.accuracy) : ''}</small>`;
     $('d-mat').textContent = p?.material && p.material !== '-' ? p.material : (sel.mesh?._baseMat?.name ?? '-');
     const z = sel.mesh && S.model.zoneOf(sel.mesh);
-    $('d-zone').textContent = z ? `${z} (${S.manifest.paintZones[z]?.label_th ?? ''})` : '-';
-    $('isolate').textContent = S.model.isolated === sel.pid ? 'ยกเลิก Isolate' : 'Isolate';
+    $('d-zone').textContent = z ? `${z}${zoneLabel(S.manifest, z) ? ` (${zoneLabel(S.manifest, z)})` : ''}` : '-';
+    $('isolate').textContent = S.model.isolated === sel.pid ? t('cu.unisolate') : t('cu.isolate');
   }
   updatePaintUI(); updateHighlight();
 }
@@ -314,12 +281,17 @@ canvas.addEventListener('pointermove', e => {
 
 /* ---------------- paint ---------------- */
 function updatePaintUI() {
-  const sel = S.sel, wrap = $('paint'), hint = $('paint-hint');
-  if (!sel?.mesh) { wrap.classList.add('off'); hint.textContent = 'เลือกชิ้นส่วนก่อน'; return; }
-  const m = S.model, p = S.manifest.get(sel.pid);
-  if (!m.isPaintable(sel.mesh)) { wrap.classList.add('off'); hint.textContent = `${p?.name_th ?? sel.pid}: เปลี่ยนสีไม่ได้`; hint.title = `วัสดุ ${sel.mesh._baseMat?.name ?? '?'} ไม่ใช่ MAT_PAINT_`; return; }
-  wrap.classList.remove('off'); hint.title = '';
-  hint.textContent = p?.name_th ?? sel.pid;
+  const sel = S.sel, wrapEl = $('paint'), hint = $('paint-hint');
+  hint.title = '';
+  if (!sel?.mesh) { wrapEl.classList.add('off'); hint.textContent = t('cu.paint.none'); return; }
+  const m = S.model, p = S.manifest.get(sel.pid), name = partName(p, sel.pid);
+  if (!m.isPaintable(sel.mesh)) {
+    wrapEl.classList.add('off'); hint.textContent = t('cu.paint.no', { name });
+    hint.title = t('cu.paint.why', { m: sel.mesh._baseMat?.name ?? '?' });
+    return;
+  }
+  wrapEl.classList.remove('off');
+  hint.textContent = name;
   const cur = m.colorOf(sel.mesh) ?? m.defaultColor(sel.mesh);
   $('color').value = cur;
   document.querySelectorAll('#swatches button').forEach(b => b.classList.toggle('on', b.dataset.c === cur));
@@ -332,20 +304,21 @@ function paint(hex) {
 }
 for (const c of SWATCHES) {
   const b = document.createElement('button');
-  b.dataset.c = c; b.style.setProperty('--sw', c); b.setAttribute('aria-label', `สี ${c}`);
+  b.dataset.c = c; b.style.setProperty('--sw', c);
   b.onclick = () => paint(c);
   $('swatches').append(b);
 }
 let paintRaf = 0;
 $('color').addEventListener('input', e => { const v = e.target.value; cancelAnimationFrame(paintRaf); paintRaf = requestAnimationFrame(() => paint(v)); });
 $('reset-part').onclick = () => { if (S.sel) { S.model.resetPaint(S.sel.pid); saveState(S.veh.key, { paint: S.model.exportPaint() }); updatePaintUI(); invalidate(); } };
+$('reset-all').onclick = () => { S.model.resetPaint(); saveState(S.veh.key, { paint: S.model.exportPaint() }); updatePaintUI(); invalidate(); };
 
 /* ---------------- vehicle switch (list + cards) ---------------- */
 VEHICLES.forEach((v, i) => {
   const li = document.createElement('li'), b = document.createElement('button');
   b.dataset.key = v.key; b.setAttribute('role', 'radio'); b.setAttribute('aria-checked', 'false');
-  b.innerHTML = `<span>00${i + 1}</span><small></small>`;
-  b.lastChild.textContent = v.label;
+  b.innerHTML = `<span>00${i + 1}</span><b></b>`;
+  b.lastChild.textContent = v.label; b.lastChild.style.fontWeight = 'inherit';
   b.onclick = () => { if (S.veh?.key !== v.key) loadVehicle(v.key); };
   li.append(b); $('veh').append(li);
 });
@@ -355,7 +328,16 @@ document.querySelectorAll('.rk [data-key]').forEach(el => el.addEventListener('c
   if (S.veh?.key !== key) loadVehicle(key);
 }));
 
+/* ---------------- language ---------------- */
+onLang(() => {
+  if (!S.model) return;
+  renderLabels();
+  renderPartsList();
+  updateSelectionUI();
+});
+
 /* ---------------- boot ---------------- */
+const whenNear = el => new Promise(res => { const io = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { io.disconnect(); res(); } }, { rootMargin: '500px' }); io.observe(el); });
 async function boot() {
   try {
     setup();
@@ -369,8 +351,8 @@ async function boot() {
   } catch (e) {
     console.error(e);
     $('loading3d').querySelector('i').hidden = true;
-    $('loading3d').querySelector('span').innerHTML = 'เบราว์เซอร์นี้แสดง 3D ไม่ได้ — <a href="rocket3d/viewer.html" style="text-decoration:underline">ลองเปิด 3D Viewer</a>';
+    $('loading3d').querySelector('span').innerHTML = t('cu.webgl');
   }
 }
 boot();
-window.__hero = { S, controls, select, applyExplode, loadVehicle, setDrawer };
+window.__hero = { S, controls, select, applyExplode, loadVehicle };

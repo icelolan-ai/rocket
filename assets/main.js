@@ -1,3 +1,6 @@
+import { initLangButtons, t } from '../rocket3d/i18n.js';
+initLangButtons();
+
 // Reveal on scroll
 const io = new IntersectionObserver(es => es.forEach(e => e.isIntersecting && e.target.classList.add('in')), { threshold: .12 });
 document.querySelectorAll('.reveal').forEach(s => io.observe(s));
@@ -21,9 +24,9 @@ form.addEventListener('submit', e => {
   e.preventDefault();
   const s = form.querySelector('.status');
   if (!form.name.value.trim() || !form.email.value || !form.email.validity.valid) {
-    s.textContent = 'Please enter your name and a valid e-mail.';
+    s.textContent = t('ct.err');
     return;
   }
-  s.textContent = 'Thank you — message received.';
+  s.textContent = t('ct.ok');
   form.reset();
 });

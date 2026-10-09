@@ -22,6 +22,8 @@ button{cursor:pointer;border:0;background:none}
 .tab{padding:9px 18px;border-radius:12px;border:1px solid var(--line);font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;transition:.25s}
 .tab.on{background:var(--accent);border-color:var(--accent);color:#000}
 .tab:not(.on):hover{border-color:#fff}
+.lang{display:inline-flex;gap:6px;align-items:center;padding:8px 12px;border:1px solid var(--line);border-radius:12px;font-size:.6rem;letter-spacing:.16em;color:var(--mut);transition:.2s}
+.lang:hover{border-color:#fff}.lang i{font-style:normal;opacity:.4}.lang .on{color:var(--accent);font-weight:600}
 .back{font-size:.6rem;letter-spacing:.22em;text-transform:uppercase;color:var(--mut)}
 .back:hover{color:var(--accent)}
 

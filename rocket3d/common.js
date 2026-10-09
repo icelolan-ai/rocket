@@ -7,7 +7,6 @@ export const VEHICLES = [
   { key: 'sv', code: 'SV', label: 'Saturn V', note: '110.6 m', file: 'SV_full', variant: 'SV_AS506' },
 ];
 export const SWATCHES = ['#f2f2ef', '#151515', '#e6f23a', '#e2674a', '#3b82c4', '#2f9e6b', '#c9a23f', '#8a8a85'];
-export const ACC_TH = { documented: 'มีแหล่งอ้างอิง', 'standard-based': 'ตามมาตรฐาน', representative: 'ค่าประมาณ' };
 
 // paint/variant/slot choices are shared between the home page and the viewer
 const storeKey = k => `rocket3d:v1:${k}`;

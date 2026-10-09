@@ -3,6 +3,7 @@
 // nodes in the same parent-local frame as the nodes they replace (checked by bbox).
 import * as THREE from 'three';
 import { loadGLB } from './model.js';
+import { t, partName } from './i18n.js';
 
 const TOL = 0.15;
 const base = f => (f || '').split('/').pop().replace(/\.glb$/, '');
@@ -16,7 +17,7 @@ export function compareBoxes(a, b) {
   const diffs = ['x', 'y', 'z'].map(k => Math.abs(sb[k] - sa[k]) / Math.max(sa[k], 1e-6));
   const worst = Math.max(...diffs);
   return worst > TOL
-    ? `ขนาดต่างจากชิ้นเดิม ${(worst * 100).toFixed(0)}% (เกิน 15%) — ตำแหน่ง/ขนาดอาจไม่พอดีกับ socket` : null;
+    ? t('s.size', { p: (worst * 100).toFixed(0) }) : null;
 }
 
 function boxOfNodes(nodes) {
@@ -33,19 +34,19 @@ function state(model, slotId) {
 // describes what can be done for a slot in this model; never guesses
 export function slotInfo(manifest, model, slotId) {
   const def = manifest.slots[slotId];
-  if (!def) return { ok: false, reason: 'ไม่พบ slot นี้ใน manifest' };
-  if (slotId === 'SLOT_SV_PATTERN') return { ok: false, reason: 'slot นี้เป็นการสลับวัสดุ/ลายของ Saturn V — ใช้เมนู Variant (SV_AS506 / SV_AS501) ด้านซ้าย' };
-  const options = def.variants.map(id => ({ id, label: id ? `${manifest.get(id)?.name_th ?? id} (${id})` : 'ไม่ติดตั้ง' }));
+  if (!def) return { ok: false, reason: t('s.noSlot') };
+  if (slotId === 'SLOT_SV_PATTERN') return { ok: false, reason: t('s.sv') };
+  const options = def.variants.map(id => ({ id, label: id ? `${partName(manifest.get(id), id)} (${id})` : t('s.none') }));
   const real = options.filter(o => o.id);
   const st = state(model, slotId);
   const live = [...model.nodesById.values()].flat().filter(n => n.userData.slot === slotId);
-  if (!st && !live.length) return { ok: false, reason: 'ลำที่เปิดอยู่ไม่มีชิ้นส่วนใน slot นี้ในไฟล์ GLB' };
+  if (!st && !live.length) return { ok: false, reason: t('s.empty') };
   if (options.length < 2) {
-    return { ok: false, reason: `slot นี้มีตัวเลือกเดียว (${real.map(o => o.id).join(', ')}) ในไฟล์ที่ให้มา จึงสลับไม่ได้ — แจ้งเจ้าของไปป์ไลน์หากต้องการตัวเลือกเพิ่ม` };
+    return { ok: false, reason: t('s.single', { ids: real.map(o => o.id).join(', ') }) };
   }
   const defBase = base(manifest.get(def.default)?.files?.web);
   const missing = real.filter(o => o.id !== def.default && base(manifest.get(o.id)?.files?.web) === defBase);
-  if (missing.length) return { ok: false, reason: `ไม่มีไฟล์ GLB แยกสำหรับ ${missing.map(m => m.id).join(', ')} จึงสลับไม่ได้` };
+  if (missing.length) return { ok: false, reason: t('s.nofile', { ids: missing.map(m => m.id).join(', ') }) };
   return { ok: true, options, current: st?.current ?? def.default };
 }
 
@@ -71,7 +72,7 @@ export async function applySlot(manifest, model, slotId, targetId) {
       gltf.scene.traverse(o => { if (o.userData?.part_id && manifest.normId(o.userData.part_id) === targetId && !o.isInstancedMesh) found.push(o); });
       // keep only top-most matches
       const top = found.filter(o => !found.some(p => p !== o && p.getObjectById(o.id)));
-      if (!top.length) throw new Error(`ไม่พบชิ้น ${targetId} ในไฟล์ ${file}.glb`);
+      if (!top.length) throw new Error(t('s.nopart', { id: targetId, file }));
       st.sets[targetId] = top.map(o => o.clone(true));
     }
   }
@@ -99,7 +100,7 @@ export function placeTarget(manifest, vehicle, galleryModel) {
 
 export function placeModule(manifest, vehicle, galleryModel) {
   const target = placeTarget(manifest, vehicle, galleryModel);
-  if (!target) throw new Error('ไม่มีตำแหน่งที่เข้ากันในลำที่เปิดอยู่');
+  if (!target) throw new Error(t('s.notarget'));
   const rootId = galleryModel.rootId;
   const t = vehicle.t;
   vehicle.setExplode(0);
