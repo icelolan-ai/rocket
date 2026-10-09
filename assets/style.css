@@ -315,3 +315,7 @@ html.loading:not(.ld-reveal) .word .l b{animation-play-state:paused}
   .cta{bottom:20%;padding:18px 34px}
 }
 @media (prefers-reduced-motion:reduce){.story{height:auto}.stage.intro{position:relative;height:100svh}.cap,.dots{opacity:1}.cta.on{animation:none}}
+
+/* Customize page: blue UI (matches the blue loader); home keeps orange */
+body.app-page{--accent:#35b8e8}
+body.app-page input[type=range]::-webkit-slider-thumb,body.app-page input[type=range]::-moz-range-thumb{box-shadow:0 0 0 4px rgba(53,184,232,.25)}

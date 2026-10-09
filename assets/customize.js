@@ -47,7 +47,7 @@ function setup() {
   controls.addEventListener('end', () => { S.idleAt = performance.now(); });
   controls.addEventListener('change', () => { keepTargetInside(controls, camera, S.limit); invalidate(); });
   canvas.style.touchAction = 'pan-y'; // vertical one-finger swipes scroll the page; pinch / drag go to the 3D view
-  boxHelper = new THREE.Box3Helper(new THREE.Box3(), 0xff6a1f);
+  boxHelper = new THREE.Box3Helper(new THREE.Box3(), 0x35b8e8);
   boxHelper.visible = false;
   shadow = makeShadow();
   scene.add(boxHelper, shadow);

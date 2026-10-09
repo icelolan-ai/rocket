@@ -1,7 +1,7 @@
-/* Tokens match ../assets/style.css (dark teal + orange accent) */
+/* Tokens match ../assets/style.css (dark teal + blue accent) */
 :root{
   --bg:#080d11; --panel:rgba(14,23,29,.92); --field:rgba(255,255,255,.07); --field-2:rgba(255,255,255,.14);
-  --line:rgba(255,255,255,.14); --text:#f2f5f6; --mut:#8d9ca3; --accent:#ff6a1f;
+  --line:rgba(255,255,255,.14); --text:#f2f5f6; --mut:#8d9ca3; --accent:#35b8e8;
   --font:'Jost','Noto Sans Thai',system-ui,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}

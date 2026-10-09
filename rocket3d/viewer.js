@@ -49,7 +49,7 @@ controls.addEventListener('change', () => { keepTargetInside(controls, camera, l
 const touchMode = () => { canvas.style.touchAction = matchMedia('(max-width: 760px)').matches ? 'pan-y' : 'none'; };
 touchMode(); addEventListener('resize', touchMode);
 controls.listenToKeyEvents(canvas); // arrow keys pan (canvas is focusable)
-const boxHelper = new THREE.Box3Helper(new THREE.Box3(), 0xff6a1f);
+const boxHelper = new THREE.Box3Helper(new THREE.Box3(), 0x35b8e8);
 const shadow = makeShadow();
 scene.add(shadow);
 boxHelper.visible = false;
