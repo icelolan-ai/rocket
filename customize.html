@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Customize — Rocket 3D</title>
+<meta name="description" content="Customize Falcon 9, Falcon Heavy and Saturn V in 3D: disassemble, recolor and inspect every part">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600&family=Noto+Sans+Thai:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<script type="importmap">
+{ "imports": {
+  "three": "./rocket3d/vendor/three/build/three.module.min.js",
+  "three/addons/": "./rocket3d/vendor/three/examples/jsm/"
+} }
+</script>
+</head>
+<body class="app-page" data-stars="off">
+<i class="progress" id="progress" aria-hidden="true"></i>
+<canvas id="stars" aria-hidden="true"></canvas>
+<header class="nav" id="nav">
+  <a class="logo" href="index.html" data-i18n-attr="aria-label:nav.home.aria"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 2c3 3 4.5 7 4.5 11l-2 3h-5l-2-3C7.5 9 9 5 12 2Zm-2 15h4l-1 5h-2l-1-5Z" fill="currentColor"/></svg><span>ROCKET</span></a>
+  <nav class="links" id="nav-links" data-i18n-attr="aria-label:nav.main">
+    <a href="index.html" data-i18n="nav.home">Home</a>
+    <a href="customize.html" aria-current="page" data-i18n="nav.customize">Customize</a>
+    <a href="rockets.html" data-i18n="nav.rockets">Rockets</a>
+    <a href="features.html" data-i18n="nav.features">Features</a>
+    <a href="contact.html" data-i18n="nav.contact">Contact</a>
+  </nav>
+  <div class="nav-right">
+    <button class="lang" data-lang-btn type="button" aria-label="Language"><span data-l="en" class="on">EN</span><i>/</i><span data-l="th">TH</span></button>
+    <a class="btn-outline" href="rocket3d/viewer.html" data-i18n="nav.viewer">Open viewer</a>
+    <button class="menu" id="menu-btn" data-i18n-attr="aria-label:nav.menu" aria-label="Menu" aria-expanded="false" aria-controls="nav-links"><i></i><i></i><i></i></button>
+  </div>
+</header>
+
+
+<!-- ============ CUSTOMIZE (3D left, options right) ============ -->
+<section class="hero" data-i18n-attr="aria-label:cu.aria">
+  <div class="hero-stage" id="hero-stage">
+    <div class="floor" aria-hidden="true"></div>
+    <canvas id="gl3d" tabindex="0" data-i18n-attr="aria-label:cu.canvas"></canvas>
+    <div class="chip" id="chip" hidden></div>
+    <div class="zoom" role="group" data-i18n-attr="aria-label:cu.zoomHint">
+      <button id="z-in" type="button" data-i18n-attr="aria-label:cu.zoomIn,title:cu.zoomIn">+</button>
+      <button id="z-out" type="button" data-i18n-attr="aria-label:cu.zoomOut,title:cu.zoomOut">−</button>
+      <button id="z-focus" type="button" data-i18n-attr="aria-label:cu.focus,title:cu.focus"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 3v4M12 17v4M3 12h4M17 12h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+      <button id="z-fit" type="button" data-i18n-attr="aria-label:cu.fit,title:cu.fit"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
+    <p class="zoom-hint" data-i18n="cu.zoomHint">Scroll or pinch to zoom · double-click a part to focus</p>
+    <dl class="specs" data-i18n-attr="aria-label:spec.aria">
+      <div><dt data-i18n="spec.model">Model</dt><dd id="sp-model">–</dd></div>
+      <div><dt data-i18n="spec.height">Height</dt><dd id="sp-height">–</dd></div>
+      <div><dt data-i18n="spec.parts">Parts</dt><dd id="sp-parts">–</dd></div>
+    </dl>
+    <div class="loading" id="loading3d" role="status"><i></i><span data-i18n="cu.loading">Loading 3D model…</span></div>
+  </div>
+
+  <aside class="panel" id="panel">
+    <header class="panel-head"><p class="kicker" data-i18n="cu.kicker">Customize</p><h2 id="panel-title">Falcon 9</h2></header>
+
+    <section>
+      <h3 data-i18n="cu.rocket">Rocket</h3>
+      <ol class="veh" id="veh" role="radiogroup" data-i18n-attr="aria-label:cu.rocket.aria"></ol>
+    </section>
+
+    <section id="variant-sec">
+      <h3 data-i18n="cu.variant">Variant</h3>
+      <div class="vchips" id="variants" role="radiogroup" data-i18n-attr="aria-label:cu.variant"></div>
+    </section>
+
+    <section>
+      <h3 data-i18n="cu.explode">Disassemble</h3>
+      <div class="explode">
+        <button class="play" id="explode-btn" data-i18n-attr="aria-label:cu.explode.btn" aria-pressed="false">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 3v6M12 15v6M9 6l3-3 3 3M9 18l3 3 3-3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <input id="explode" type="range" min="0" max="1" step="0.001" value="0" data-i18n-attr="aria-label:cu.explode.slider">
+        <output id="explode-out">0%</output>
+      </div>
+    </section>
+
+    <section class="paint off" id="paint">
+      <h3><span data-i18n="cu.color">Color</span> <small id="paint-hint" data-i18n="cu.paint.none">Select a part first</small></h3>
+      <div class="swatches" id="swatches" data-i18n-attr="aria-label:cu.swatches"></div>
+      <label class="picker"><span data-i18n="cu.custom">Custom color</span> <input type="color" id="color" value="#f2f2ef" data-i18n-attr="aria-label:cu.custom"></label>
+      <div class="row">
+        <button class="mini" id="reset-part" data-i18n="cu.resetPart">Reset part</button>
+        <button class="mini" id="reset-all" data-i18n="cu.resetAll">Reset all</button>
+      </div>
+    </section>
+
+    <section class="parts-sec">
+      <h3><span data-i18n="cu.parts">Parts</span> <small id="parts-count"></small></h3>
+      <input id="parts-search" type="search" data-i18n-attr="placeholder:cu.search,aria-label:cu.search">
+      <ul class="plist" id="parts-list"></ul>
+    </section>
+
+    <section class="info" id="info-sec">
+      <h3 data-i18n="cu.selected">Selected part</h3>
+      <p class="msg" id="info-empty" data-i18n="cu.selectHint">Click a part on the model or pick one from the list.</p>
+      <div id="info" hidden>
+        <p class="name-th" id="d-th"></p><p class="name-en" id="d-en"></p>
+        <dl class="kv">
+          <dt data-i18n="kv.id">part id</dt><dd id="d-id"></dd>
+          <dt data-i18n="kv.acc">accuracy</dt><dd id="d-acc"></dd>
+          <dt data-i18n="kv.mat">material</dt><dd id="d-mat"></dd>
+          <dt data-i18n="kv.zone">paint zone</dt><dd id="d-zone"></dd>
+        </dl>
+        <div class="row"><button class="mini" id="isolate" data-i18n="cu.isolate">Isolate</button><button class="mini" id="showall" data-i18n="cu.showAll">Show all</button></div>
+      </div>
+    </section>
+  </aside>
+</section>
+
+<script type="module" src="assets/main.js"></script>
+<script type="module" src="assets/motion.js"></script>
+<script type="module" src="assets/customize.js"></script>
+</body>
+</html>

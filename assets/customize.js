@@ -13,7 +13,6 @@ const stage = $('hero-stage'), canvas = $('gl3d');
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 const S = { manifest: null, veh: null, model: null, base: null, sel: null, token: 0, dirty: true, anim: null, visible: true, idleAt: 0 };
-const labEl = document.querySelector('#lab .hero');
 const DIR0 = new THREE.Vector3(0.5, 0.06, 1).normalize();
 let renderer, scene, camera, controls, boxHelper, shadow;
 
@@ -84,16 +83,6 @@ function frame(box, keepDir = false) {
   invalidate();
 }
 const ease = k => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
-
-// the lab fades/slides in as it enters the viewport (purely visual, does not affect scrolling)
-function enterFx() {
-  const r = $('lab').getBoundingClientRect();
-  const enter = Math.min(Math.max((innerHeight - r.top) / (innerHeight * 0.7), 0), 1);
-  labEl.style.setProperty('--enter', reduceMotion ? 1 : enter.toFixed(3));
-}
-let scrollQueued = false;
-addEventListener('scroll', () => { if (scrollQueued) return; scrollQueued = true; requestAnimationFrame(() => { scrollQueued = false; enterFx(); }); }, { passive: true });
-enterFx();
 
 function loop(now) {
   requestAnimationFrame(loop);
@@ -335,7 +324,7 @@ $('color').addEventListener('input', e => { const v = e.target.value; cancelAnim
 $('reset-part').onclick = () => { if (S.sel) { S.model.resetPaint(S.sel.pid); saveState(S.veh.key, { paint: S.model.exportPaint() }); updatePaintUI(); invalidate(); } };
 $('reset-all').onclick = () => { S.model.resetPaint(); saveState(S.veh.key, { paint: S.model.exportPaint() }); updatePaintUI(); invalidate(); };
 
-/* ---------------- vehicle switch (list + cards) ---------------- */
+/* ---------------- vehicle switch ---------------- */
 VEHICLES.forEach((v, i) => {
   const li = document.createElement('li'), b = document.createElement('button');
   b.dataset.key = v.key; b.setAttribute('role', 'radio'); b.setAttribute('aria-checked', 'false');
@@ -344,12 +333,6 @@ VEHICLES.forEach((v, i) => {
   b.onclick = () => { if (S.veh?.key !== v.key) loadVehicle(v.key); };
   li.append(b); $('veh').append(li);
 });
-document.querySelectorAll('.rk [data-key]').forEach(el => el.addEventListener('click', () => {
-  const key = el.dataset.key;
-  document.getElementById('lab').scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' });
-  if (S.veh?.key !== key) loadVehicle(key);
-}));
-
 /* ---------------- language ---------------- */
 onLang(() => {
   if (!S.model) return;

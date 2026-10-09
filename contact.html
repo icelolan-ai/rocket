@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Rocket — Explore launch vehicles in 3D</title>
-<meta name="description" content="Explore, disassemble and recolor Falcon 9, Falcon Heavy and Saturn V in 3D">
+<title>Contact — Rocket 3D</title>
+<meta name="description" content="Get in touch about the 3D models or request another rocket">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600&family=Noto+Sans+Thai:wght@300;400;500&display=swap" rel="stylesheet">
@@ -22,11 +22,11 @@
 <header class="nav" id="nav">
   <a class="logo" href="index.html" data-i18n-attr="aria-label:nav.home.aria"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 2c3 3 4.5 7 4.5 11l-2 3h-5l-2-3C7.5 9 9 5 12 2Zm-2 15h4l-1 5h-2l-1-5Z" fill="currentColor"/></svg><span>ROCKET</span></a>
   <nav class="links" id="nav-links" data-i18n-attr="aria-label:nav.main">
-    <a href="index.html" aria-current="page" data-i18n="nav.home">Home</a>
+    <a href="index.html" data-i18n="nav.home">Home</a>
     <a href="customize.html" data-i18n="nav.customize">Customize</a>
     <a href="rockets.html" data-i18n="nav.rockets">Rockets</a>
     <a href="features.html" data-i18n="nav.features">Features</a>
-    <a href="contact.html" data-i18n="nav.contact">Contact</a>
+    <a href="contact.html" aria-current="page" data-i18n="nav.contact">Contact</a>
   </nav>
   <div class="nav-right">
     <button class="lang" data-lang-btn type="button" aria-label="Language"><span data-l="en" class="on">EN</span><i>/</i><span data-l="th">TH</span></button>
@@ -36,28 +36,32 @@
 </header>
 
 
-<!-- ============ INTRO ============ -->
-<section class="intro" id="top">
-  <div class="intro-body">
-    <p class="eyebrow" data-i18n="intro.eyebrow">Launch vehicles in 3D</p>
-    <h1 class="word" id="word" aria-label="ROCKET"><span class="l" style="--i:0"><b>R</b></span><span class="l" style="--i:1"><b>O</b></span><span class="l" style="--i:2"><b>C</b></span><span class="l" style="--i:3"><b>K</b></span><span class="l" style="--i:4"><b>E</b></span><span class="l" style="--i:5"><b>T</b></span></h1>
-    <p class="sub" data-i18n="intro.sub">Explore, disassemble and recolor launch vehicles</p>
-    <a class="go" href="customize.html"><span data-i18n="intro.go">Let's explore</span> <span aria-hidden="true">→</span></a>
-  </div>
-  <ul class="social intro-social" aria-label="Social">
-    <li><a href="#" aria-label="Facebook">f</a></li>
-    <li><a href="#" aria-label="Instagram">in</a></li>
-    <li><a href="#" aria-label="Twitter">t</a></li>
-  </ul>
-  <a class="scroll-cue" href="customize.html"><span data-i18n="intro.scroll">Scroll</span><i></i></a>
-  <div class="stats" data-i18n-attr="aria-label:stat.aria">
-    <div><b id="st-parts">0</b><span data-i18n="stat.parts">Parts in manifest</span></div>
-    <div><b data-count="3">0</b><span data-i18n="stat.rockets">Launch vehicles</span></div>
-    <div><b data-count="24">0</b><span data-i18n="stat.modules">3D modules</span></div>
-    <div><b id="st-docs">–</b><span data-i18n="stat.docs">Documented parts</span></div>
+<main class="page">
+<!-- ============ CONTACT ============ -->
+<section class="contact reveal" id="contact">
+  <div class="contact-grid">
+    <div class="info">
+      <p class="kicker" data-i18n="ct.kicker">Get in touch</p>
+      <h2 data-i18n="ct.h">TALK TO US</h2>
+      <p class="lead" data-i18n="ct.lead">Interested in the 3D models or want another rocket added? Send us a message.</p>
+      <dl>
+        <dt data-i18n="ct.addr">Address</dt><dd>Bangkok, Thailand</dd>
+        <dt data-i18n="ct.phone">Phone</dt><dd>+66 80 123 45 67</dd>
+        <dt data-i18n="ct.mail">E-mail</dt><dd>hello@rocket.example</dd>
+      </dl>
+    </div>
+    <form class="form" id="form" novalidate>
+      <label><input name="name" required data-i18n-attr="placeholder:ct.name,aria-label:ct.name"></label>
+      <label><input name="phone" type="tel" data-i18n-attr="placeholder:ct.tel,aria-label:ct.tel"></label>
+      <label><input name="email" type="email" required data-i18n-attr="placeholder:ct.email,aria-label:ct.email"></label>
+      <label><textarea name="message" rows="3" data-i18n-attr="placeholder:ct.msg,aria-label:ct.msg"></textarea></label>
+      <button type="submit" class="btn-solid" data-i18n="ct.send">Send message</button>
+      <p class="status" role="status" aria-live="polite"></p>
+    </form>
   </div>
 </section>
 
+</main>
 
 <footer class="foot">
   <a class="logo" href="index.html" data-i18n-attr="aria-label:nav.home.aria"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 2c3 3 4.5 7 4.5 11l-2 3h-5l-2-3C7.5 9 9 5 12 2Zm-2 15h4l-1 5h-2l-1-5Z" fill="currentColor"/></svg><span>ROCKET</span></a>
