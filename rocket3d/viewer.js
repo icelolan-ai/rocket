@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { Manifest, loadModel, unloadGLB } from './model.js';
-import { VEHICLES, SWATCHES, loadSaved, saveState, makeShadow, placeShadow } from './common.js';
+import { VEHICLES, SWATCHES, loadSaved, saveState, makeShadow, placeShadow, zoomStep, focusBox } from './common.js';
 import { t, partName, partNameAlt, zoneLabel, onLang, initLangButtons, getLang } from './i18n.js';
 import { slotInfo, applySlot, placeTarget, placeModule } from './slots.js';
 
@@ -40,6 +40,9 @@ const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 1000);
 const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
 controls.dampingFactor = 0.12;
+controls.zoomToCursor = true; // wheel / pinch zooms towards the cursor so small parts can be inspected
+controls.zoomSpeed = 1.2;
+controls.screenSpacePanning = true;
 controls.addEventListener('change', invalidate);
 // on phones the stage is tall: let vertical swipes scroll the page instead of trapping them
 const touchMode = () => { canvas.style.touchAction = matchMedia('(max-width: 760px)').matches ? 'pan-y' : 'none'; };
@@ -71,14 +74,23 @@ function frame(box) {
   const dist = (Math.max(sz.y / 2 / tan, w / 2 / (tan * camera.aspect)) + w / 2) * 1.15;
   const dir = new THREE.Vector3(0.55, 0.18, 1).normalize();
   camera.position.copy(c).addScaledVector(dir, dist);
-  camera.near = dist / 200; camera.far = dist * 40;
+  camera.near = 0.2; camera.far = dist * 40;
   camera.updateProjectionMatrix();
   controls.target.copy(c);
-  controls.minDistance = dist * 0.04;
+  controls.minDistance = 1.5;
   controls.maxDistance = dist * 5;
   controls.update();
   invalidate();
 }
+function selBox() {
+  const sel = S.sel, m = S.sel?.model;
+  if (!sel || !m || sel.model !== cur()) return null;
+  return m.box(selectionMeshes(sel).filter(x => x.visible));
+}
+$('z-in').onclick = () => zoomStep(camera, controls, 0.6, invalidate);
+$('z-out').onclick = () => zoomStep(camera, controls, 1.6, invalidate);
+$('z-fit').onclick = () => { const m = cur(); if (m) focusBox(camera, controls, m.box(m.meshes), invalidate, 1.15); };
+$('z-focus').onclick = () => { const b = selBox(); b ? focusBox(camera, controls, b, invalidate) : $('z-fit').onclick(); };
 function resetView() {
   const m = cur();
   if (m) { frame(m.box(m.meshes)); }
@@ -311,7 +323,7 @@ function pickAt(ev) {
   }
   return null;
 }
-let down = null;
+let down = null, lastTap = null;
 canvas.addEventListener('pointerdown', e => { down = { x: e.clientX, y: e.clientY, t: performance.now() }; });
 canvas.addEventListener('pointerup', e => {
   if (!down) return;
@@ -320,6 +332,12 @@ canvas.addEventListener('pointerup', e => {
   if (moved > 5 || dt > 600) return; // it was a camera drag
   const h = pickAt(e);
   h ? selectPart(h.pid, h.mesh) : clearSelection();
+  // double-click / double-tap focuses the part (or fits everything on empty space)
+  const now = performance.now();
+  if (lastTap && now - lastTap.t < 350 && Math.hypot(e.clientX - lastTap.x, e.clientY - lastTap.y) < 24) {
+    lastTap = null;
+    h ? $('z-focus').onclick() : $('z-fit').onclick();
+  } else lastTap = { t: now, x: e.clientX, y: e.clientY };
 });
 let hoverQueued = false;
 canvas.addEventListener('pointermove', e => {

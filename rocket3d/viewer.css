@@ -71,6 +71,9 @@ select:focus,input[type=search]:focus{border-color:var(--accent)}
 .hud-top{position:absolute;left:14px;top:14px;display:flex;gap:6px;z-index:3}
 .hud-top .btn{background:rgba(10,16,20,.7);backdrop-filter:blur(8px)}
 .hud-top .btn:hover{background:var(--accent);color:#000}
+.zoom{position:absolute;right:12px;bottom:44px;display:grid;gap:6px;z-index:3}
+.zoom button{width:40px;height:40px;border-radius:12px;background:rgba(10,16,20,.8);backdrop-filter:blur(8px);border:1px solid var(--line);display:grid;place-items:center;font-size:1.2rem;line-height:1;transition:.2s}
+.zoom button:hover{background:var(--accent);border-color:var(--accent);color:#000}
 .approx{position:absolute;left:14px;bottom:12px;color:var(--mut);font-size:.62rem;letter-spacing:.04em;pointer-events:none;z-index:3}
 .notice{position:absolute;left:50%;transform:translateX(-50%);bottom:40px;max-width:min(560px,90%);background:rgba(10,16,20,.92);border:1px solid var(--line);color:#fff;padding:10px 16px;border-radius:14px;font-size:.7rem;line-height:1.5;z-index:4}
 .tooltip{position:absolute;pointer-events:none;background:rgba(10,16,20,.92);border:1px solid var(--line);color:#fff;padding:6px 10px;border-radius:10px;font-size:.62rem;white-space:nowrap;z-index:5}

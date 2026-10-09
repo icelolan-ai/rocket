@@ -79,12 +79,16 @@ ul,ol{list-style:none}
   background:radial-gradient(ellipse at 50% 50%,rgba(150,205,225,.2) 0%,rgba(80,150,175,.08) 45%,transparent 70%)}
 #gl3d{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:pan-y;outline:0;z-index:1;
   opacity:var(--enter,1);transform:translateY(calc((1 - var(--enter,1)) * 16vh)) scale(calc(.94 + var(--enter,1)*.06))}
-.chip{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);display:flex;gap:10px;align-items:center;background:rgba(10,16,20,.8);backdrop-filter:blur(10px);border:1px solid var(--line);padding:9px 18px;border-radius:24px;font-size:.66rem;white-space:nowrap;z-index:5}
+.chip{position:absolute;left:50%;bottom:30px;transform:translateX(-50%);display:flex;gap:10px;align-items:center;background:rgba(10,16,20,.8);backdrop-filter:blur(10px);border:1px solid var(--line);padding:9px 18px;border-radius:24px;font-size:.66rem;white-space:nowrap;z-index:5}
 .chip code{opacity:.55;font-size:.58rem}
 .loading{position:absolute;inset:0;display:grid;place-content:center;justify-items:center;gap:12px;font-size:.68rem;color:var(--mut);letter-spacing:.1em;transition:opacity .5s;z-index:4}
 .loading.done{opacity:0;pointer-events:none}
 .loading i{width:28px;height:28px;border-radius:50%;border:2px solid #fff;border-right-color:transparent;animation:spin .9s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
+.zoom{position:absolute;z-index:6;right:12px;bottom:34px;display:grid;gap:6px}
+.zoom button{width:40px;height:40px;border-radius:12px;background:rgba(10,16,20,.8);backdrop-filter:blur(8px);border:1px solid var(--line);display:grid;place-items:center;font-size:1.2rem;line-height:1;transition:.2s}
+.zoom button:hover{background:var(--accent);border-color:var(--accent);color:#000}
+.zoom-hint{position:absolute;z-index:5;left:0;right:0;bottom:6px;text-align:center;font-size:.58rem;letter-spacing:.06em;color:#6f8088;pointer-events:none}
 .specs{position:absolute;z-index:6;left:clamp(16px,3vw,44px);top:6px;display:flex;gap:30px;opacity:var(--enter,1)}
 .specs>div{position:relative;padding-left:24px}
 .specs>div::before{content:"";position:absolute;left:0;top:3px;width:12px;height:12px;border-radius:50%;border:3px solid var(--accent)}
