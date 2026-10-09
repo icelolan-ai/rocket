@@ -40,7 +40,7 @@ const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 1000);
 const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
 controls.dampingFactor = 0.12;
-pointerModes(controls, canvas); // mouse: zoom to cursor + pan; touch: pure pinch zoom, no drifting
+pointerModes(controls, canvas, document.getElementById('z-hand')); // mouse: zoom to cursor + pan; touch: pure pinch zoom, no drifting
 let limit = null;
 controls.zoomSpeed = 1.2;
 controls.screenSpacePanning = true;
