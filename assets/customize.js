@@ -5,7 +5,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { Manifest, loadModel, unloadGLB } from '../rocket3d/model.js';
-import { VEHICLES, SWATCHES, FINISHES, loadSaved, saveState, makeShadow, placeShadow, zoomStep, focusBox, pointerModes, keepTargetInside } from '../rocket3d/common.js';
+import { VEHICLES, SWATCHES, FINISHES, loadSaved, saveState, makeShadow, placeShadow, zoomStep, focusBox, pointerModes, keepTargetInside, popRocketOnSelect, stopRocketEntrance } from '../rocket3d/common.js';
 import { t, partName, partNameAlt, zoneLabel, onLang } from '../rocket3d/i18n.js';
 
 const $ = id => document.getElementById(id);
@@ -44,7 +44,7 @@ function setup() {
   window.__cu = { controls, camera };
   controls.autoRotate = !reduceMotion;
   controls.autoRotateSpeed = 0.8;
-  controls.addEventListener('start', () => { controls.autoRotate = false; });
+  controls.addEventListener('start', () => { controls.autoRotate = false; stopRocketEntrance(S.model, invalidate); });
   controls.addEventListener('end', () => { S.idleAt = performance.now(); });
   controls.addEventListener('change', () => { keepTargetInside(controls, camera, S.limit); invalidate(); });
   canvas.style.touchAction = 'pan-y'; // vertical one-finger swipes scroll the page; pinch / drag go to the 3D view
@@ -102,8 +102,8 @@ async function loadVehicle(key) {
   try {
     const model = await loadModel(`rocket3d/models/${v.file}.glb`, S.manifest, key, f => window.__loader?.progress(0.12 + f * 0.72));
     if (token !== S.token) { model.dispose(); return; }
-    if (S.model) { const prev = S.veh; S.model.dispose(); unloadGLB(`rocket3d/models/${prev.file}.glb`); }
-    S.veh = v; S.model = model; S.sel = null;
+    if (S.model) { const prev = S.veh; stopRocketEntrance(S.model, invalidate); S.model.dispose(); unloadGLB(`rocket3d/models/${prev.file}.glb`); }
+    S.veh = v; S.model = model; S.sel = null; S.anim = null;
     scene.add(model.root);
     const saved = loadSaved(key);
     if (saved?.paint) model.importPaint(saved.paint);
@@ -116,6 +116,7 @@ async function loadVehicle(key) {
     buildVehicleUI();
     updateSelectionUI();
     $('loading3d').classList.add('done');
+    popRocketOnSelect(model, invalidate, S.base);
     window.__loader?.progress(0.97);
     requestAnimationFrame(() => requestAnimationFrame(() => window.__loader?.finish())); // after the first rendered frame
   } catch (e) {
@@ -407,7 +408,7 @@ VEHICLES.forEach((v, i) => {
   b.dataset.key = v.key; b.setAttribute('role', 'radio'); b.setAttribute('aria-checked', 'false');
   b.innerHTML = `<span>00${i + 1}</span><b></b>`;
   b.lastChild.textContent = v.label; b.lastChild.style.fontWeight = 'inherit';
-  b.onclick = () => { if (S.veh?.key !== v.key) loadVehicle(v.key); };
+  b.onclick = () => { if (S.veh?.key !== v.key) loadVehicle(v.key); else popRocketOnSelect(S.model, invalidate, S.base); };
   li.append(b); $('veh').append(li);
 });
 /* ---------------- language ---------------- */
