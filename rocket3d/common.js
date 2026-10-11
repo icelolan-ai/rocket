@@ -57,6 +57,56 @@ export function placeShadow(mesh, box) {
   mesh.visible = true;
 }
 
+// A short, model-space entrance when choosing a rocket or gallery module.
+// Move only the outer root: individual parts, explode offsets and saved paint stay untouched.
+const rocketEntrances = new WeakMap();
+
+export function stopRocketEntrance(model, tick = () => {}) {
+  if (!model) return;
+  const active = rocketEntrances.get(model);
+  if (!active) return;
+  cancelAnimationFrame(active.raf);
+  model.root.position.y = active.originY;
+  model.root.updateMatrixWorld(true);
+  rocketEntrances.delete(model);
+  tick();
+}
+
+export function popRocketOnSelect(model, tick = () => {}, bounds = null) {
+  if (!model) return;
+  stopRocketEntrance(model, tick);
+  // Respect the user's system accessibility preference, including on mobile.
+  if (!model.root.visible || (typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches)) return;
+  const box = bounds ?? model.box(model.meshes);
+  if (box.isEmpty()) return;
+  const height = box.getSize(new THREE.Vector3()).y;
+  const lift = Math.min(24, Math.max(0.45, height * 0.2));
+  const root = model.root, originY = root.position.y;
+  const duration = 940, started = performance.now();
+  const active = { raf: 0, originY };
+  rocketEntrances.set(model, active);
+  root.position.y = originY - lift;
+  root.updateMatrixWorld(true);
+  tick();
+
+  function step(now) {
+    if (rocketEntrances.get(model) !== active) return;
+    const progress = Math.min(1, Math.max(0, (now - started) / duration));
+    // Spring-like overshoot and a smaller counter-bounce, settling exactly at originY.
+    const arrival = 1 - Math.pow(1 - progress, 3.7) * Math.cos(progress * Math.PI * 2.7);
+    root.position.y = originY - lift * (1 - arrival);
+    if (progress === 1) {
+      root.position.y = originY;
+      rocketEntrances.delete(model);
+    } else {
+      active.raf = requestAnimationFrame(step);
+    }
+    root.updateMatrixWorld(true);
+    tick();
+  }
+  active.raf = requestAnimationFrame(step);
+}
+
 /* ---------- camera helpers shared by the home page and the viewer ---------- */
 const clampN = (v, a, b) => Math.min(Math.max(v, a), b);
 
