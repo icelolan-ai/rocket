@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { Manifest, loadModel, unloadGLB } from './model.js';
-import { VEHICLES, SWATCHES, loadSaved, saveState, makeShadow, placeShadow, zoomStep, focusBox, pointerModes, keepTargetInside } from './common.js';
+import { VEHICLES, SWATCHES, loadSaved, saveState, makeShadow, placeShadow, zoomStep, focusBox, pointerModes, keepTargetInside, popRocketOnSelect, stopRocketEntrance } from './common.js';
 import { t, partName, partNameAlt, zoneLabel, onLang, initLangButtons, getLang } from './i18n.js';
 import { slotInfo, applySlot, placeTarget, placeModule } from './slots.js';
 
@@ -45,6 +45,7 @@ let limit = null;
 controls.zoomSpeed = 1.2;
 controls.screenSpacePanning = true;
 controls.addEventListener('change', () => { keepTargetInside(controls, camera, limit); invalidate(); });
+controls.addEventListener('start', () => stopRocketEntrance(cur(), invalidate));
 // on phones the stage is tall: let vertical swipes scroll the page instead of trapping them
 const touchMode = () => { canvas.style.touchAction = matchMedia('(max-width: 760px)').matches ? 'pan-y' : 'none'; };
 touchMode(); addEventListener('resize', touchMode);
@@ -95,7 +96,7 @@ $('z-fit').onclick = () => { const m = cur(); if (m) focusBox(camera, controls, 
 $('z-focus').onclick = () => { const b = selBox(); b ? focusBox(camera, controls, b, invalidate) : $('z-fit').onclick(); };
 function resetView() {
   const m = cur();
-  if (m) { frame(m.box(m.meshes)); }
+  if (m) { stopRocketEntrance(m, invalidate); frame(m.box(m.meshes)); }
 }
 function updateShadow() {
   const m = cur();
@@ -136,8 +137,8 @@ async function loadVehicle(key) {
   try {
     const model = await loadModel(`models/${v.file}.glb`, S.manifest, key);
     if (token !== S.vehToken) { model.dispose(); return; }
-    if (S.main) { const prev = S.veh; S.main.dispose(); unloadGLB(`models/${prev.file}.glb`); }
-    S.veh = v; S.main = model;
+    if (S.main) { const prev = S.veh; stopRocketEntrance(S.main, invalidate); S.main.dispose(); unloadGLB(`models/${prev.file}.glb`); }
+    S.veh = v; S.main = model; S.anim = null;
     scene.add(model.root);
     model.root.visible = S.mode === 'viewer';
     const saved = restore(key);
@@ -148,7 +149,7 @@ async function loadVehicle(key) {
       try { await applySlot(S.manifest, model, slot, id); } catch (e) { console.warn('slot restore', slot, e.message); }
     }
     buildVehicleUI();
-    if (S.mode === 'viewer') { applyExplode(0); frame(model.box(model.meshes)); }
+    if (S.mode === 'viewer') { applyExplode(0); const bounds = model.box(model.meshes); frame(bounds); popRocketOnSelect(model, invalidate, bounds); }
     $('explode').value = 0; $('explode-out').textContent = '0.00';
   } catch (e) {
     console.error(e);
@@ -495,15 +496,16 @@ async function loadGallery(file) {
   try {
     const model = await loadModel(`models/${file}.glb`, S.manifest, 'gal:' + file);
     if (token !== S.galToken) { model.dispose(); return; }
-    if (S.gal) { S.gal.dispose(); }
+    if (S.gal) { stopRocketEntrance(S.gal, invalidate); S.gal.dispose(); }
     S.gal = model; S.galKey = file;
     scene.add(model.root);
+    model.root.visible = S.mode === 'gallery';
     document.querySelectorAll('#gallery-list button').forEach(b => b.classList.toggle('on', b.dataset.file === file));
     clearSelection();
     buildScope(); buildPartsList();
     $('explode').value = 0; $('explode-out').textContent = '0.00';
     applyExplode(0);
-    frame(model.box(model.meshes));
+    if (S.mode === 'gallery') { const bounds = model.box(model.meshes); frame(bounds); popRocketOnSelect(model, invalidate, bounds); }
     updatePlaceUI();
   } catch (e) { notice(t('m.loadMErr', { err: e.message }), 0); }
   finally { if (token === S.galToken) loading(false); }
@@ -554,6 +556,8 @@ async function reloadVehicle() { unloadGLB(`models/${S.veh.file}.glb`); const k 
 async function setMode(mode) {
   if (S.mode === mode) return;
   S.cams[S.mode] = { p: camera.position.clone(), t: controls.target.clone() };
+  stopRocketEntrance(S.main, invalidate);
+  stopRocketEntrance(S.gal, invalidate);
   S.mode = mode;
   const g = mode === 'gallery';
   $('tab-viewer').classList.toggle('on', !g); $('tab-viewer').setAttribute('aria-selected', !g);
@@ -569,6 +573,7 @@ async function setMode(mode) {
   if (m) { applyExplode(m.t); }
   const c = S.cams[mode];
   if (c) { camera.position.copy(c.p); controls.target.copy(c.t); controls.update(); } else resetView();
+  if (m) popRocketOnSelect(m, invalidate, m.box(m.meshes));
   updatePlaceUI(); invalidate();
 }
 $('tab-viewer').onclick = () => setMode('viewer');
@@ -588,7 +593,10 @@ onLang(() => {
 });
 
 /* ---------------- wiring ---------------- */
-async function switchVehicle(key) { if (S.veh?.key !== key) await loadVehicle(key); }
+async function switchVehicle(key) {
+  if (S.veh?.key !== key) await loadVehicle(key);
+  else if (S.mode === 'viewer') popRocketOnSelect(S.main, invalidate, S.main.box(S.main.meshes));
+}
 for (const v of VEHICLES) {
   const b = document.createElement('button');
   b.dataset.key = v.key; b.setAttribute('role', 'radio'); b.setAttribute('aria-checked', 'false');
