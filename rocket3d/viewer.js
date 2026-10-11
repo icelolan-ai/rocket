@@ -208,6 +208,7 @@ function applyExplode(t) {
 }
 function animateExplode(to) {
   const m = cur(); if (!m) return;
+  stopRocketEntrance(m, invalidate);
   const from = m.t, t0 = performance.now(), dur = 1800 * Math.abs(to - from) + 200;
   const btn = $('explode-anim');
   btn.setAttribute('aria-pressed', to === 1);
@@ -605,7 +606,7 @@ for (const v of VEHICLES) {
   b.onclick = () => { switchVehicle(v.key); };
   $('vehicles').append(b);
 }
-$('explode').addEventListener('input', e => { S.anim = null; applyExplode(+e.target.value); $('explode-anim').textContent = +e.target.value >= 0.5 ? t('v.assemble') : t('v.explodeBtn'); });
+$('explode').addEventListener('input', e => { S.anim = null; stopRocketEntrance(cur(), invalidate); applyExplode(+e.target.value); $('explode-anim').textContent = +e.target.value >= 0.5 ? t('v.assemble') : t('v.explodeBtn'); });
 $('explode-anim').onclick = () => { const m = cur(); if (m) animateExplode(m.t < 0.5 ? 1 : 0); };
 $('explode-zero').onclick = () => animateExplode(0);
 $('stagger').onchange = e => { const m = cur(); if (m) { m.stagger = e.target.checked; applyExplode(m.t); } };
