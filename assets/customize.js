@@ -169,6 +169,7 @@ function applyExplode(tt) {
   invalidate();
 }
 function animateTo(to) {
+  stopRocketEntrance(S.model, invalidate);
   S.anim = { from: S.model.t, to, t0: performance.now(), dur: 1800 * Math.abs(to - S.model.t) + 200 };
   $('explode-btn').setAttribute('aria-pressed', to === 1);
   controls.autoRotate = false;
@@ -183,6 +184,7 @@ function stepAnim(now) {
 $('explode-btn').onclick = () => { if (S.model) animateTo(S.model.t < 0.5 ? 1 : 0); };
 $('explode').addEventListener('input', e => {
   S.anim = null; controls.autoRotate = false;
+  stopRocketEntrance(S.model, invalidate);
   applyExplode(+e.target.value);
   $('explode-btn').setAttribute('aria-pressed', +e.target.value >= 0.5);
 });
